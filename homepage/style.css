@@ -1,0 +1,24 @@
+body {
+  background-color: #EEEEEE;
+  <!-- background-color: #EFEBE8 -->
+}
+
+.gallery {
+  display: flex;
+  margin: auto;
+  width: 800px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+figure {
+  width: 170px;
+  margin: 10px 0;
+  background-color: white;
+  border: 1px solid;
+}
+
+figcaption {
+  text-align: center;
+  padding: 10px;
+}
