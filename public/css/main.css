@@ -1,83 +1,83 @@
 * {
-	font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
-	background-color: ##EBEBEB;
+  background-color: ##EBEBEB;
 }
 
 h1 {
-	text-align: center;
-	/* color: white; */
+  text-align: center;
+  /* color: white; */
 }
 
 ul.nav {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-	overflow: hidden;
-	/* background-color: #0A0F0D; */
-	background-color: #283149;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  /* background-color: #0A0F0D; */
+  background-color: #283149;
 }
 
 li.nav {
-	float: left;
+  float: left;
 }
 
 li.nav a {
-	display: block;
-	color: white;
-	text-align: center;
-	padding: 14px 16px;
-	text-decoration: none;
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
 }
 
 li.nav a:hover {
-	/* background-color: #212922; */
-	background-color: #404b69;
+  /* background-color: #212922; */
+  background-color: #404b69;
 }
 
 a:active {
-	color: #08891;
+  color: #08891;
 }
 
 .gallery {
-	display: flex;
-	margin: auto;
-	width: 1000px;
-	justify-content: space-between;
-	flex-wrap: wrap;
+  display: flex;
+  margin: auto;
+  width: 1000px;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 figure {
-	width: 170px;
-	margin: 10px 0;
-	background-color: white;
-	border: 1px solid;
+  width: 170px;
+  margin: 10px 0;
+  background-color: white;
+  border: 1px solid;
 }
 
 figcaption {
-	text-align: center;
-	padding: 10px;
+  text-align: center;
+  padding: 10px;
 }
 
 /*
 .head {
-	background-color: #0f3057;
-	padding: 10px;
+  background-color: #0f3057;
+  padding: 10px;
 }
 */
 
 input[type=text], input[type=password] {
-	width: 30%;
-	padding: 12px 20px;
-	margin: 8px 0;
+  width: 30%;
+  padding: 12px 20px;
+  margin: 8px 0;
 
 }
 
 #gamebox {
-	width: 85%;
-	padding: 10px;
-	border: 5px black;
-	margin: 0;
+  width: 85%;
+  padding: 10px;
+  border: 5px black;
+  margin: 0;
 }
