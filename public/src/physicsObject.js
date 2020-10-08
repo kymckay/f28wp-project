@@ -1,5 +1,5 @@
-import GameObject from './gameObject';
-import Vector from './vector';
+import GameObject from './gameObject.js';
+import Vector from './vector.js';
 
 export default class PhysicsObject extends GameObject {
   constructor(parent, position, velocity, radius = 50, mass = 1) {

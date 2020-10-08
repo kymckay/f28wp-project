@@ -1,5 +1,5 @@
-import Vector from './vector';
-import Particle from './particle';
+import Vector from './vector.js';
+import Particle from './particle.js';
 
 export default class Controller {
   constructor(environment, objects, controls, inputs) {

@@ -1,5 +1,5 @@
-import PhysicsObject from './physicsObject';
-import Vector from './vector';
+import PhysicsObject from './physicsObject.js';
+import Vector from './vector.js';
 
 export default class Particle extends PhysicsObject {
   constructor(parent, creator, velocity, lifetime) {

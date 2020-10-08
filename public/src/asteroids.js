@@ -1,9 +1,9 @@
-import ActionMap from './actionMap';
-import Controller from './controller';
-import PhysicsObject from './physicsObject';
-import Particle from './particle';
-import Vector from './vector';
-import circleCircle from './collision';
+import ActionMap from './actionMap.js';
+import Controller from './controller.js';
+import PhysicsObject from './physicsObject.js';
+import Particle from './particle.js';
+import Vector from './vector.js';
+import circleCircle from './collision.js';
 
 const gameObjects = {};
 const playerID = 0;

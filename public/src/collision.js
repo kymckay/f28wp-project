@@ -1,4 +1,4 @@
-import Vector from './vector';
+import Vector from './vector.js';
 
 export default function circleCircle(a, b) {
   const diff = Vector.copy(b.pos);
