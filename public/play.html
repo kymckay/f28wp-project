@@ -1,15 +1,11 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <link rel="stylesheet" type="text/css" href="css/menu.css">
-        <link rel="stylesheet" type="text/css" href="css/gameObjects.css">
-        <script src="src/vector.js"></script>
-        <script src="src/gameObject.js"></script>
-        <script src="src/collision.js"></script>
-        <script src="src/controller.js"></script>
-        <script src="src/asteroids.js"></script>
-    </head>
-    <body onload="setup()" onmousedown="mouseEvent(event)" onkeydown="keydownEvent(event)" onkeyup="keyupEvent(event)">
-        <div id="gameWindow" style="width: 720px; height: 720px; background-color: slategrey; border: 4px solid darkgrey; border-radius: 2.5%;margin: 0; z-index: -2;"></div>
-    </body>
+	<head>
+		<link rel="stylesheet" type="text/css" href="css/menu.css">
+		<link rel="stylesheet" type="text/css" href="css/gameObjects.css">
+		<script type="module" src="src/asteroids.js"></script>
+	</head>
+	<body>
+		<div id="gameWindow" style="width: 720px; height: 720px; background-color: slategrey; border: 4px solid darkgrey; border-radius: 2.5%;margin: 0; z-index: -2;"></div>
+	</body>
 </html>
