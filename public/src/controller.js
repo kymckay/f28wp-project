@@ -1,84 +1,54 @@
-class controller {
-    target;
-    bindings;
-    moveForce;
-    turnSpeed;
-    fireDelay;
-    lastFire;
+import Vector from './vector';
+import Particle from './particle';
 
-    constructor(target, inputs) {
-        this.target = target;
-        this.bindings = inputs;
-        this.moveForce = 320;
-        this.turnSpeed = 0.05;
-        this.fireDelay = 380;
-        this.lastFire = 0;
+export default class Controller {
+  constructor(environment, objects, controls, inputs) {
+    this.environment = environment;
+    this.objects = objects;
+    this.target = objects[controls];
+    this.bindings = inputs;
+    this.moveForce = 320;
+    this.turnSpeed = 0.05;
+    this.fireDelay = 380;
+    this.lastFire = 0;
+  }
+
+  handleInput(key) {
+    const action = this.bindings.map(key);
+    if (action) action();
+  }
+
+  shoot() {
+    const now = Date.now();
+    if ((now - this.lastFire) >= this.fireDelay) {
+      const { angle } = this.target;
+      const velocity = Vector.fromAngle(angle, 5.2);
+      velocity.add(this.target.velocity());
+      const obj = new Particle(this.environment, this.target, velocity, 1.4);
+      obj.div.classList.add('laser');
+      obj.addTag('projectile');
+      obj.angle = angle;
+      this.objects[obj.id] = obj;
+
+      this.lastFire = now;
     }
+  }
 
-    handleInput(key) {
-        let action = this.bindings.map(key);
-        if (action)
-            action(this);
-    }
+  forward() {
+    const force = Vector.fromAngle(this.target.angle, this.moveForce);
+    this.target.applyForce(force);
+  }
 
-    shoot(c) {
-        let now = Date.now();
-        if ((now - c.lastFire) >= c.fireDelay) {
-            let angle = c.target.angle;
-            let velocity = vector.fromAngle(angle, 5.2);
-            velocity.add(c.target.velocity());
-            let obj = new particle(gameWindow, c.target, velocity, 1.4);
-            obj.div.classList.add("laser");
-            obj.addTag("projectile");
-            obj.angle = angle;
-            gameObjects[obj.id] = obj;
+  backward() {
+    const force = Vector.fromAngle(this.target.angle + Math.PI, this.moveForce);
+    this.target.applyForce(force);
+  }
 
-            c.lastFire = now;
-        }
-    }
+  left() {
+    this.target.angle -= this.turnSpeed;
+  }
 
-    forward(c) {
-        let force = vector.fromAngle(c.target.angle, c.moveForce);
-        c.target.applyForce(force);
-    }
-
-    backward(c) {
-        let force = vector.fromAngle(c.target.angle + Math.PI, c.moveForce);
-        c.target.applyForce(force);
-    }
-
-    left(c) {
-        c.target.angle -= c.turnSpeed;
-    }
-
-    right(c) {
-        c.target.angle += c.turnSpeed;
-    }
-
-    test() {
-        console.log("Test was called from: ");
-        console.log(this);
-    }
-}
-
-class actionMap {
-    mappings;
-
-    constructor() {
-        this.mappings = {};
-    }
-
-    map(key) {
-        return this.mappings[key];
-    }
-
-    add(key, action) {
-        if (key in this.mappings)
-            throw "this key is already bound";
-        this.mappings[key] = action;
-    }
-
-    remove() {
-        delete this.mappings[key];
-    }
+  right() {
+    this.target.angle += this.turnSpeed;
+  }
 }
