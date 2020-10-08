@@ -16,8 +16,11 @@ Our JavaScript is written in ES6 syntax following the [Airbnb style guide](https
 
 ### Testing
 
+To manually test changes to the site and game you'll need to run it on a local server. This is all set up if you followed the [setup steps](#Setup) above. You can use `npm start` to start the server.
+
 Currently static analysis is set up via [ESLint](https://eslint.org) and in future unit testing is likely to be added.
 
 Commands:
+- `npm start` to launch a local server hosting the site and game
 - `npm run lint` for just static analysis
-- `npm test` to run all testing (currently also just static analysis)
+- `npm test` to run all testing (currently also just static analysis, will add unit tests here in future)
