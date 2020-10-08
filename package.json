@@ -5,7 +5,7 @@
 	"main": "server/server.js",
 	"scripts": {
 		"lint": "eslint server && eslint public/src",
-		"start": "http-server -o",
+		"start": "http-server -c-1 -o",
 		"test": "npm run lint"
 	},
 	"repository": {
