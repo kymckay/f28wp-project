@@ -1,30 +1,30 @@
 {
-  "name": "team-steak-game",
-  "version": "0.0.1",
-  "description": "Educational group project for web programming at Heriot-Watt",
-  "main": "server/server.js",
-  "scripts": {
-    "lint": "eslint server",
-    "test": "npm run lint"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/SilentSpike/F28WP-Project.git"
-  },
-  "keywords": [
-    "f28wp",
-    "education"
-  ],
-  "author": "Team STEAK",
-  "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/SilentSpike/F28WP-Project/issues"
-  },
-  "homepage": "https://github.com/SilentSpike/F28WP-Project#readme",
-  "dependencies": {},
-  "devDependencies": {
-    "eslint": "^7.10.0",
-    "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-import": "^2.22.1"
-  }
+	"name": "team-steak-game",
+	"version": "0.0.1",
+	"description": "Educational group project for web programming at Heriot-Watt",
+	"main": "server/server.js",
+	"scripts": {
+		"lint": "eslint server && eslint public/src",
+		"test": "npm run lint"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/SilentSpike/F28WP-Project.git"
+	},
+	"keywords": [
+		"f28wp",
+		"education"
+	],
+	"author": "Team STEAK",
+	"license": "GPL-3.0",
+	"bugs": {
+		"url": "https://github.com/SilentSpike/F28WP-Project/issues"
+	},
+	"homepage": "https://github.com/SilentSpike/F28WP-Project#readme",
+	"dependencies": {},
+	"devDependencies": {
+		"eslint": "^7.10.0",
+		"eslint-config-airbnb-base": "^14.2.0",
+		"eslint-plugin-import": "^2.22.1"
+	}
 }
