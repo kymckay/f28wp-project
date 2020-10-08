@@ -4,6 +4,7 @@ export default class GameObject {
     this.id = GameObject.newId();
     this.div.id = this.id;
     this.div.classList.add('gameObject');
+    this.tags = [];
 
     this.envWidth = parent.style.width.slice(0, -2);
     this.envHeight = parent.style.height.slice(0, -2);
