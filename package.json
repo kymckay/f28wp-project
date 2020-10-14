@@ -4,7 +4,8 @@
   "description": "Educational group project for web programming at Heriot-Watt",
   "main": "server/server.js",
   "scripts": {
-    "lint": "eslint server",
+    "lint": "eslint server && eslint public/src",
+    "start": "http-server -c-1 -o",
     "test": "npm run lint"
   },
   "repository": {
@@ -25,6 +26,7 @@
   "devDependencies": {
     "eslint": "^7.10.0",
     "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-import": "^2.22.1"
+    "eslint-plugin-import": "^2.22.1",
+    "http-server": "0.12.3"
   }
 }
