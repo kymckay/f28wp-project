@@ -12,6 +12,7 @@
     "sourceType": "module"
   },
   "rules": {
-    "import/extensions": [2, "always"]
+    "import/extensions": [2, "always"],
+    "linebreak-style": "windows"
   }
 }
