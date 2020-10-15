@@ -5,7 +5,7 @@ import commonjs from '@rollup/plugin-commonjs';
 export default {
     input: './public/src/game.js',
     output: {
-        file: './public/dist/game.min.js',
+        file: './public/dist/game.js',
         format: 'iife',
         name: 'game'
     },
