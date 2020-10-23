@@ -20,7 +20,7 @@ We try to follow Chris Beams' [commit message guide](https://chris.beams.io/post
 
 To manually test changes to the site and game you'll need to run it on a local server. This is all set up if you followed the [setup steps](#development-setup) above. You can use `npm start` to start the server.
 
-Currently static analysis is set up via [ESLint](https://eslint.org) and in future unit testing is likely to be added.
+Currently static analysis is set up via [ESLint](https://eslint.org). Note that if you are developing on Windows, Git will convert line endings to CRLF by default on checkout (which ESLint won't like if you run it locally), you can set `git config core.autocrlf input` to preserve line endings on checkout and convert any CRLF to LF on commit (which our project expects) - use the `--global` flag if you want Git to do this for all repositories.
 
 Commands:
 - `npm start` to launch a local server hosting the site and game
