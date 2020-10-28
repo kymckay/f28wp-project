@@ -5,7 +5,8 @@
   "main": "server/server.js",
   "scripts": {
     "lint": "eslint server && eslint public/src",
-    "start": "npm run build && node server/server.js",
+    "start": "npm run build && npm run start:server",
+    "start:server": "node server/server.js",
     "test": "npm run lint",
     "build": "rollup -c"
   },
