@@ -6,13 +6,18 @@ const port = 8080;
 // Files stored statically in public folder
 app.use(express.static(path.join(__dirname,'../public/')))
 
-app.get('/play', (req, res) => {
-    // TODO Return game page if logged in otherwise ask to play as guest
-    // if (loggedIn || guest_cookie_set) {
-    //     res.send(game_page);
-    // }
-    // res.send(guest_question_page);
+app.post('/play', (req, res) => {
+    // TODO Check if guest name set, or logged in
 
+    res.sendFile(path.join(__dirname,'../public/play.html'))
+})
+
+app.post('/login', (req, res) => {
+    // TODO Login existing user if exists, refuse otherwise
+})
+
+app.post('/register', (req, res) => {
+    // TODO Register new user, check if already exists, handle client side after register
 })
 
 app.listen(port, () => {

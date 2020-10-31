@@ -1,5 +1,129 @@
-html, body {
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    /* page body fills screen */
+    height: 100vh;
+    margin: 0;
+
+    font-family: monospace, sans-serif;
+
+    /* TODO style background to look like space
+        (same as game background)
+    */
+    background-color: #58949C;
+}
+
+
+#menu {
+    /* menu is centered */
+    margin: auto;
+
+    /* menu items are listed as a column */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#menu h1 {
+    padding: 5px;
+
+    border: solid 2px black;
+    border-radius: 20px;
+
+    background: #F2D7B4;
+    background: linear-gradient(90deg, #ECE6D2 0%, #F2D7B4 50%, #DF9881 100%);
+
+    font-size: 18pt;
+}
+
+#menu form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    margin: 10px;
+}
+
+/* form inputs form a cohesive element on the page */
+#menu form input {
+    padding: 5px;
+    margin: 0;
+    border-color: black;
+    border-style: none solid;
+}
+
+#menu form input:first-child {
+    border-radius: 10px 10px 0 0;
+    border-style: solid;
+}
+
+#menu form input:last-child {
+    border-radius: 0 0 10px 10px;
+    border-style: solid;
+}
+
+#userForms {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#footer {
+    width: 100%;
+
+    border-top: solid 3px #FFF;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    /* footer is at bottom of page */
+    align-self: flex-end;
+}
+
+#footer > h1 {
+    font-size: 20pt;
+    text-align: center;
+    color: #FFF;
+
+    margin: 5px 0 0;
+}
+
+#tileRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.tile {
+    font-size: 45pt;
+    text-align: center;
+    color: #FFF;
+
+    /* team tiles are square */
+    width: 50pt;
+    height: 50pt;
+
+    padding: auto;
+    margin: 0 5px 5px;
+}
+
+.tooltip {
+    visibility: hidden;
+    background-color: black;
+    color: white;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+}
+
+.tile:hover + .tooltip {
+    visibility: visible;
 }
