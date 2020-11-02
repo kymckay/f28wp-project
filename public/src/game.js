@@ -62,7 +62,7 @@ function render() {
 }
 
 function setup() {
-  gameWindow = document.getElementById('gameWindow');
+  gameWindow = document.getElementById('playArea');
   width = gameWindow.style.width.slice(0, -2);
   height = gameWindow.style.height.slice(0, -2);
   const center = new Vector(width / 2, height / 2);
