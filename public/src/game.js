@@ -34,11 +34,17 @@ function loop() {
   });
 
 
-    Object.entries(gameObjects).forEach((obj, objID) => {
-        Object.entries(gameObjects).forEach((other, otherID) => {
-            if (objID == otherID) {
+    Object.keys(gameObjects).forEach(objID => {
+        const obj = gameObjects[objID];
+
+        Object.keys(gameObjects).forEach(otherID => {
+            // Can't collide with self
+            if (objID === otherID) {
                 return;
             }
+
+            const other = gameObjects[otherID];
+
             if (circleCircle(obj, other)) {
                 if (obj.hasTag("projectile") && other.hasTag("asteroid")) {
                     objsToDestroy.push(obj.id);
@@ -49,10 +55,12 @@ function loop() {
                     gameObjects[explosion.id] = explosion;
                 }
             }
-        }
+        });
+
         obj.bounds(true);
-    }
-    objsToDestroy.forEach((id) => {
+    });
+
+    objsToDestroy.forEach(id => {
         gameObjects[id].cleanUp();
         delete gameObjects[id];
     });
