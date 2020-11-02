@@ -1,6 +1,20 @@
-#playArea {
-    width: 100vw;
-    height: 100vh;
+#playArea,
+#background,
+#stars {
+  /* full screen */
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  /* No scrollbars */
+  overflow: hidden;
+}
+
+#background {
+  background: #000;
+  background: linear-gradient(0deg, #3C666B 0%, #000 50%, #000 100%);
 }
 
 .gameObject

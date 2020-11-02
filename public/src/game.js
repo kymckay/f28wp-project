@@ -71,7 +71,28 @@ function render() {
   requestAnimationFrame(render);
 }
 
+function makeStars() {
+  const starField = document.getElementById('stars');
+  const res = 500;
+
+  let stars = [];
+
+  for (let i = 200; i >= 0; i--) {
+    let scale = Math.floor(Math.random() * 4);
+    // Don't position on pattern border
+    let x = Math.floor(Math.random() * res);
+    let y = Math.floor(Math.random() * res);
+    stars.push(`radial-gradient(${scale}px ${scale}px at ${x}px ${y}px, #fff, rgba(0,0,0,0))`);
+  }
+
+  starField.style.setProperty('background-repeat', 'repeat');
+  starField.style.setProperty('background-size', `${res}px ${res}px`);
+  starField.style.setProperty('background-image', stars.join(','));
+}
+
 function setup() {
+  makeStars();
+
   gameWindow = document.getElementById('playArea');
   width = gameWindow.style.width.slice(0, -2);
   height = gameWindow.style.height.slice(0, -2);
