@@ -5,6 +5,8 @@ import Particle from './particle';
 import Vector from './vector';
 import circleCircle from './collision';
 
+const socketio = require('socket.io');
+
 const gameObjects = {};
 const playerID = 0;
 const bindings = new ActionMap();
@@ -112,3 +114,8 @@ function keyupEvent(e) {
 window.addEventListener('load', setup);
 window.addEventListener('keyDown', keydownEvent);
 window.addEventListener('keyUp', keyupEvent);
+
+const io = socketio(7400);
+const socket = io();
+
+socket.on('server tick', (x) => { console.log(x); });
