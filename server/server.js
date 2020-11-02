@@ -1,11 +1,12 @@
 // const { isObject } = require('core-js/fn/object');
 const express = require('express');
 const path = require('path');
-const socketio = require('socket.io');
 
 const app = express();
-const port = 5000;
-const io = socketio(7400);
+const io = require('socket.io').listen(app, { log: false });
+
+const port = 8080;
+app.listen(port);
 
 // Files stored statically in public folder
 app.use(express.static(path.join(__dirname, '../public/')));

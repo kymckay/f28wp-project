@@ -5,8 +5,6 @@ import Particle from './particle';
 import Vector from './vector';
 import circleCircle from './collision';
 
-const socketio = require('socket.io');
-
 const gameObjects = {};
 const playerID = 0;
 const bindings = new ActionMap();
@@ -35,37 +33,36 @@ function loop() {
     if (obj.destroyNextFrame) objsToDestroy.push(obj.id);
   });
 
+  Object.keys(gameObjects).forEach((objID) => {
+    const obj = gameObjects[objID];
 
-    Object.keys(gameObjects).forEach(objID => {
-        const obj = gameObjects[objID];
+    Object.keys(gameObjects).forEach((otherID) => {
+      // Can't collide with self
+      if (objID === otherID) {
+        return;
+      }
 
-        Object.keys(gameObjects).forEach(otherID => {
-            // Can't collide with self
-            if (objID === otherID) {
-                return;
-            }
+      const other = gameObjects[otherID];
 
-            const other = gameObjects[otherID];
-
-            if (circleCircle(obj, other)) {
-                if (obj.hasTag("projectile") && other.hasTag("asteroid")) {
-                    objsToDestroy.push(obj.id);
-                    objsToDestroy.push(other.id);
-                    let explosion = new particle(gameWindow, obj, vector.zero, 1);
-                    explosion.div.classList.add("explosion");
-                    explosion.addTag("effect");
-                    gameObjects[explosion.id] = explosion;
-                }
-            }
-        });
-
-        obj.bounds(true);
+      if (circleCircle(obj, other)) {
+        if (obj.hasTag('projectile') && other.hasTag('asteroid')) {
+          objsToDestroy.push(obj.id);
+          objsToDestroy.push(other.id);
+          const explosion = new Particle(gameWindow, obj, Vector.zero, 1);
+          explosion.div.classList.add('explosion');
+          explosion.addTag('effect');
+          gameObjects[explosion.id] = explosion;
+        }
+      }
     });
 
-    objsToDestroy.forEach(id => {
-        gameObjects[id].cleanUp();
-        delete gameObjects[id];
-    });
+    obj.bounds(true);
+  });
+
+  objsToDestroy.forEach((id) => {
+    gameObjects[id].cleanUp();
+    delete gameObjects[id];
+  });
 }
 
 function render() {
@@ -126,7 +123,6 @@ window.addEventListener('load', setup);
 window.addEventListener('keyDown', keydownEvent);
 window.addEventListener('keyUp', keyupEvent);
 
-const io = socketio(7400);
-const socket = io();
+const socket = io.connect('http://localhost');
 
 socket.on('server tick', (x) => { console.log(x); });
