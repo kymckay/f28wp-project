@@ -96,8 +96,10 @@ function setup() {
   makeStars();
 
   gameWindow = document.getElementById('playArea');
-  width = gameWindow.style.width.slice(0, -2);
-  height = gameWindow.style.height.slice(0, -2);
+
+  width = window.innerWidth;
+  height = window.innerHeight;
+
   const center = new Vector(width / 2, height / 2);
   lastFrame = Date.now();
 
@@ -105,6 +107,7 @@ function setup() {
     new Vector(width / 2, height / 2),
     new Vector(),
     32);
+
   playerObj.div.classList.add('player');
   playerObj.addTag('ship');
   playerObj.collidable = true;

@@ -1,17 +1,26 @@
 export default class GameObject {
-  constructor(parent) {
+  constructor(parent, x=0, y=0) {
+    // all objects have coordinates
+    this._x = x;
+    this._y = y;
+
     this.div = document.createElement('div');
     this.id = GameObject.newId();
     this.div.id = this.id;
     this.div.classList.add('gameObject');
     this.tags = [];
 
-    this.envWidth = parent.style.width.slice(0, -2);
-    this.envHeight = parent.style.height.slice(0, -2);
+    this.envWidth = window.innerWidth;
+    this.envHeight = window.innerHeight;
 
-    // this.div.innerHTML = "&#x2192";
     parent.appendChild(this.div);
   }
+
+  // coordinate getter and setters
+  set x(x) { this._x = x; }
+  get x() { return this._x; }
+  set y(y) { this._y = y; }
+  get y() { return this._y; }
 
   cleanUp() {
     this.div.remove();
