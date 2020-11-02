@@ -37,6 +37,7 @@
     "rollup": "^2.30.0"
   },
   "dependencies": {
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "socket.io": "^2.3.0"
   }
 }
