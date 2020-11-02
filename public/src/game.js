@@ -1,3 +1,5 @@
+/* global io */
+
 import ActionMap from './actionMap';
 import Controller from './controller';
 import PhysicsObject from './physicsObject';
@@ -75,13 +77,13 @@ function makeStars() {
   const starField = document.getElementById('stars');
   const res = 500;
 
-  let stars = [];
+  const stars = [];
 
   for (let i = 200; i >= 0; i--) {
-    let scale = Math.floor(Math.random() * 4);
+    const scale = Math.floor(Math.random() * 4);
     // Don't position on pattern border
-    let x = Math.floor(Math.random() * res);
-    let y = Math.floor(Math.random() * res);
+    const x = Math.floor(Math.random() * res);
+    const y = Math.floor(Math.random() * res);
     stars.push(`radial-gradient(${scale}px ${scale}px at ${x}px ${y}px, #fff, rgba(0,0,0,0))`);
   }
 
@@ -144,6 +146,6 @@ window.addEventListener('load', setup);
 window.addEventListener('keyDown', keydownEvent);
 window.addEventListener('keyUp', keyupEvent);
 
-const socket = io.connect('http://localhost');
+const socket = io();
 
 socket.on('server tick', (x) => { console.log(x); });
