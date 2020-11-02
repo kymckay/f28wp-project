@@ -5,13 +5,14 @@
   "main": "server/server.js",
   "scripts": {
     "lint": "eslint server && eslint public/src",
-    "start": "npm run build && http-server -c-1 -o",
+    "start": "npm run build && npm run start:server",
+    "start:server": "node server/server.js",
     "test": "npm run lint",
     "build": "rollup -c"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SilentSpike/F28WP-Project.git"
+    "url": "git+https://github.com/kymckay/F28WP-Project.git"
   },
   "keywords": [
     "f28wp",
@@ -20,22 +21,22 @@
   "author": "Team STEAK",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/SilentSpike/F28WP-Project/issues"
+    "url": "https://github.com/kymckay/F28WP-Project/issues"
   },
-  "homepage": "https://github.com/SilentSpike/F28WP-Project#readme",
+  "homepage": "https://github.com/kymckay/F28WP-Project#readme",
   "devDependencies": {
     "@babel/core": "^7.12.0",
     "@babel/preset-env": "^7.12.0",
     "@rollup/plugin-babel": "^5.2.1",
     "@rollup/plugin-commonjs": "^15.1.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
+    "core-js": "^3.6.5",
     "eslint": "^7.10.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.1",
-    "http-server": "0.12.3",
     "rollup": "^2.30.0"
   },
   "dependencies": {
-    "core-js": "^3.6.5"
+    "express": "^4.16.4"
   }
 }
