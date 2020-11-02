@@ -1,12 +1,10 @@
-// const { isObject } = require('core-js/fn/object');
 const express = require('express');
+const app = express();
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
 const path = require('path');
 
-const app = express();
-const io = require('socket.io').listen(app, { log: false });
-
 const port = 8080;
-app.listen(port);
 
 // Files stored statically in public folder
 app.use(express.static(path.join(__dirname, '../public/')));
@@ -27,7 +25,7 @@ app.post('/register', (req, res) => {
   console.log(req, res);
 });
 
-app.listen(port, () => {
+http.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`);
 });
 
