@@ -1,3 +1,8 @@
+#playArea {
+    width: 100vw;
+    height: 100vh;
+}
+
 .gameObject
 {
   position: fixed;

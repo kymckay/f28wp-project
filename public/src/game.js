@@ -35,26 +35,37 @@ function loop() {
     if (obj.destroyNextFrame) objsToDestroy.push(obj.id);
   });
 
-  Object.entries(gameObjects).forEach((objID, obj) => {
-    Object.entries(gameObjects).forEach((otherID, other) => {
-      if (objID === otherID) return;
-      if (circleCircle(obj, other)) {
-        if (obj.hasTag('projectile') && other.hasTag('asteroid')) {
-          objsToDestroy.push(obj.id);
-          objsToDestroy.push(other.id);
-          const explosion = new Particle(gameWindow, obj, Vector.zero, 1);
-          explosion.div.classList.add('explosion');
-          explosion.addTag('effect');
-          gameObjects[explosion.id] = explosion;
-        }
-      }
+
+    Object.keys(gameObjects).forEach(objID => {
+        const obj = gameObjects[objID];
+
+        Object.keys(gameObjects).forEach(otherID => {
+            // Can't collide with self
+            if (objID === otherID) {
+                return;
+            }
+
+            const other = gameObjects[otherID];
+
+            if (circleCircle(obj, other)) {
+                if (obj.hasTag("projectile") && other.hasTag("asteroid")) {
+                    objsToDestroy.push(obj.id);
+                    objsToDestroy.push(other.id);
+                    let explosion = new particle(gameWindow, obj, vector.zero, 1);
+                    explosion.div.classList.add("explosion");
+                    explosion.addTag("effect");
+                    gameObjects[explosion.id] = explosion;
+                }
+            }
+        });
+
+        obj.bounds(true);
     });
-    obj.bounds(true);
-  });
-  objsToDestroy.forEach((id) => {
-    gameObjects[id].cleanUp();
-    delete gameObjects[id];
-  });
+
+    objsToDestroy.forEach(id => {
+        gameObjects[id].cleanUp();
+        delete gameObjects[id];
+    });
 }
 
 function render() {
@@ -64,7 +75,7 @@ function render() {
 }
 
 function setup() {
-  gameWindow = document.getElementById('gameWindow');
+  gameWindow = document.getElementById('playArea');
   width = gameWindow.style.width.slice(0, -2);
   height = gameWindow.style.height.slice(0, -2);
   const center = new Vector(width / 2, height / 2);
