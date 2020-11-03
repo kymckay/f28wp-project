@@ -5,9 +5,9 @@ Check out [CONTRIBUTING.md](CONTRIBUTING.md) for instructions on setting up for 
 
 ## Our Game
 
-Our initial game idea was an asteroids-inspired battle royale in which players pilot a ship with a cannon and try to destroy eachother and avoid asteroids.
+Our initial game idea was an asteroids-inspired battle royale in which players pilot a ship with a cannon and try to destroy each other and avoid asteroids.
 
-Currently we're working on the mechanics client-side as a singleplayer implementation while we set up the initial server side code with the aim to reach self-sustaining development (i.e. implementing features, fixing bugs, without any big setup hurdles). We also intent to set up unit testing for a test driven development workflow.
+Currently we're working towards getting a basic networked game with multiple player ships in the same single lobby and synchronising the position of all game entties across the lobby.
 
 Desired features:
 - Collision interactions between player ships, asteroids and projectiles.
