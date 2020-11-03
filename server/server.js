@@ -18,13 +18,12 @@ app.get('/', (req, res) => {
 // Block clients trying to access the unprocessed files
 // Comment this out if you want to test HTML changes rapidly
 app.use([
-    '/index.html',
-    '/play.html'
-  ],
-  (req, res) => {
+  '/index.html',
+  '/play.html',
+],
+(req, res) => {
     res.status(403).end();
-  }
-);
+});
 
 // Files stored statically in public folder
 app.use(express.static(path.join(__dirname, '../public/')));
