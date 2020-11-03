@@ -1,9 +1,5 @@
 export default class GameObject {
-  constructor(parent, x=0, y=0) {
-    // all objects have coordinates
-    this._x = x;
-    this._y = y;
-
+  constructor(parent) {
     this.div = document.createElement('div');
     this.id = GameObject.newId();
     this.div.id = this.id;
@@ -15,12 +11,6 @@ export default class GameObject {
 
     parent.appendChild(this.div);
   }
-
-  // coordinate getter and setters
-  set x(x) { this._x = x; }
-  get x() { return this._x; }
-  set y(y) { this._y = y; }
-  get y() { return this._y; }
 
   cleanUp() {
     this.div.remove();
