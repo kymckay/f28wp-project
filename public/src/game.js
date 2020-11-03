@@ -73,44 +73,7 @@ function render() {
   requestAnimationFrame(render);
 }
 
-function makeStars() {
-  const starField = document.getElementById('stars');
-  const res = 500;
-
-  const stars = [];
-
-  for (let i = 0; i < 150; i += 1) {
-    // Most stars are distant (small)
-    let scale = Math.floor(Math.random() * 2) + 1;
-
-    // Most distant stars aren't bright
-    let brightness = '#ddd';
-
-    // Some can be bright
-    if (i > 75) {
-      brightness = ['#fff', '#eee', '#ddd'][Math.floor(Math.random() * 3)];
-
-      // Half of them can be closer
-      if (i > 100) {
-        scale = Math.floor(Math.random() * 4) + 1;
-      }
-    }
-
-    const x = Math.floor(Math.random() * res);
-    const y = Math.floor(Math.random() * res);
-
-    // Dots that are white and fade outward look like stars
-    stars.push(`radial-gradient(${scale}px ${scale}px at ${x}px ${y}px, ${brightness}, rgba(0,0,0,0))`);
-  }
-
-  starField.style.setProperty('background-repeat', 'repeat');
-  starField.style.setProperty('background-size', `${res}px ${res}px`);
-  starField.style.setProperty('background-image', stars.join(','));
-}
-
 function setup() {
-  makeStars();
-
   gameWindow = document.getElementById('playArea');
 
   width = window.innerWidth;
