@@ -79,12 +79,28 @@ function makeStars() {
 
   const stars = [];
 
-  for (let i = 200; i >= 0; i--) {
-    const scale = Math.floor(Math.random() * 4);
-    // Don't position on pattern border
+  for (let i = 0; i < 150; i += 1) {
+    // Most stars are distant (small)
+    let scale = Math.floor(Math.random() * 2) + 1;
+
+    // Most distant stars aren't bright
+    let brightness = '#ddd';
+
+    // Some can be bright
+    if (i > 75) {
+      brightness = ['#fff', '#eee', '#ddd'][Math.floor(Math.random() * 3)];
+
+      // Half of them can be closer
+      if (i > 100) {
+        scale = Math.floor(Math.random() * 4) + 1;
+      }
+    }
+
     const x = Math.floor(Math.random() * res);
     const y = Math.floor(Math.random() * res);
-    stars.push(`radial-gradient(${scale}px ${scale}px at ${x}px ${y}px, #fff, rgba(0,0,0,0))`);
+
+    // Dots that are white and fade outward look like stars
+    stars.push(`radial-gradient(${scale}px ${scale}px at ${x}px ${y}px, ${brightness}, rgba(0,0,0,0))`);
   }
 
   starField.style.setProperty('background-repeat', 'repeat');
