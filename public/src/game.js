@@ -17,6 +17,8 @@ let gameWindow;
 let lastFrame;
 let playerController;
 
+// TODO: separate out and fix movement controls
+// TODO: move all this logic to server
 function loop() {
   // CALCULATE ELAPSED TIME SINCE LAST FRAME
   const now = Date.now();
@@ -67,12 +69,16 @@ function loop() {
   });
 }
 
+// TODO: render all objects server says exist using screen coordinate conversion
 function render() {
   // ITERATE THROUGH ALL gameObjects
   Object.values(gameObjects).forEach((obj) => obj.render());
   requestAnimationFrame(render);
 }
 
+// TODO: Place player in center of window always
+// TODO: Set player's unique ship start coordinate when server sends them
+// TODO: Enable controls after game start signal from server (everyone start "paused")
 function setup() {
   gameWindow = document.getElementById('playArea');
 

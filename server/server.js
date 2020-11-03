@@ -22,7 +22,7 @@ app.use([
   '/play.html',
 ],
 (req, res) => {
-    res.status(403).end();
+  res.status(403).end();
 });
 
 // Files stored statically in public folder
