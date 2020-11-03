@@ -15,24 +15,34 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dist/index.html'));
 });
 
-app.post('/play', (req, res) => {
-  // TODO Check if guest name set, or logged in
+// Block clients trying to access the unprocessed files
+// Comment this out if you want to test HTML changes rapidly
+app.use([
+    '/index.html',
+    '/play.html'
+  ],
+  (req, res) => {
+    res.status(403).end();
+  }
+);
 
+// Files stored statically in public folder
+app.use(express.static(path.join(__dirname, '../public/')));
+
+// Play submission sends client to the game
+app.post('/play', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dist/play.html'));
 });
 
+// TODO Login submission returns success or not (and client updates page)
 app.post('/login', (req, res) => {
-  // TODO Login existing user if exists, refuse otherwise
   console.log(req, res);
 });
 
+// TODO Register submission returns success or not (and client updates page)
 app.post('/register', (req, res) => {
-  // TODO Register new user, check if already exists, handle client side after register
   console.log(req, res);
 });
-
-// Files stored statically in public folder (this comes last so routes take precedence)
-app.use(express.static(path.join(__dirname, '../public/')));
 
 server.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`);
