@@ -1,6 +1,5 @@
 /* global io */
 
-import ActionMap from './actionMap';
 import Controller from './controller';
 import PhysicsObject from './physicsObject';
 import Particle from './particle';
@@ -9,26 +8,17 @@ import circleCircle from './collision';
 
 const gameObjects = {};
 const playerID = 0;
-const bindings = new ActionMap();
-const keyState = {};
 
 let [width, height] = [0, 0];
 let gameWindow;
 let lastFrame;
-let playerController;
 
-// TODO: separate out and fix movement controls
 // TODO: move all this logic to server
 function loop() {
   // CALCULATE ELAPSED TIME SINCE LAST FRAME
   const now = Date.now();
   const dT = Math.min((now - lastFrame) / 1000, 200);
   lastFrame = now;
-
-  // HANDLE INPUTS
-  Object.keys(bindings.mappings).forEach((key) => {
-    if (keyState[key]) playerController.handleInput(key);
-  });
 
   // UPDATE ALL PHYSICS OBJECTS
   const objsToDestroy = [];
@@ -111,29 +101,79 @@ function setup() {
     gameObjects[rockObj.id] = rockObj;
   }
 
-  playerController = new Controller(gameWindow, gameObjects, playerID, bindings);
-  bindings.add('ArrowUp', playerController.forward);
-  bindings.add('ArrowDown', playerController.backward);
-  bindings.add('ArrowLeft', playerController.left);
-  bindings.add('ArrowRight', playerController.right);
-  bindings.add(' ', playerController.shoot);
-
-  setInterval(loop, 10);
+  setInterval(mainLoop, 10);
   requestAnimationFrame(render);
 }
 
-function keydownEvent(e) {
-  keyState[e.key] = true;
+function mainLoop() {
+  keyHandler();
 }
 
-function keyupEvent(e) {
-  keyState[e.key] = false;
+// Track which keys are pressed
+const keysDown = {};
+
+function keyHandler() {
+  // Ship can't thrust and break together (hence XOR)
+  if (keysDown['ArrowUp'] ? !keysDown['ArrowDown'] : keysDown['ArrowDown']) {
+    // TODO thurst/slow
+    console.log('throttling');
+  }
+
+  // Ship can't turn boths ways at once (hence XOR)
+  if (keysDown['ArrowLeft'] ? !keysDown['ArrowRight'] : keysDown['ArrowRight']) {
+    // TODO turn ship
+    console.log('turning');
+  }
+
+  if (keysDown['Space']) {
+    // TODO shoot
+    console.log('shooting');
+  }
 }
 
-window.addEventListener('load', setup);
-window.addEventListener('keyDown', keydownEvent);
-window.addEventListener('keyUp', keyupEvent);
+// Use this object to prevent the event firing for the given key codes
+const handledKeys = {
+  'ArrowLeft': true,
+  'ArrowDown': true,
+  'ArrowRight': true,
+  'ArrowUp': true,
+  'Space': true,
+}
 
+function onKeyDown(e) {
+  // e.code corresponds to keyboard position
+  // and will work the same for any layout
+  keysDown[e.code] = true;
+
+  if (e.code in handledKeys) {
+    e.preventDefault();
+  }
+}
+
+function onKeyUp(e) {
+  delete keysDown[e.code];
+}
+
+// Await events from server for setup
 const socket = io();
 
+// Prepare the play area initially
+window.addEventListener('load', setup);
+
+// Let player rotate their ship initially
+window.addEventListener('keydown', onKeyDown);
+window.addEventListener('keyup', onKeyUp);
+
+socket.on('game start', () => {
+  // TODO Only add thrust and shoot controls after game starts
+});
+
+
+socket.on('initial conditions', () => {
+  // TODO set ship position
+  // TODO set world boundary
+  // TODO start rendering asteroids
+});
+
+// TODO remove when done testing
 socket.on('server tick', (x) => { console.log(x); });

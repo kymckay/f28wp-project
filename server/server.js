@@ -43,12 +43,32 @@ app.post('/register', (req, res) => {
   console.log(req, res);
 });
 
+io.on('connection', (socket) => {
+  // TODO
+  // Start tracking client and also provide them initial conditions
+
+  // TODO lobbies
+  // socket.join('some room');
+
+  // TODO emulating a delay at start for now
+  setTimeout(() => io.sockets.emit('game start'), 60000);
+
+  io.sockets.emit('server tick', `${socket}: has joined`);
+
+  socket.on('disconnecting', () => {
+    // TODO take over with an AI or remove from game
+    // Object.keys(socket.rooms) gives rooms socket was part of
+  });
+});
+
+// TODO when a lobby has enough player or 30s passed, send the start signal
+
+// let i = 0;
+// setInterval(() => {
+//   io.sockets.emit('server tick', i);
+//   i += 1;
+// }, 200);
+
 server.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`);
 });
-
-let i = 0;
-setInterval(() => {
-  io.sockets.emit('server tick', i);
-  i += 1;
-}, 200);
