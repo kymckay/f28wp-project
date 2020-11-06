@@ -15,8 +15,6 @@ const keysDown = {};
 const handledKeys = {
   ArrowLeft: true,
   ArrowRight: true,
-  ArrowDown: true,
-  ArrowUp: true,
 };
 
 window.addEventListener('keydown', (e) => {
