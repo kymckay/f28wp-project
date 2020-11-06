@@ -46,6 +46,7 @@ app.post('/register', (req, res) => {
 io.on('connection', (socket) => {
   // TODO
   // Start tracking client and also provide them initial conditions
+  // (their position and ID, the world size)
 
   // TODO lobbies
   // socket.join('some room');
@@ -53,7 +54,8 @@ io.on('connection', (socket) => {
   // TODO emulating a delay at start for now
   setTimeout(() => io.sockets.emit('game start'), 60000);
 
-  io.sockets.emit('server tick', `${socket}: has joined`);
+  // TODO when done testing multi connections
+  io.sockets.emit('new connect', `${socket}: has joined`);
 
   socket.on('disconnecting', () => {
     // TODO take over with an AI or remove from game

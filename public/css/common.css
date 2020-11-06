@@ -2,6 +2,7 @@ body {
   font-family: monospace, sans-serif;
 }
 
+#hud,
 #playArea,
 #background,
 #stars {

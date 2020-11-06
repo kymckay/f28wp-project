@@ -1,6 +1,5 @@
-.gameObject
-{
-  position: fixed;
+.entity {
+  position: fixed; /* always position relative to viewport */
   transform-origin: center center;
   transform: translate(-50%, -50%);
   z-index: 100;

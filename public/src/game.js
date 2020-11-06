@@ -1,179 +1,101 @@
 /* global io */
+import Ship from './classes/ship';
 
-import Controller from './controller';
-import PhysicsObject from './physicsObject';
-import Particle from './particle';
-import Vector from './vector';
-import circleCircle from './collision';
+// Server sends game events/state via socket
+const socket = io();
 
-const gameObjects = {};
-const playerID = 0;
-
-let [width, height] = [0, 0];
-let gameWindow;
-let lastFrame;
-
-// TODO: move all this logic to server
-function loop() {
-  // CALCULATE ELAPSED TIME SINCE LAST FRAME
-  const now = Date.now();
-  const dT = Math.min((now - lastFrame) / 1000, 200);
-  lastFrame = now;
-
-  // UPDATE ALL PHYSICS OBJECTS
-  const objsToDestroy = [];
-  Object.values(gameObjects).forEach((obj) => {
-    obj.update(dT);
-    if (obj.destroyNextFrame) objsToDestroy.push(obj.id);
-  });
-
-  Object.keys(gameObjects).forEach((objID) => {
-    const obj = gameObjects[objID];
-
-    Object.keys(gameObjects).forEach((otherID) => {
-      // Can't collide with self
-      if (objID === otherID) {
-        return;
-      }
-
-      const other = gameObjects[otherID];
-
-      if (circleCircle(obj, other)) {
-        if (obj.hasTag('projectile') && other.hasTag('asteroid')) {
-          objsToDestroy.push(obj.id);
-          objsToDestroy.push(other.id);
-          const explosion = new Particle(gameWindow, obj, Vector.zero, 1);
-          explosion.div.classList.add('explosion');
-          explosion.addTag('effect');
-          gameObjects[explosion.id] = explosion;
-        }
-      }
-    });
-
-    obj.bounds(true);
-  });
-
-  objsToDestroy.forEach((id) => {
-    gameObjects[id].cleanUp();
-    delete gameObjects[id];
-  });
-}
-
-// TODO: render all objects server says exist using screen coordinate conversion
-function render() {
-  // ITERATE THROUGH ALL gameObjects
-  Object.values(gameObjects).forEach((obj) => obj.render());
-  requestAnimationFrame(render);
-}
-
-// TODO: Place player in center of window always
-// TODO: Set player's unique ship start coordinate when server sends them
-// TODO: Enable controls after game start signal from server (everyone start "paused")
-function setup() {
-  gameWindow = document.getElementById('playArea');
-
-  width = window.innerWidth;
-  height = window.innerHeight;
-
-  const center = new Vector(width / 2, height / 2);
-  lastFrame = Date.now();
-
-  const playerObj = new PhysicsObject(gameWindow,
-    new Vector(width / 2, height / 2),
-    new Vector(),
-    32);
-
-  playerObj.div.classList.add('player');
-  playerObj.addTag('ship');
-  playerObj.collidable = true;
-  gameObjects[playerObj.id] = playerObj;
-
-  for (let i = 0; i < 8; i += 1) {
-    const position = Vector.randomUnit();
-    position.mul(width / 2);
-    position.add(center);
-    const velocity = Vector.fromAngle(Math.random() * Math.PI * 2, 2);
-    const rockObj = new PhysicsObject(gameWindow, position, velocity, 40);
-    rockObj.div.classList.add('rock');
-    rockObj.addTag('asteroid');
-    rockObj.canRotate = true;
-    rockObj.pangle -= (Math.random() * 0.0872665) - 0.0436332;
-    gameObjects[rockObj.id] = rockObj;
-  }
-
-  setInterval(mainLoop, 10);
-  requestAnimationFrame(render);
-}
-
-function mainLoop() {
-  keyHandler();
-}
+// All objects must be tracked for rendering (and any client simulation)
+const allEntities = {};
 
 // Track which keys are pressed
 const keysDown = {};
 
 function keyHandler() {
   // Ship can't thrust and break together (hence XOR)
-  if (keysDown['ArrowUp'] ? !keysDown['ArrowDown'] : keysDown['ArrowDown']) {
+  if (keysDown.ArrowUp ? !keysDown.ArrowDown : keysDown.ArrowDown) {
     // TODO thurst/slow
     console.log('throttling');
   }
 
   // Ship can't turn boths ways at once (hence XOR)
-  if (keysDown['ArrowLeft'] ? !keysDown['ArrowRight'] : keysDown['ArrowRight']) {
+  if (keysDown.ArrowLeft ? !keysDown.ArrowRight : keysDown.ArrowRight) {
     // TODO turn ship
     console.log('turning');
   }
 
-  if (keysDown['Space']) {
+  if (keysDown.Space) {
     // TODO shoot
     console.log('shooting');
   }
 }
 
-// Use this object to prevent the event firing for the given key codes
+// Use this object to ignore other key codes in the event
+// Only let player rotate their ship initially (until game start)
 const handledKeys = {
-  'ArrowLeft': true,
-  'ArrowDown': true,
-  'ArrowRight': true,
-  'ArrowUp': true,
-  'Space': true,
-}
+  ArrowLeft: true,
+  ArrowRight: true,
+};
 
-function onKeyDown(e) {
+window.addEventListener('keydown', (e) => {
   // e.code corresponds to keyboard position
   // and will work the same for any layout
-  keysDown[e.code] = true;
-
   if (e.code in handledKeys) {
+    keysDown[e.code] = true;
     e.preventDefault();
   }
-}
-
-function onKeyUp(e) {
+});
+window.addEventListener('keyup', (e) => {
   delete keysDown[e.code];
-}
-
-// Await events from server for setup
-const socket = io();
-
-// Prepare the play area initially
-window.addEventListener('load', setup);
-
-// Let player rotate their ship initially
-window.addEventListener('keydown', onKeyDown);
-window.addEventListener('keyup', onKeyUp);
-
-socket.on('game start', () => {
-  // TODO Only add thrust and shoot controls after game starts
 });
 
+// Position of screen origin in world coordinates (for rendering)
+const screenX = 0;
+const screenY = 0;
 
-socket.on('initial conditions', () => {
-  // TODO set ship position
-  // TODO set world boundary
-  // TODO start rendering asteroids
+function render() {
+  Object.values(allEntities).forEach((e) => e.render(screenX, screenY));
+  requestAnimationFrame(render);
+}
+
+// Page must be read before we can start interacting with it
+window.addEventListener('load', () => {
+  const playArea = document.getElementById('playArea');
+
+  // Ship always starts centered
+  const playerShip = new Ship(
+    playArea,
+    // Ship ID is just placeholder until server sends true ID
+    -1,
+    // All coordindates here are bogus just to get the ship centered before server sends position
+    window.innerWidth / 2,
+    window.innerHeight / 2
+  );
+  allEntities[-1] = playerShip;
+
+  socket.on('initial conditions', () => {
+    // TODO set screens starting position
+    // TODO set ships real position and ID
+    // TODO store world boundary (for screen position bounding)
+    // TODO create all asteroid objects and store them
+  });
+
+  // Client side logic loop
+  setInterval(() => {
+    keyHandler();
+  }, 10);
+
+  // Rendering loop
+  requestAnimationFrame(render);
+});
+
+socket.on('game start', () => {
+  // TODO remove the "game starting" message
+
+  // Enable rest of ship controls now
+  handledKeys.ArrowDown = true;
+  handledKeys.ArrowUp = true;
+  handledKeys.Space = true;
 });
 
 // TODO remove when done testing
-socket.on('server tick', (x) => { console.log(x); });
+socket.on('new connect', (x) => { console.log(x); });
