@@ -21,9 +21,9 @@ app.use([
   '/index.html',
   '/play.html',
 ],
-(req, res) => {
-  res.status(403).end();
-});
+  (req, res) => {
+    res.status(403).end();
+  });
 
 // Files stored statically in public folder
 app.use(express.static(path.join(__dirname, '../public/')));
@@ -43,16 +43,46 @@ app.post('/register', (req, res) => {
   console.log(req, res);
 });
 
+let gameInProgress = false;
+let gameRequested = false;
+let lobbyClients = [];
+let matchClients = [];
+
+// TODO when a lobby has enough player or 30s passed, send the start signal
+
+function startGame() {
+  gameRequested = false;
+  gameInProgress = true;
+  const lobby = io.sockets.adapter.rooms['lobby'];
+  console.log(lobby.length);
+  console.log(Object.keys(lobby));
+  for (var id in lobby) {
+    console.log(`${id} is in the lobby`);
+  }
+  io.to('match').emit('game start');
+}
+
+function endGame() {
+  gameInProgress = false;
+}
+
 io.on('connection', (socket) => {
   // TODO
   // Start tracking client and also provide them initial conditions
   // (their position and ID, the world size)
+  console.log(`${socket.id} has connected`);
+  socket.join('lobby');
+  const lobbyCount = io.sockets.adapter.rooms['lobby'].length;
+  io.to('lobby').emit('joined lobby', lobbyCount);
 
   // TODO lobbies
   // socket.join('some room');
 
   // TODO emulating a delay at start for now
-  setTimeout(() => io.sockets.emit('game start'), 60000);
+  if (!gameRequested) {
+    gameRequested = true;
+    setTimeout(() => startGame(), 10000);
+  }
 
   // TODO when done testing multi connections
   io.sockets.emit('new connect', `${socket}: has joined`);
@@ -62,8 +92,6 @@ io.on('connection', (socket) => {
     // Object.keys(socket.rooms) gives rooms socket was part of
   });
 });
-
-// TODO when a lobby has enough player or 30s passed, send the start signal
 
 // let i = 0;
 // setInterval(() => {
