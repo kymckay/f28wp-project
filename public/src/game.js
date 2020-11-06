@@ -89,7 +89,6 @@ window.addEventListener('load', () => {
       }
 
       playerShip.velocity = [vx2, vy2];
-      console.log(playerShip.velocity);
     }
 
     // Ship can't turn boths ways at once (hence XOR)
