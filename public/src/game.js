@@ -10,25 +10,6 @@ const allEntities = {};
 // Track which keys are pressed
 const keysDown = {};
 
-function keyHandler() {
-  // Ship can't thrust and break together (hence XOR)
-  if (keysDown.ArrowUp ? !keysDown.ArrowDown : keysDown.ArrowDown) {
-    // TODO thurst/slow
-    console.log('throttling');
-  }
-
-  // Ship can't turn boths ways at once (hence XOR)
-  if (keysDown.ArrowLeft ? !keysDown.ArrowRight : keysDown.ArrowRight) {
-    // TODO turn ship
-    console.log('turning');
-  }
-
-  if (keysDown.Space) {
-    // TODO shoot
-    console.log('shooting');
-  }
-}
-
 // Use this object to ignore other key codes in the event
 // Only let player rotate their ship initially (until game start)
 const handledKeys = {
@@ -57,7 +38,7 @@ function render() {
   requestAnimationFrame(render);
 }
 
-// Page must be read before we can start interacting with it
+// Page must be ready before we can start interacting with it
 window.addEventListener('load', () => {
   const playArea = document.getElementById('playArea');
 
@@ -71,6 +52,24 @@ window.addEventListener('load', () => {
     window.innerHeight / 2
   );
   allEntities[-1] = playerShip;
+
+  function keyHandler() {
+    // Ship can't thrust and break together (hence XOR)
+    if (keysDown.ArrowUp ? !keysDown.ArrowDown : keysDown.ArrowDown) {
+      // TODO thurst/slow
+      console.log('throttling');
+    }
+
+    // Ship can't turn boths ways at once (hence XOR)
+    if (keysDown.ArrowLeft ? !keysDown.ArrowRight : keysDown.ArrowRight) {
+      playerShip.angle += (keysDown.ArrowLeft ? -0.05 : 0.05);
+    }
+
+    if (keysDown.Space) {
+      // TODO shoot
+      console.log('shooting');
+    }
+  }
 
   socket.on('initial conditions', () => {
     // TODO set screens starting position

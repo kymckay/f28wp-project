@@ -7,5 +7,13 @@ export default class Ship extends Entity {
     this.element.classList.add('ship');
 
     this.isPlayer = isPlayer;
+
+    this.angle = Math.random() * 360;
+  }
+
+  render(screenOX, screenOY) {
+    super.render(screenOX, screenOY);
+
+    this.element.style.transform = `translate(-50%, -50%) rotate(${this.angle}rad)`;
   }
 }
