@@ -7,16 +7,12 @@
   vertical-align: middle;
 }
 
-.player
-{
-  background-image: url("../assets/sprites/spaceship.png");
+/* dimesnions as percentages so all screen sizes see same sized region of space */
+.ship {
+  background-image: url("../assets/sprites/ship.svg");
   background-size: cover;
-  width: 100px;
-  height: 100px;
-  /*
-  border: 1px solid white;
-  border-radius: 50%;
-  */
+  width: 3%;
+  height: 6%;
 }
 
 .rock

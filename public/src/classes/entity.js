@@ -9,27 +9,22 @@ export default class Entity {
 
     // Consider splitting graphic into seperate class wrapped by this one
     this.parent = container;
+    this.element = this.createElement(container);
   }
 
   // Child classes must call createElement with their desired svg
-  createElement(width, height, svg = '') {
+  createElement(parent) {
     const div = document.createElement('div');
 
     // May need to retrieve this div by ID
     div.id = `entity${this.id}`;
 
-    div.style.width = `${width}px`;
-    div.style.height = `${height}px`;
-
     // Apply entity styling/positioning rules
     div.classList.add('entity');
 
-    // Add the graphics inside
-    div.innerHTML = svg;
+    parent.appendChild(div);
 
-    this.parent.appendChild(div);
-
-    this.element = div;
+    return div;
   }
 
   get x() { return this.pos[0]; }
