@@ -5,7 +5,7 @@ export default class Entity {
   constructor(container, id, x, y, velocity) {
     this.id = id;
     this.pos = [x, y];
-    this.velocity = velocity;
+    this.velocity = velocity; // [x, y] vector
 
     // Consider splitting graphic into seperate class wrapped by this one
     this.parent = container;

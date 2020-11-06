@@ -15,6 +15,8 @@ const keysDown = {};
 const handledKeys = {
   ArrowLeft: true,
   ArrowRight: true,
+  ArrowDown: true,
+  ArrowUp: true,
 };
 
 window.addEventListener('keydown', (e) => {
@@ -56,8 +58,40 @@ window.addEventListener('load', () => {
   function keyHandler() {
     // Ship can't thrust and break together (hence XOR)
     if (keysDown.ArrowUp ? !keysDown.ArrowDown : keysDown.ArrowDown) {
-      // TODO thurst/slow
-      console.log('throttling');
+      const [vx, vy] = playerShip.velocity;
+
+      // Remember this angle is clockwise from north
+      const rads = playerShip.angle;
+
+      // Differential vector of magnitude 0.1
+      const z = 0.1;
+
+      // Thrusting and braking behave slightly differently
+      let vx2 = vx;
+      let vy2 = vy;
+      if (keysDown.ArrowUp) {
+        const vdx = Math.sin(rads) * z;
+        const vdy = Math.cos(rads) * z;
+
+        // Ships cannot infinitely speed up
+        vx2 = Math.max(Math.min(vx + vdx, 5), -5);
+        vy2 = Math.max(Math.min(vy + vdy, 5), -5);
+      } else {
+        // Deceleration is just acceleration in opposite direction
+        let vdx = Math.sin(rads + Math.PI) * z;
+        let vdy = Math.cos(rads + Math.PI) * z;
+
+        // Can't decelerate if velocity and heading vectors are opposed
+        vdx = (vx * vdx > 0) ? 0 : vdx;
+        vdy = (vy * vdy > 0) ? 0 : vdy;
+
+        // Can't decelerate past 0
+        vx2 = vx + ((vdx > Math.abs(vx)) ? -vx : vdx);
+        vy2 = vy + ((vdy > Math.abs(vy)) ? -vy : vdy);
+      }
+
+      playerShip.velocity = [vx2, vy2];
+      console.log(playerShip.velocity);
     }
 
     // Ship can't turn boths ways at once (hence XOR)

@@ -2,12 +2,13 @@ import Entity from './entity';
 
 export default class Ship extends Entity {
   constructor(container, id, x, y, isPlayer) {
-    super(container, id, x, y, 0);
+    super(container, id, x, y, [0, 0]);
 
     this.element.classList.add('ship');
 
     this.isPlayer = isPlayer;
 
+    // Start facing a random direction
     this.angle = Math.random() * 360;
   }
 
