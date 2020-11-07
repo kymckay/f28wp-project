@@ -18,6 +18,9 @@ export default class Ship extends Entity {
 
     // Start facing a random direction (radians)
     this.angle = Math.random() * Math.PI * 2;
+
+    // Cooldown between cannon shots
+    this.lastShot = performance.now();
   }
 
   render(screenOX, screenOY) {
@@ -65,11 +68,17 @@ export default class Ship extends Entity {
   }
 
   shoot() {
+    // Cooldown between shots of 5s (5000ms)
+    if (performance.now() - this.lastShot < 5000) {
+      return null;
+    }
+    this.lastShot = performance.now();
+
     // Projectile appears ahead of ship
     const pos = vectorAdd(this.pos, polarToCart(this.angle, 10));
 
     // Projectile inherits ship velocity plus firing velocity
-    const vel = vectorAdd(this.velocity, polarToCart(this.angle, 1));
+    const vel = vectorAdd(this.velocity, polarToCart(this.angle, 5));
 
     const id = `${this.id}-p${this.projectiles}`;
     this.projectiles += 1;

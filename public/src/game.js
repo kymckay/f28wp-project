@@ -71,7 +71,10 @@ window.addEventListener('load', () => {
 
     if (keysDown.Space) {
       const proj = playerShip.shoot();
-      allEntities[proj.id] = proj;
+
+      if (proj) {
+        allEntities[proj.id] = proj;
+      }
     }
   }
 
