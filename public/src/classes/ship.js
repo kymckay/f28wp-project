@@ -1,4 +1,6 @@
 import Entity from './entity';
+import Projectile from './projectile';
+import { vectorAdd, polarToCart } from '../coordinates';
 
 export default class Ship extends Entity {
   constructor(container, id, x, y, isPlayer) {
@@ -6,7 +8,10 @@ export default class Ship extends Entity {
 
     this.element.classList.add('ship');
 
-    this.isPlayer = isPlayer;
+    // Need to track projectiles shot for ID generation
+    if (isPlayer) {
+      this.projectiles = 0;
+    }
 
     // Start facing a random direction (radians)
     this.angle = Math.random() * Math.PI * 2;
@@ -23,47 +28,48 @@ export default class Ship extends Entity {
   }
 
   accelerate() {
-    const [vx, vy] = this.velocity;
+    const v = this.velocity;
 
-    // Differential vector magnitude
-    const z = Ship.acceleration;
-
-    // Remember this angle is clockwise from north
-    const rads = this.angle;
-
-    const vdx = Math.sin(rads) * z;
-    const vdy = Math.cos(rads) * z;
+    // Differential velocity vector
+    const dv = polarToCart(this.angle, Ship.acceleration);
 
     // Ships cannot infinitely speed up
-    const vx2 = Math.max(Math.min(vx + vdx, 5), -5);
-    const vy2 = Math.max(Math.min(vy + vdy, 5), -5);
-
-    this.velocity = [vx2, vy2];
+    this.velocity = [
+      Math.max(Math.min(v[0] + dv[0], 5), -5),
+      Math.max(Math.min(v[1] + dv[1], 5), -5),
+    ];
   }
 
   brake() {
-    const [vx, vy] = this.velocity;
+    const v = this.velocity;
 
-    // Differential vector magnitude
-    const z = Ship.deceleration;
+    // Differential velocity vector
+    const dv = polarToCart(
+      // Deceleration is just acceleration in opposite direction
+      this.angle + Math.PI,
+      Ship.deceleration
+    );
 
-    // Remember this angle is clockwise from north
-    const rads = this.angle;
-
-    // Deceleration is just acceleration in opposite direction
-    let vdx = Math.sin(rads + Math.PI) * z;
-    let vdy = Math.cos(rads + Math.PI) * z;
-
-    // Can't decelerate if velocity and heading vectors are opposed
-    vdx = (vx * vdx > 0) ? 0 : vdx;
-    vdy = (vy * vdy > 0) ? 0 : vdy;
+    // Can't decelerate if velocity and differential vectors are aligned
+    dv[0] = (v[0] * dv[0] > 0) ? 0 : dv[0];
+    dv[1] = (v[1] * dv[1] > 0) ? 0 : dv[1];
 
     // Can't decelerate past 0
-    const vx2 = (Math.abs(vdx) > Math.abs(vx)) ? 0 : vx + vdx;
-    const vy2 = (Math.abs(vdy) > Math.abs(vy)) ? 0 : vy + vdy;
+    this.velocity = [
+      (Math.abs(dv[0]) > Math.abs(v[0])) ? 0 : v[0] + dv[0],
+      (Math.abs(dv[1]) > Math.abs(v[1])) ? 0 : v[1] + dv[1],
+    ];
+  }
 
-    this.velocity = [vx2, vy2];
-    console.log(this.velocity);
+  shoot() {
+    // Projectile appears ahead of ship
+    const pos = vectorAdd(this.pos, polarToCart(this.angle, 10));
+    const vel = vectorAdd(this.velocity, polarToCart(this.angle, 1));
+
+    const id = `${this.id}-p${this.projectiles}`;
+    this.projectiles += 1;
+
+    return new Projectile(this.parent, id, pos[0], pos[1], this.angle, vel);
   }
 }
 

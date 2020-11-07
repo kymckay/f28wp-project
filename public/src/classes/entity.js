@@ -1,4 +1,4 @@
-import worldToScreen from '../coordinates';
+import { worldToScreen } from '../coordinates';
 
 export default class Entity {
   // entity attributes supplied by server

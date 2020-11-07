@@ -49,7 +49,8 @@ window.addEventListener('load', () => {
     -1,
     // All coordindates here are bogus just to get the ship centered before server sends position
     window.innerWidth / 2,
-    window.innerHeight / 2
+    window.innerHeight / 2,
+    true // this is the player's ship
   );
   allEntities[-1] = playerShip;
 
@@ -69,8 +70,8 @@ window.addEventListener('load', () => {
     }
 
     if (keysDown.Space) {
-      // TODO shoot
-      console.log('shooting');
+      const proj = playerShip.shoot();
+      allEntities[proj.id] = proj;
     }
   }
 
