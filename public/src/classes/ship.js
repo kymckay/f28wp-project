@@ -9,8 +9,11 @@ export default class Ship extends Entity {
     this.element.classList.add('ship');
 
     // Need to track projectiles shot for ID generation
+    this.projectiles = 0;
+
+    // Differentiate the player's ship
     if (isPlayer) {
-      this.projectiles = 0;
+      this.element.classList.add('player');
     }
 
     // Start facing a random direction (radians)

@@ -15,9 +15,12 @@
   height: 6%;
 }
 
+.player {
+  background-image: url("../assets/sprites/ship-player.svg");
+}
+
 .projectile {
-  background-image: url("../assets/sprites/projectile.svg");
-  background-size: cover;
+  background-color: red;
   width: .25%;
   height: .5%;
 }
