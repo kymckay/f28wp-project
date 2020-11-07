@@ -5,9 +5,9 @@ export function worldToScreen(worldX, worldY, screenOX, screenOY) {
 
 export function polarToCart(theta, z) {
   return [
-    // Angles in this world are measured clockwise from north
-    Math.sin(theta) * z,
+    // Angles in this world are measured clockwise from x-axis
     Math.cos(theta) * z,
+    Math.sin(theta) * z,
   ];
 }
 
