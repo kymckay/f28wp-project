@@ -36,10 +36,10 @@ export default class Entity {
   set y(y) { this.pos[1] = y; }
 
   // All entites will be rendered on screen in some way
-  render(screenOX, screenOY) {
+  render(screenO) {
     const div = this.element;
 
-    const [xPx, yPx] = worldToScreen(this.x, this.y, screenOX, screenOY);
+    const [xPx, yPx] = worldToScreen(this.pos, screenO);
 
     div.style.left = `${xPx}px`;
     div.style.top = `${yPx}px`;

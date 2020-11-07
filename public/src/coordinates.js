@@ -1,6 +1,9 @@
-export function worldToScreen(worldX, worldY, screenOX, screenOY) {
+export function worldToScreen(worldCoord, screenO) {
   // Convert coordinate system by subtracting new origin vector
-  return [worldX - screenOX, worldY - screenOY];
+  return [
+    worldCoord[0] - screenO[0],
+    worldCoord[1] - screenO[1],
+  ];
 }
 
 export function polarToCart(theta, z) {

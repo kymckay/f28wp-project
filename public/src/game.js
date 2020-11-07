@@ -1,6 +1,7 @@
 /* global io */
 import Ship from './classes/ship';
 import Asteroid from './classes/asteroid';
+import { vectorAdd } from './coordinates';
 
 // Server sends game events/state via socket
 const socket = io();
@@ -30,12 +31,11 @@ window.addEventListener('keyup', (e) => {
   delete keysDown[e.code];
 });
 
-// Position of screen origin in world coordinates (for rendering)
-const screenX = 0;
-const screenY = 0;
+// Screen origin (top left) in world coordinates for rendering
+let screenO = [0, 0];
 
 function render() {
-  Object.values(allEntities).forEach((e) => e.render(screenX, screenY));
+  Object.values(allEntities).forEach((e) => e.render(screenO));
   requestAnimationFrame(render);
 }
 
@@ -75,6 +75,18 @@ window.addEventListener('load', () => {
     }
   }
 
+  // Updates all entity positions in the world
+  function simulate() {
+    Object.values(allEntities).forEach((e) => {
+      // Screen moves when player moves
+      if (e == playerShip) {
+        screenO = vectorAdd(screenO, e.velocity);
+      }
+
+      e.pos = vectorAdd(e.pos, e.velocity);
+    });
+  }
+
   socket.on('initial conditions', () => {
     // TODO set screens starting position
     // TODO set ships real position and ID
@@ -87,8 +99,8 @@ window.addEventListener('load', () => {
         playArea,
         `a${i}`,
         [Math.random() * window.innerWidth, Math.random() * window.innerHeight],
-        [0, 0],
-        20 + Math.random() * 40
+        [Math.random(), Math.random()],
+        20 + Math.random() * 100
       );
     }
   });
@@ -96,6 +108,7 @@ window.addEventListener('load', () => {
   // Client side logic loop
   setInterval(() => {
     keyHandler();
+    simulate();
   }, 10);
 
   // Rendering loop
