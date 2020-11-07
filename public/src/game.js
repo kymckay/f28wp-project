@@ -1,5 +1,6 @@
 /* global io */
 import Ship from './classes/ship';
+import Asteroid from './classes/asteroid';
 
 // Server sends game events/state via socket
 const socket = io();
@@ -47,9 +48,8 @@ window.addEventListener('load', () => {
     playArea,
     // Ship ID is just placeholder until server sends true ID
     -1,
-    // All coordindates here are bogus just to get the ship centered before server sends position
-    window.innerWidth / 2,
-    window.innerHeight / 2,
+    // Coordindates here are bogus just to get the ship centered before server sends true position
+    [window.innerWidth / 2, window.innerHeight / 2],
     true // this is the player's ship
   );
   allEntities[-1] = playerShip;
@@ -80,6 +80,17 @@ window.addEventListener('load', () => {
     // TODO set ships real position and ID
     // TODO store world boundary (for screen position bounding)
     // TODO create all asteroid objects and store them
+
+    // TODO remove when done for testing purposes
+    for (let i = 0; i < 5; i += 1) {
+      allEntities[`a${i}`] = new Asteroid(
+        playArea,
+        `a${i}`,
+        [Math.random() * window.innerWidth, Math.random() * window.innerHeight],
+        [0, 0],
+        20 + Math.random() * 40
+      );
+    }
   });
 
   // Client side logic loop

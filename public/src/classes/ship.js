@@ -3,8 +3,8 @@ import Projectile from './projectile';
 import { vectorAdd, polarToCart } from '../coordinates';
 
 export default class Ship extends Entity {
-  constructor(container, id, x, y, isPlayer) {
-    super(container, id, x, y, [0, 0]);
+  constructor(container, id, pos, isPlayer) {
+    super(container, id, pos, [0, 0]);
 
     this.element.classList.add('ship');
 
@@ -67,12 +67,14 @@ export default class Ship extends Entity {
   shoot() {
     // Projectile appears ahead of ship
     const pos = vectorAdd(this.pos, polarToCart(this.angle, 10));
+
+    // Projectile inherits ship velocity plus firing velocity
     const vel = vectorAdd(this.velocity, polarToCart(this.angle, 1));
 
     const id = `${this.id}-p${this.projectiles}`;
     this.projectiles += 1;
 
-    return new Projectile(this.parent, id, pos[0], pos[1], this.angle, vel);
+    return new Projectile(this.parent, id, pos, this.angle, vel);
   }
 }
 

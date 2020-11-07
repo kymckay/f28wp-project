@@ -2,9 +2,9 @@ import { worldToScreen } from '../coordinates';
 
 export default class Entity {
   // entity attributes supplied by server
-  constructor(container, id, x, y, velocity) {
+  constructor(container, id, pos, velocity) {
     this.id = id;
-    this.pos = [x, y];
+    this.pos = pos; // [x, y] vector
     this.velocity = velocity; // [x, y] vector
 
     // Consider splitting graphic into seperate class wrapped by this one

@@ -1,8 +1,8 @@
 import Entity from './entity';
 
 export default class Projectile extends Entity {
-  constructor(container, id, x, y, angle, velocity) {
-    super(container, id, x, y, velocity);
+  constructor(container, id, pos, angle, velocity) {
+    super(container, id, pos, velocity);
     this.angle = angle;
 
     this.element.classList.add('projectile');

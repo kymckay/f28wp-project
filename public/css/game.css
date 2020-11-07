@@ -26,27 +26,14 @@
   z-index: 1; /* projectiles go beneath other entities */
 }
 
-.rock
-{
-  background-image: url("../assets/sprites/asteroid.png");
+.asteroid {
+  background-image: url("../assets/sprites/asteroid.svg");
   background-size: cover;
-  width:  50px;
-  height: 50px;
-  /*
-  border: 1px solid red;
-  border-radius: 50%;
-  */
 }
 
 .explosion {
-  background-image: url("../assets/sprites/explosion.png");
+  background-image: url("../assets/sprites/explosion.svg");
   background-size: contain;
-  width: 30px;
-  height: 30px;
-  /*
-  border: 1px solid orange;
-  border-radius: 50%;
-  */
   animation-name: boom;
   animation-duration: 1s;
   animation-iteration-count: infinite;
