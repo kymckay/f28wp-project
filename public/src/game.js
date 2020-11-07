@@ -84,8 +84,8 @@ window.addEventListener('load', () => {
         vdy = (vy * vdy > 0) ? 0 : vdy;
 
         // Can't decelerate past 0
-        vx2 = vx + ((vdx > Math.abs(vx)) ? -vx : vdx);
-        vy2 = vy + ((vdy > Math.abs(vy)) ? -vy : vdy);
+        vx2 = (Math.abs(vdx) > Math.abs(vx)) ? 0 : vx + vdx;
+        vy2 = (Math.abs(vdy) > Math.abs(vy)) ? 0 : vy + vdy;
       }
 
       playerShip.velocity = [vx2, vy2];
