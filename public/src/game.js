@@ -2,6 +2,7 @@
 import Ship from './classes/ship';
 import Asteroid from './classes/asteroid';
 import { vectorAdd } from './coordinates';
+import { hudMsg } from './hud';
 
 // Server sends game events/state via socket
 const socket = io();
@@ -42,6 +43,8 @@ function render() {
 // Page must be ready before we can start interacting with it
 window.addEventListener('load', () => {
   const playArea = document.getElementById('playArea');
+
+  hudMsg('game-start-msg', 'Game loading...');
 
   // Ship always starts centered
   const playerShip = new Ship(
@@ -119,7 +122,8 @@ window.addEventListener('load', () => {
 });
 
 socket.on('game start', () => {
-  // TODO remove the "game starting" message
+  // Game starting message no longer applies
+  hudMsg('game-start-msg', null);
 
   // Enable rest of ship controls now
   handledKeys.ArrowDown = true;
