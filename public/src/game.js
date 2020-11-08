@@ -82,7 +82,7 @@ window.addEventListener('load', () => {
   function simulate() {
     Object.values(allEntities).forEach((e) => {
       // Screen moves when player moves
-      if (e == playerShip) {
+      if (e === playerShip) {
         screenO = vectorAdd(screenO, e.velocity);
       }
 
