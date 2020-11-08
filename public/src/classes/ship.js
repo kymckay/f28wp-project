@@ -51,14 +51,10 @@ export default class Ship extends Entity {
 
     // Differential velocity vector
     const dv = polarToCart(
-      // Deceleration is just acceleration in opposite direction
-      this.angle + Math.PI,
+      // Braking always opposes current velocity
+      Math.atan2(v[1], v[0]) + Math.PI,
       Ship.deceleration
     );
-
-    // Can't decelerate if velocity and differential vectors are aligned
-    dv[0] = (v[0] * dv[0] > 0) ? 0 : dv[0];
-    dv[1] = (v[1] * dv[1] > 0) ? 0 : dv[1];
 
     // Can't decelerate past 0
     this.velocity = [
