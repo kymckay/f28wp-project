@@ -69,16 +69,16 @@ export default class Ship extends Entity {
 
   shoot() {
     // Cooldown between shots of 5s (5000ms)
-    if (performance.now() - this.lastShot < 5000) {
+    if (performance.now() - this.lastShot < Ship.shotCooldown) {
       return null;
     }
     this.lastShot = performance.now();
 
     // Projectile appears ahead of ship
-    const pos = vectorAdd(this.pos, polarToCart(this.angle, 10));
+    const pos = vectorAdd(this.pos, polarToCart(this.angle, Ship.shotOffset));
 
     // Projectile inherits ship velocity plus firing velocity
-    const vel = vectorAdd(this.velocity, polarToCart(this.angle, 5));
+    const vel = vectorAdd(this.velocity, polarToCart(this.angle, Ship.shotSpeed));
 
     const id = `${this.id}-p${this.projectiles}`;
     this.projectiles += 1;
@@ -91,3 +91,8 @@ export default class Ship extends Entity {
 Ship.turnSpeed = 0.05;
 Ship.acceleration = 0.1;
 Ship.deceleration = 0.05;
+
+// Constants for cannon behaviour
+Ship.shotSpeed = 5; // px/s
+Ship.shotOffset = 10; // px ahead of ship centre
+Ship.shotCooldown = 5000; // ms between cannon shots
