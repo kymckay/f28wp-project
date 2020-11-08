@@ -1,10 +1,10 @@
 const Entity = require('./entity');
 
 class Asteroid extends Entity {
-  constructor(pos, scale) {
+  constructor(pos, size) {
     super(pos, [0, 0]);
 
-    this.scale = scale;
+    this.size = size;
   }
 }
 

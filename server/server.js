@@ -4,6 +4,7 @@ const http = require('http');
 const path = require('path');
 
 const Ship = require('./classes/ship');
+const Asteroid = require('./classes/asteroid');
 
 // Start hourly background generation
 require('./starfield').starGeneration(60);
@@ -50,7 +51,8 @@ io.on('connection', (socket) => {
   // socket.join('some room');
 
   // TODO track all entites server side
-  const theirShip = new Ship([100, 100], true);
+  const theirShip = new Ship([500, 500], true);
+  // TODO only send this to specific client
   io.sockets.emit('player setup', {
     id: theirShip.id,
     // TODO allocate pos based on minimum world size
@@ -60,7 +62,27 @@ io.on('connection', (socket) => {
   });
 
   // TODO emulating a delay at start for now
-  setTimeout(() => io.sockets.emit('game start'), 8000);
+  // this should actually only run once for everyone, not for each join
+  setTimeout(() => {
+    const asteroids = [];
+    for (let i = 0; i < 10; i += 1) {
+      const ast = new Asteroid(
+        [Math.random() * 1000, Math.random() * 1000],
+        50 + Math.random() * 50
+      );
+      asteroids.push({
+        id: ast.id,
+        pos: ast.pos,
+        vel: ast.velocity,
+        size: ast.size,
+      });
+    }
+
+    io.sockets.emit('game start', {
+      world: [1000, 1000],
+      asteroids,
+    });
+  }, 8000);
 
   socket.on('disconnecting', () => {
     // TODO take over with an AI or remove from game

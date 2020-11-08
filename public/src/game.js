@@ -1,6 +1,6 @@
 /* global io */
 import Ship from './classes/ship';
-// import Asteroid from './classes/asteroid';
+import Asteroid from './classes/asteroid';
 import { vectorAdd, vectorDiff } from './coordinates';
 import { hudMsg } from './hud';
 
@@ -27,6 +27,9 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => {
   delete keysDown[e.code];
 });
+
+// Needed to enforce boundary and simulate wrap-around
+const world = [1000, 1000];
 
 // Screen origin (top left) in world coordinates for rendering
 let screenO = [0, 0];
@@ -107,8 +110,19 @@ function onGameStart(playArea, data) {
   // Game starting message no longer applies
   hudMsg('game-start-msg', null);
 
-  // TODO store world boundary (for screen position bounding)
-  // TODO create all asteroid objects and store them
+  // This changes based on players
+  [world[0], world[1]] = data.world;
+
+  // All asteroids initialised at game start
+  data.asteroids.forEach((astData) => {
+    allEntities[astData.id] = new Asteroid(
+      playArea,
+      astData.id,
+      astData.pos,
+      astData.vel,
+      astData.size
+    );
+  });
 
   // Enable rest of ship controls now
   handledKeys.ArrowDown = true;
