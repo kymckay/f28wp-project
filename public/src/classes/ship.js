@@ -3,8 +3,11 @@ import Projectile from './projectile';
 import { vectorAdd, polarToCart } from '../coordinates';
 
 export default class Ship extends Entity {
-  constructor(container, id, pos, isPlayer) {
+  constructor(container, id, pos, angle, isPlayer) {
     super(container, id, pos, [0, 0]);
+
+    // Ship's heading is significant (rads)
+    this.angle = angle;
 
     this.element.classList.add('ship');
 
@@ -15,9 +18,6 @@ export default class Ship extends Entity {
     if (isPlayer) {
       this.element.classList.add('player');
     }
-
-    // Start facing a random direction (radians)
-    this.angle = Math.random() * Math.PI * 2;
 
     // Cooldown between cannon shots
     this.lastShot = performance.now();

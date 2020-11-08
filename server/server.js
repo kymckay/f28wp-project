@@ -3,6 +3,8 @@ const socketio = require('socket.io');
 const http = require('http');
 const path = require('path');
 
+const Ship = require('./classes/ship');
+
 // Start hourly background generation
 require('./starfield').starGeneration(60);
 
@@ -44,18 +46,21 @@ app.post('/register', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  // TODO
-  // Start tracking client and also provide them initial conditions
-  // (their position and ID, the world size)
-
   // TODO lobbies
   // socket.join('some room');
 
-  // TODO emulating a delay at start for now
-  setTimeout(() => io.sockets.emit('game start'), 60000);
+  // TODO track all entites server side
+  const theirShip = new Ship([100, 100], true);
+  io.sockets.emit('player setup', {
+    id: theirShip.id,
+    // TODO allocate pos based on minimum world size
+    // and expand world if more players join
+    pos: theirShip.pos,
+    dir: theirShip.angle,
+  });
 
-  // TODO when done testing multi connections
-  io.sockets.emit('new connect', `${socket}: has joined`);
+  // TODO emulating a delay at start for now
+  setTimeout(() => io.sockets.emit('game start'), 8000);
 
   socket.on('disconnecting', () => {
     // TODO take over with an AI or remove from game
@@ -64,12 +69,6 @@ io.on('connection', (socket) => {
 });
 
 // TODO when a lobby has enough player or 30s passed, send the start signal
-
-// let i = 0;
-// setInterval(() => {
-//   io.sockets.emit('server tick', i);
-//   i += 1;
-// }, 200);
 
 server.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`);
