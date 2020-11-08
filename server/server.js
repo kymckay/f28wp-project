@@ -52,8 +52,8 @@ io.on('connection', (socket) => {
 
   // TODO track all entites server side
   const theirShip = new Ship([500, 500], true);
-  // TODO only send this to specific client
-  io.sockets.emit('player setup', {
+
+  socket.emit('player setup', {
     id: theirShip.id,
     // TODO allocate pos based on minimum world size
     // and expand world if more players join
@@ -78,7 +78,7 @@ io.on('connection', (socket) => {
       });
     }
 
-    io.sockets.emit('game start', {
+    socket.emit('game start', {
       world: [1000, 1000],
       asteroids,
     });
