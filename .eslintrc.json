@@ -12,6 +12,7 @@
       "objects": "always-multiline",
       "functions": "never"
     }],
-    "no-warning-comments": 1
+    "no-warning-comments": 1,
+    "no-plusplus": 0
   }
 }

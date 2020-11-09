@@ -1,7 +1,7 @@
 const Entity = require('./entity');
 
 class Ship extends Entity {
-  constructor(pos, angle, isPlayer) {
+  constructor(pos, isPlayer) {
     // Ships start without velocity
     super(pos, [0, 0]);
 
