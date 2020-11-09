@@ -1,35 +1,30 @@
-import worldToScreen from '../coordinates';
+import { worldToScreen } from '../coordinates';
 
 export default class Entity {
   // entity attributes supplied by server
-  constructor(container, id, x, y, velocity) {
+  constructor(container, id, pos, velocity) {
     this.id = id;
-    this.pos = [x, y];
-    this.velocity = velocity;
+    this.pos = pos; // [x, y] vector
+    this.velocity = velocity; // [x, y] vector
 
     // Consider splitting graphic into seperate class wrapped by this one
     this.parent = container;
+    this.element = this.createElement(container);
   }
 
   // Child classes must call createElement with their desired svg
-  createElement(width, height, svg = '') {
+  createElement(parent) {
     const div = document.createElement('div');
 
     // May need to retrieve this div by ID
     div.id = `entity${this.id}`;
 
-    div.style.width = `${width}px`;
-    div.style.height = `${height}px`;
-
     // Apply entity styling/positioning rules
     div.classList.add('entity');
 
-    // Add the graphics inside
-    div.innerHTML = svg;
+    parent.appendChild(div);
 
-    this.parent.appendChild(div);
-
-    this.element = div;
+    return div;
   }
 
   get x() { return this.pos[0]; }
@@ -41,10 +36,10 @@ export default class Entity {
   set y(y) { this.pos[1] = y; }
 
   // All entites will be rendered on screen in some way
-  render(screenOX, screenOY) {
+  render(screenO) {
     const div = this.element;
 
-    const [xPx, yPx] = worldToScreen(this.x, this.y, screenOX, screenOY);
+    const [xPx, yPx] = worldToScreen(this.pos, screenO);
 
     div.style.left = `${xPx}px`;
     div.style.top = `${yPx}px`;

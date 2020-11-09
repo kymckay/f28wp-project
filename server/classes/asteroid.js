@@ -1,9 +1,11 @@
-import Entity from './entity';
+const Entity = require('./entity');
 
-export default class Asteroid extends Entity {
-  constructor(x, y, scale) {
-    super(x, y, 0);
+class Asteroid extends Entity {
+  constructor(pos, size) {
+    super(pos, [0, 0]);
 
-    this.scale = scale;
+    this.size = size;
   }
 }
+
+module.exports = Asteroid;

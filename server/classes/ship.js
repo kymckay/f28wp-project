@@ -1,9 +1,14 @@
-import Entity from './entity';
+const Entity = require('./entity');
 
-export default class Ship extends Entity {
-  constructor(x, y, isPlayer) {
-    super(x, y, 0);
+class Ship extends Entity {
+  constructor(pos, angle, isPlayer) {
+    // Ships start without velocity
+    super(pos, [0, 0]);
 
+    // Initial orientation is superficial (radians)
+    this.angle = Math.random() * Math.PI * 2;
     this.isPlayer = isPlayer;
   }
 }
+
+module.exports = Ship;

@@ -1,11 +1,11 @@
-export default class Entity {
+class Entity {
   // all entities exist somewhere in space
-  constructor(x, y, velocity) {
-    this.pos = [x, y];
-    this.velocity = velocity;
+  constructor(pos, velocity) {
+    this.pos = pos; // [x, y] vector
+    this.velocity = velocity; // [x, y] vector
 
     // all entites must be identifyable for logic
-    this.id = this.newId();
+    this.id = Entity.newId();
   }
 
   get x() { return this.pos[0]; }
@@ -22,3 +22,5 @@ export default class Entity {
   }
 }
 Entity.id = 0;
+
+module.exports = Entity;
