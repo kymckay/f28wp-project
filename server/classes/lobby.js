@@ -28,6 +28,10 @@ class Lobby {
     playerSocket.join(this.id); // join the room
   }
 
+  leave(playerSocket) {
+    // TODO
+  }
+
   startGame() {
     this.inProgress = true;
     this.world.startGame();
