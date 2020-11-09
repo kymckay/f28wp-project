@@ -45,7 +45,7 @@ app.post('/register', (req, res) => {
 });
 
 // Track lobbies which exist and their state
-let currentLobby = new Lobby();
+let currentLobby = new Lobby(io);
 
 io.on('connection', (socket) => {
   // Need a new lobby if game already started
