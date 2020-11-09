@@ -32,9 +32,9 @@ class World {
     const pos = this.spawnPositions.splice(
       Math.floor(Math.random() * this.spawnPositions.length),
       1
-    );
+    )[0];
 
-    const ship = new Ship(pos, true)
+    const ship = new Ship(pos, true);
 
     this.gameObjects[id] = ship;
 
