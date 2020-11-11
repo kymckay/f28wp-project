@@ -28,18 +28,21 @@ window.addEventListener('keyup', (e) => {
   delete keysDown[e.code];
 });
 
-// Needed to enforce boundary and simulate wrap-around
-const world = [1000, 1000];
+// Dimensions to enforce boundary and simulate wrap-around
+const world = [0, 0];
 
 // Screen origin (top left) in world coordinates for rendering
 let screenO = [0, 0];
+
+// Player's ship is signifcant in multiple places
+let playerId;
 
 function render() {
   Object.values(allEntities).forEach((e) => e.render(screenO));
   requestAnimationFrame(render);
 }
 
-function keyHandler(playerId) {
+function keyHandler() {
   // Player ship may be a new object on repsawn
   const playerShip = allEntities[playerId];
 
@@ -67,7 +70,7 @@ function keyHandler(playerId) {
 }
 
 // Updates all entity positions in the world
-function simulate(playerId) {
+function simulate() {
   Object.values(allEntities).forEach((e) => {
     // Screen moves with player's ship (always centered)
     if (e === allEntities[playerId]) {
@@ -86,8 +89,10 @@ function preGameSetup(playArea, data) {
     [window.innerWidth / 2, window.innerHeight / 2]
   );
 
+  playerId = data.id;
+
   // Ship always starts centered
-  allEntities[data.id] = new Ship(
+  allEntities[playerId] = new Ship(
     playArea,
     data.id,
     data.pos,
@@ -97,8 +102,8 @@ function preGameSetup(playArea, data) {
 
   // Client side logic loop
   setInterval(() => {
-    keyHandler(data.id);
-    simulate(data.id);
+    keyHandler();
+    simulate();
   }, 10);
 
   // Enable only ship rotation until game starts
@@ -121,6 +126,22 @@ function onGameStart(playArea, data) {
       astData.pos,
       astData.vel,
       astData.size
+    );
+  });
+
+  // All other ships initialised at game start
+  data.ships.forEach((shipData) => {
+    // Player ship already exists
+    if (shipData.id === playerId) {
+      return;
+    }
+
+    allEntities[shipData.id] = new Ship(
+      playArea,
+      shipData.id,
+      shipData.pos,
+      shipData.dir,
+      false
     );
   });
 

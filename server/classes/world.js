@@ -121,11 +121,11 @@ class World {
     // TODO start simulation
   }
 
-  simulate(dT) {
-  }
+  // simulate(dT) {
+  // }
 
-  end() {
-  }
+  // end() {
+  // }
 
   serialize() {
     const asteroids = Object.values(this.allEntities)
