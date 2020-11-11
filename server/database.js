@@ -7,12 +7,12 @@ var con = mysql.createConnection({
     password: ""
 });
 
-// Connect and create database
+// Connect and query database
 con.connect(function(err) {
     if (err) throw err;
-    console.log("connected");
+    console.log("Connected!");
     con.query(sql,function(err,result) {
         if (err) throw err;
-        console.log("Database Dreated");
+        console.log("Result: " + result);
     });
 });
