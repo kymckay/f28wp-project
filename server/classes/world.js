@@ -20,7 +20,7 @@ class World {
       }
     }
 
-    this.gameObjects = {};
+    this.allEntities = {};
   }
 
   addPlayer(id) {
@@ -36,9 +36,14 @@ class World {
 
     const ship = new Ship(pos, true);
 
-    this.gameObjects[id] = ship;
+    this.allEntities[id] = ship;
 
     return ship;
+  }
+
+  removePlayer(id) {
+    // TODO free spawn pos if game not yet started
+    delete this.allEntities[id];
   }
 
   // If more space is needed another column and row are added

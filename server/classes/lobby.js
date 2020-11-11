@@ -9,27 +9,31 @@ class Lobby {
 
     this.world = new World();
     this.inProgress = false;
-    this.players = [];
+    this.players = {};
   }
 
-  join(playerSocket) {
-    this.players.push(playerSocket);
+  join(socket) {
+    this.players[socket.id] = socket;
 
     // Give the player a ship in the world
-    const ship = this.world.addPlayer(playerSocket.id);
-    playerSocket.emit('player setup', {
+    const ship = this.world.addPlayer(socket.id);
+    socket.emit('player setup', {
       id: ship.id,
       pos: ship.pos,
       dir: ship.angle,
     });
 
     // Tell everyone in the room this player has joined
-    this.io.to(this.id).emit('joined lobby', this.id);
-    playerSocket.join(this.id); // join the room
+    this.io.to(this.id).emit('joined lobby', socket.id);
+    socket.join(this.id); // join the room
   }
 
-  leave(playerSocket) {
-    // TODO
+  leave(socket) {
+    this.world.removePlayer(socket.id);
+    delete this.players[socket.id];
+
+    // TODO handle this client-side
+    this.io.to(this.id).emit('left lobby', socket.id);
   }
 
   startGame() {
