@@ -105,7 +105,17 @@ class World {
     }
   }
 
+  genAIShips() {
+    // Any remaining spawn positions become an AI
+    this.spawnPositions.forEach((pos) => {
+      const ai = new Ship(pos, false);
+
+      this.allEntities[ai.id] = ai;
+    });
+  }
+
   start() {
+    this.genAIShips();
     this.genAsteroids();
 
     // TODO start simulation
@@ -132,7 +142,7 @@ class World {
     };
   }
 }
-World.minPlayers = 10; // AI will fill slots up to this many players
+World.minPlayers = 10; // a world will scale for at least this many players
 World.cellSize = 2000; // px (player starts in each cell)
 World.clearRadius = 100; // px (clear space around spawn positions)
 World.astFrequency = 5; // asteroids per grid cell
