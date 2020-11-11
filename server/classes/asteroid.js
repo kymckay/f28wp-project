@@ -6,6 +6,15 @@ class Asteroid extends Entity {
 
     this.size = size;
   }
+
+  serialize() {
+    return {
+      id: this.id,
+      pos: this.pos,
+      vel: this.velocity,
+      size: this.size,
+    };
+  }
 }
 
 module.exports = Asteroid;

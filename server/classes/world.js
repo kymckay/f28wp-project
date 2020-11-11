@@ -1,4 +1,5 @@
 const Ship = require('./ship');
+const Asteroid = require('./asteroid');
 
 class World {
   constructor() {
@@ -83,6 +84,21 @@ class World {
   }
 
   end() {
+  }
+
+  serialize() {
+    const asteroids = Object.values(this.allEntities)
+      .filter((e) => e instanceof Asteroid)
+      .map((e) => e.serialize());
+    const ships = Object.values(this.allEntities)
+      .filter((e) => e instanceof Ship)
+      .map((e) => e.serialize());
+
+    return {
+      world: [this.width, this.height],
+      asteroids,
+      ships,
+    };
   }
 }
 World.minPlayers = 10; // AI will fill slots up to this many players

@@ -17,11 +17,7 @@ class Lobby {
 
     // Give the player a ship in the world
     const ship = this.world.addPlayer(socket.id);
-    socket.emit('player setup', {
-      id: ship.id,
-      pos: ship.pos,
-      dir: ship.angle,
-    });
+    socket.emit('player setup', ship.serialize());
 
     // Tell everyone in the room this player has joined
     this.io.to(this.id).emit('joined lobby', socket.id);
@@ -92,10 +88,7 @@ class Lobby {
     //   });
     // }
 
-    this.io.to(this.id).emit('game start', {
-      world: [this.world.width, this.world.height],
-      asteroids: [],
-    });
+    this.io.to(this.id).emit('game start', this.world.serialize());
   }
 }
 Lobby.lobbyID = 0;
