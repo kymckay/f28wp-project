@@ -6,7 +6,7 @@ class World {
     // Need at least enough cells for minPlayers
     const gridDims = Math.ceil(Math.sqrt(World.minPlayers));
 
-    // World spatial extent starts square
+    // World spatial extent always square
     this.width = gridDims * World.cellSize;
     this.height = this.width;
 
@@ -77,7 +77,38 @@ class World {
     }
   }
 
+  genAsteroids() {
+    // Generate asteroids in each cell (avoiding spawn position)
+    for (let a = 0; a < World.astFrequency; a++) {
+      for (let i = 0; i < this.width; i += World.cellSize) {
+        for (let j = 0; j < this.height; j += World.cellSize) {
+          // rejection sampling to find points away from cell centre
+          let x;
+          let y;
+          do {
+            x = Math.random() * World.cellSize;
+            y = Math.random() * World.cellSize;
+          } while (
+            Math.abs(World.cellSize / 2 - x) < World.clearRadius
+            || Math.abs(World.cellSize / 2 - y) < World.clearRadius
+          );
+
+          // All asteroids start randomly sized and distributed
+          const ast = new Asteroid(
+            [i + x, j + y], // x,y are within the cell i,j
+            Asteroid.minSize + Math.random() * (Asteroid.maxSize - Asteroid.minSize)
+          );
+
+          this.allEntities[ast.id] = ast;
+        }
+      }
+    }
+  }
+
   start() {
+    this.genAsteroids();
+
+    // TODO start simulation
   }
 
   simulate(dT) {
@@ -103,5 +134,7 @@ class World {
 }
 World.minPlayers = 10; // AI will fill slots up to this many players
 World.cellSize = 2000; // px (player starts in each cell)
+World.clearRadius = 100; // px (clear space around spawn positions)
+World.astFrequency = 5; // asteroids per grid cell
 
 module.exports = World;

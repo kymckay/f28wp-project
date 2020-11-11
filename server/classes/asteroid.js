@@ -16,5 +16,7 @@ class Asteroid extends Entity {
     };
   }
 }
+Asteroid.minSize = 40; // px (diameter)
+Asteroid.maxSize = 100; // px (diameter)
 
 module.exports = Asteroid;

@@ -71,22 +71,8 @@ class Lobby {
 
   startGame() {
     this.inProgress = true;
-    this.world.startGame();
 
-    // TODO in world
-    // const asteroids = [];
-    // for (let i = 0; i < 10; i += 1) {
-    //   const ast = new Asteroid(
-    //     [Math.random() * 1000, Math.random() * 1000],
-    //     50 + Math.random() * 50
-    //   );
-    //   asteroids.push({
-    //     id: ast.id,
-    //     pos: ast.pos,
-    //     vel: ast.velocity,
-    //     size: ast.size,
-    //   });
-    // }
+    this.world.start();
 
     this.io.to(this.id).emit('game start', this.world.serialize());
   }
