@@ -29,4 +29,4 @@ isExpired() {
 }
 
 //Constants for projectile behaviour
-projectiles.expirationTime = 5000; //ms for how long the projectiles exist
+projectiles.expirationTime = 2000; //ms for how long the projectiles exist
