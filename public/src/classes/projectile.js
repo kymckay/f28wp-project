@@ -12,6 +12,7 @@ export default class Projectile extends Entity {
 
   render(screenOX, screenOY) {
     if (isExpired) {
+      removeProjectile();
       return null;
     }
     super.render(screenOX, screenOY);
@@ -26,6 +27,11 @@ isExpired() {
     return true;
   }
   return false;
+}
+
+//remove the projectile
+removeProjectile{
+  this.remove();
 }
 
 //Constants for projectile behaviour
