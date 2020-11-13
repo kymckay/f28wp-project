@@ -19,19 +19,19 @@ export default class Projectile extends Entity {
 
     this.element.style.transform = `translate(-50%, -50%) rotate(${this.angle}rad)`;
   }
-}
 
-//check if the projectile should expire
-isExpired() {
-  if (performance.now() - this.lastProjectile >= projectile.expirationTime){
-    return true;
+  //check if the projectile should expire
+  isExpired() {
+    if (performance.now() - this.lastProjectile >= projectile.expirationTime){
+      return true;
+    }
+    return false;
   }
-  return false;
-}
 
-//remove the projectile
-removeProjectile{
-  this.remove();
+  //remove the projectile
+  removeProjectile() {
+    this.remove();
+  }
 }
 
 //Constants for projectile behaviour
