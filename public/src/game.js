@@ -1,114 +1,166 @@
-import ActionMap from './actionMap';
-import Controller from './controller';
-import PhysicsObject from './physicsObject';
-import Particle from './particle';
-import Vector from './vector';
-import circleCircle from './collision';
+/* global io */
+import Ship from './classes/ship';
+import Asteroid from './classes/asteroid';
+import { vectorAdd, vectorDiff } from './coordinates';
+import { hudMsg } from './hud';
 
-const gameObjects = {};
-const playerID = 0;
-const bindings = new ActionMap();
-const keyState = {};
+// Server sends game events/state via socket
+const socket = io();
 
-let [width, height] = [0, 0];
-let gameWindow;
-let lastFrame;
-let playerController;
+// All objects must be tracked for rendering (and any client simulation)
+const allEntities = {};
 
-function loop() {
-  // CALCULATE ELAPSED TIME SINCE LAST FRAME
-  const now = Date.now();
-  const dT = Math.min((now - lastFrame) / 1000, 200);
-  lastFrame = now;
+// Track which keys are pressed
+const keysDown = {};
 
-  // HANDLE INPUTS
-  Object.keys(bindings.mappings).forEach((key) => {
-    if (keyState[key]) playerController.handleInput(key);
-  });
+// Controls are enabled at different setup stages (this object tracks them)
+const handledKeys = {};
 
-  // UPDATE ALL PHYSICS OBJECTS
-  const objsToDestroy = [];
-  Object.values(gameObjects).forEach((obj) => {
-    obj.update(dT);
-    if (obj.destroyNextFrame) objsToDestroy.push(obj.id);
-  });
+window.addEventListener('keydown', (e) => {
+  // e.code corresponds to keyboard position
+  // and will work the same for any layout
+  if (e.code in handledKeys) {
+    keysDown[e.code] = true;
+    e.preventDefault();
+  }
+});
+window.addEventListener('keyup', (e) => {
+  delete keysDown[e.code];
+});
 
-  Object.entries(gameObjects).forEach((objID, obj) => {
-    Object.entries(gameObjects).forEach((otherID, other) => {
-      if (objID === otherID) return;
-      if (circleCircle(obj, other)) {
-        if (obj.hasTag('projectile') && other.hasTag('asteroid')) {
-          objsToDestroy.push(obj.id);
-          objsToDestroy.push(other.id);
-          const explosion = new Particle(gameWindow, obj, Vector.zero, 1);
-          explosion.div.classList.add('explosion');
-          explosion.addTag('effect');
-          gameObjects[explosion.id] = explosion;
-        }
-      }
-    });
-    obj.bounds(true);
-  });
-  objsToDestroy.forEach((id) => {
-    gameObjects[id].cleanUp();
-    delete gameObjects[id];
-  });
-}
+// Dimensions to enforce boundary and simulate wrap-around
+const world = [0, 0];
+
+// Screen origin (top left) in world coordinates for rendering
+let screenO = [0, 0];
+
+// Player's ship is signifcant in multiple places
+let playerId;
 
 function render() {
-  // ITERATE THROUGH ALL gameObjects
-  Object.values(gameObjects).forEach((obj) => obj.render());
+  Object.values(allEntities).forEach((e) => e.render(screenO));
   requestAnimationFrame(render);
 }
 
-function setup() {
-  gameWindow = document.getElementById('gameWindow');
-  width = gameWindow.style.width.slice(0, -2);
-  height = gameWindow.style.height.slice(0, -2);
-  const center = new Vector(width / 2, height / 2);
-  lastFrame = Date.now();
+function keyHandler() {
+  // Player ship may be a new object on repsawn
+  const playerShip = allEntities[playerId];
 
-  const playerObj = new PhysicsObject(gameWindow,
-    new Vector(width / 2, height / 2),
-    new Vector(),
-    32);
-  playerObj.div.classList.add('player');
-  playerObj.addTag('ship');
-  playerObj.collidable = true;
-  gameObjects[playerObj.id] = playerObj;
-
-  for (let i = 0; i < 8; i += 1) {
-    const position = Vector.randomUnit();
-    position.mul(width / 2);
-    position.add(center);
-    const velocity = Vector.fromAngle(Math.random() * Math.PI * 2, 2);
-    const rockObj = new PhysicsObject(gameWindow, position, velocity, 40);
-    rockObj.div.classList.add('rock');
-    rockObj.addTag('asteroid');
-    rockObj.canRotate = true;
-    rockObj.pangle -= (Math.random() * 0.0872665) - 0.0436332;
-    gameObjects[rockObj.id] = rockObj;
+  // Ship can't thrust and break together (hence XOR)
+  if (keysDown.ArrowUp ? !keysDown.ArrowDown : keysDown.ArrowDown) {
+    if (keysDown.ArrowUp) {
+      playerShip.accelerate();
+    } else {
+      playerShip.brake();
+    }
   }
 
-  playerController = new Controller(gameWindow, gameObjects, playerID, bindings);
-  bindings.add('ArrowUp', playerController.forward);
-  bindings.add('ArrowDown', playerController.backward);
-  bindings.add('ArrowLeft', playerController.left);
-  bindings.add('ArrowRight', playerController.right);
-  bindings.add(' ', playerController.shoot);
+  // Ship can't turn boths ways at once (hence XOR)
+  if (keysDown.ArrowLeft ? !keysDown.ArrowRight : keysDown.ArrowRight) {
+    playerShip.turn(keysDown.ArrowLeft);
+  }
 
-  setInterval(loop, 10);
+  if (keysDown.Space) {
+    const proj = playerShip.shoot();
+
+    if (proj) {
+      allEntities[proj.id] = proj;
+    }
+  }
+}
+
+// Updates all entity positions in the world
+function simulate() {
+  Object.values(allEntities).forEach((e) => {
+    // Screen moves with player's ship (always centered)
+    if (e === allEntities[playerId]) {
+      screenO = vectorAdd(screenO, e.velocity);
+    }
+
+    // TODO prevent exiting world boundary
+    e.pos = vectorAdd(e.pos, e.velocity);
+  });
+}
+
+function preGameSetup(playArea, data) {
+  // Top left of screen initial coordinates found from initial ship coordinates
+  screenO = vectorDiff(
+    data.pos,
+    [window.innerWidth / 2, window.innerHeight / 2]
+  );
+
+  playerId = data.id;
+
+  // Ship always starts centered
+  allEntities[playerId] = new Ship(
+    playArea,
+    data.id,
+    data.pos,
+    data.dir,
+    true // this is the player's ship
+  );
+
+  // Client side logic loop
+  setInterval(() => {
+    keyHandler();
+    simulate();
+  }, 10);
+
+  // Enable only ship rotation until game starts
+  handledKeys.ArrowLeft = true;
+  handledKeys.ArrowRight = true;
+}
+
+function onGameStart(playArea, data) {
+  // Game starting message no longer applies
+  hudMsg('game-start-msg', null);
+
+  // This changes based on players
+  [world[0], world[1]] = data.world;
+
+  // All asteroids initialised at game start
+  data.asteroids.forEach((astData) => {
+    allEntities[astData.id] = new Asteroid(
+      playArea,
+      astData.id,
+      astData.pos,
+      astData.vel,
+      astData.size
+    );
+  });
+
+  // All other ships initialised at game start
+  data.ships.forEach((shipData) => {
+    // Player ship already exists
+    if (shipData.id === playerId) {
+      return;
+    }
+
+    allEntities[shipData.id] = new Ship(
+      playArea,
+      shipData.id,
+      shipData.pos,
+      shipData.dir,
+      false
+    );
+  });
+
+  // Enable rest of ship controls now
+  handledKeys.ArrowDown = true;
+  handledKeys.ArrowUp = true;
+  handledKeys.Space = true;
+}
+
+// Page must be ready before we can start interacting with it
+window.addEventListener('load', () => {
+  const playArea = document.getElementById('playArea');
+
+  // Rendering loop
   requestAnimationFrame(render);
-}
 
-function keydownEvent(e) {
-  keyState[e.key] = true;
-}
+  hudMsg('game-start-msg', 'Game loading...');
 
-function keyupEvent(e) {
-  keyState[e.key] = false;
-}
+  socket.on('player setup', (data) => preGameSetup(playArea, data));
 
-window.addEventListener('load', setup);
-window.addEventListener('keyDown', keydownEvent);
-window.addEventListener('keyUp', keyupEvent);
+  socket.on('game start', (data) => onGameStart(playArea, data));
+});

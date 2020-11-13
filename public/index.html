@@ -1,65 +1,70 @@
 <!DOCTYPE HTML>
-
 <html>
   <head>
     <title>Team STEAK Game</title>
-    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="css/menu.css">
+    <script src="/socket.io/socket.io.js"></script>
   </head>
-
   <body>
-    <div id="menu">
-      <h1>STEAK: Spaceships, Time, Evasion and Kills</h1>
-
-      <!-- using post methods to hide values from URL -->
-      <form action="play" method="post">
-        <input type="text" name="guestName" placeholder="Guest Name">
-        <input type="submit" value="PLAY">
-      </form>
-
-      <!-- login and register on same flex row -->
-      <div id="userForms">
-        <form action="login" method="post">
-          <input type="text" name="user" placeholder="Username">
-          <input type="password" name="pword" placeholder="Password">
-          <input type="submit" value="LOGIN">
-        </form>
-
-        <form action="register" method="post">
-          <input type="text" name="user" placeholder="Username">
-          <input type="password" name="pword" placeholder="Password">
-          <input type="submit" value="REGISTER">
-        </form>
-      </div>
+    <div id="background">
+      <div id="stars"></div>
     </div>
+    <div id="playArea">
+      <div id="menu">
+        <h1>STEAK: Spaceships, Time, Evasion and Kills</h1>
 
-    <div id="footer">
-      <h1>TEAM</h1>
-      <div id="tileRow">
-        <div class="tile">
-          S
-        </div>
-        <!-- TODO Make tooltips with our names show on hover -->
-        <!-- <span class="tooltip">Mohammad Shariq Farooqui<br>MSc Data Science</span> -->
+        <!-- using post methods to hide values from URL -->
+        <form action="play" method="post">
+          <input type="text" name="guestName" placeholder="Guest Name">
+          <input type="submit" value="PLAY">
+        </form>
 
-        <div class="tile">
-          T
-        </div>
-        <!-- <span class="tooltip">Tom<br>MEng Computing and Electronics</span> -->
+        <!-- login and register on same flex row -->
+        <div id="userForms">
+          <form action="login" method="post">
+            <input type="text" name="user" placeholder="Username">
+            <input type="password" name="pword" placeholder="Password">
+            <input type="submit" value="LOGIN">
+          </form>
 
-        <div class="tile">
-          E
+          <form action="register" method="post">
+            <input type="text" name="user" placeholder="Username">
+            <input type="password" name="pword" placeholder="Password">
+            <input type="submit" value="REGISTER">
+          </form>
         </div>
-        <!-- <span class="tooltip">Emily Sefton<br>MEng Computing and Electronics</span> -->
+      </div>
 
-        <div class="tile">
-          A
-        </div>
-        <!-- <span class="tooltip">Alexandra Cures<br>MEng Computing and Electronics</span> -->
+      <div id="footer">
+        <h1>TEAM</h1>
+        <div id="tileRow">
+          <div class="tile">
+            S
+          </div>
+          <!-- TODO Make tooltips with our names show on hover -->
+          <!-- <span class="tooltip">Mohammad Shariq Farooqui<br>MSc Data Science</span> -->
 
-        <div class="tile">
-          K
+          <div class="tile">
+            T
+          </div>
+          <!-- <span class="tooltip">Tom<br>MEng Computing and Electronics</span> -->
+
+          <div class="tile">
+            E
+          </div>
+          <!-- <span class="tooltip">Emily Sefton<br>MEng Computing and Electronics</span> -->
+
+          <div class="tile">
+            A
+          </div>
+          <!-- <span class="tooltip">Alexandra Cures<br>MEng Computing and Electronics</span> -->
+
+          <div class="tile">
+            K
+          </div>
+          <!-- <span class="tooltip">Kyle McKay<br>MSc Data Science</span> -->
         </div>
-        <!-- <span class="tooltip">Kyle McKay<br>MSc Data Science</span> -->
       </div>
     </div>
   </body>

@@ -1,0 +1,40 @@
+#hud {
+  /* full screen */
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  /* No scrollbars */
+  overflow: hidden;
+}
+
+#msg-list {
+  position: absolute;
+
+  /* center horizontally */
+  left: 50%;
+  transform: translate(-50%, 0);
+
+  /* position near top of screen */
+  top: 1vh;
+
+  /* messages are listed as a column */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  /* column to bottom of screen */
+  width: 120px;
+  height: 99vh;
+}
+
+#msg-list p {
+  color: white;
+  background-color: #222;
+
+  width: inherit;
+  height: 40px;
+}
