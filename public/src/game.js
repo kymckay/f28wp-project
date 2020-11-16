@@ -164,6 +164,13 @@ function onGameStart(playArea, data) {
   handledKeys.Space = true;
 }
 
+function onGameTick(playArea, data) {
+  data.asteroids.forEach((astData) => {
+    allEntities[astData.id].pos = astData.pos;
+    allEntities[astData.id].vel = astData.vel;
+  });
+}
+
 // Page must be ready before we can start interacting with it
 window.addEventListener('load', () => {
   const playArea = document.getElementById('playArea');
@@ -178,4 +185,6 @@ window.addEventListener('load', () => {
   socket.on('player setup', (data) => preGameSetup(playArea, data));
 
   socket.on('game start', (data) => onGameStart(playArea, data));
+
+  socket.on('game tick', (data) => onGameTick(playArea, data));
 });
