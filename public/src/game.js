@@ -79,6 +79,19 @@ function simulate() {
 
     // TODO prevent exiting world boundary
     e.pos = vectorAdd(e.pos, e.velocity);
+
+    // Asteroids wrap to other side of world
+    if (e instanceof Asteroid) {
+      if (e.x < 0) {
+        e.x += world[0];
+      } else if (e.x > world[0]) {
+        e.x -= world[0];
+      } else if (e.y < 0) {
+        e.y += world[1];
+      } else if (e.y > world[1]) {
+        e.y -= world[1];
+      }
+    }
   });
 }
 
