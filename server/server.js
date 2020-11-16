@@ -48,6 +48,7 @@ app.post('/register', (req, res) => {
 let currentLobby = new Lobby(io);
 
 io.on('connection', (socket) => {
+  console.log(`${socket.id} has connected`);
   // Need a new lobby if game already started
   currentLobby = currentLobby.inProgress ? new Lobby(io) : currentLobby;
 
@@ -58,6 +59,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnecting', () => {
     playerLobby.leave(socket);
+    console.log(`${socket.id} has disconnected`);
   });
 });
 

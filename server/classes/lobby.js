@@ -10,6 +10,8 @@ class Lobby {
     this.world = new World();
     this.inProgress = false;
     this.players = {};
+
+    console.log(`Lobby[${this.id}] created`);
   }
 
   join(socket) {
@@ -24,7 +26,7 @@ class Lobby {
     socket.join(this.id); // join the room
 
     socket.on('client tick', (shipInfo) => {
-      console.log(`$Client tick from : ${socket.id}`);
+      // console.log(`$Client tick from : ${socket.id}`);
       this.world.playerInput(socket.id, shipInfo);
     });
 
@@ -32,6 +34,7 @@ class Lobby {
     if (Object.keys(this.players).length === 1) {
       this.startCountdown();
     }
+    console.log(`Lobby[${this.id}] ${socket.id} connected`);
   }
 
   leave(socket) {
@@ -50,6 +53,7 @@ class Lobby {
         this.stopCountdown();
       }
     }
+    console.log(`Lobby[${this.id}] ${socket.id} disconnected`);
   }
 
   startCountdown() {
@@ -67,6 +71,8 @@ class Lobby {
 
       this.io.to(this.id).emit('prestart count', this.countdown);
     }, 1000);
+
+    console.log(`Lobby[${this.id}] starting in ${Lobby.startTime}`);
   }
 
   // Countdown stops if everyone leaves or game starts
@@ -81,6 +87,8 @@ class Lobby {
 
     this.io.to(this.id).emit('game start', this.world.serialize());
     setInterval(this.gameTick.bind(this), 100);
+
+    console.log(`Lobby[${this.id}] has started`);
   }
 
   gameTick() {
