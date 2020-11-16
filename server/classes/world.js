@@ -1,7 +1,5 @@
 const Ship = require('./ship');
 const Asteroid = require('./asteroid');
-const e = require('express');
-const Entity = require('./entity');
 
 class World {
   constructor() {
@@ -121,18 +119,14 @@ class World {
     this.genAsteroids();
 
     // TODO start simulation
-    this.simulate();
-    setInterval(() => { this.simulate(20); }, 200);
+    setInterval(() => { this.simulate(); }, 200);
   }
 
-  simulate(dT) {
-    this.allEntities.forEach((entity) => {
-      console.log(`${entity}`);
-      entity.vel[0] += entity.acc[0] * dT;
-      entity.vel[1] += entity.acc[1] * dT;
-      entity.acc = [0, 0];
-      entity.pos[0] += entity.vel[0] * dT;
-      entity.pos[1] += entity.vel[1] * dT;
+  simulate() {
+    this.allEntities.forEach((e) => {
+      // console.log(`${entity.id}`);
+      e.pos[0] += e.vel[0];
+      e.pos[1] += e.vel[1];
     });
   }
 

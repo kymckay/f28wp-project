@@ -3,7 +3,6 @@ class Entity {
   constructor(pos, vel) {
     this.pos = pos; // [x, y] vector
     this.vel = vel; // [x, y] vector
-    this.acc = [0, 0];
 
     // all entites must be identifyable for logic
     this.id = Entity.newId();
