@@ -95,7 +95,8 @@ class World {
 
           // All asteroids start randomly sized and distributed
           const ast = new Asteroid(
-            [i + x, j + y], // x,y are within the cell i,j
+            [i + x, j + y],
+            [Math.random() * 6 - 3, Math.random() * 6 - 3], // x,y are within the cell i,j
             Asteroid.minSize + Math.random() * (Asteroid.maxSize - Asteroid.minSize)
           );
 
@@ -115,7 +116,7 @@ class World {
   }
 
   start() {
-    this.genAIShips();
+    // this.genAIShips();
     this.genAsteroids();
 
     // TODO start simulation
