@@ -162,6 +162,15 @@ function onGameStart(playArea, data) {
   handledKeys.ArrowDown = true;
   handledKeys.ArrowUp = true;
   handledKeys.Space = true;
+
+  // Inform server about player's position
+  setInterval(() => {
+    io.emit('client tick', {
+      pos: playerShip.pos,
+      vel: playerShip.velocity,
+      dir: playerShip.angle,
+    });
+  }, 10);
 }
 
 function onGameTick(playArea, data) {
