@@ -1,3 +1,4 @@
+const performance = require('perf_hooks');
 const Ship = require('./ship');
 const Asteroid = require('./asteroid');
 
@@ -131,7 +132,7 @@ class World {
     this.genAsteroids();
 
     // TODO start simulation
-    setInterval(() => { this.simulate(); }, 50);
+    this.loopInterval = setInterval(() => { this.simulate(); }, 50);
   }
 
   simulate() {
@@ -142,8 +143,13 @@ class World {
     });
   }
 
-  // end() {
-  // }
+  end() {
+    clearInterval(this.loopInterval);
+  }
+
+  // addEntity() {}
+
+  // removeEntity() {}
 
   serialize() {
     const asteroids = Object.values(this.allEntities)
@@ -155,6 +161,7 @@ class World {
 
     return {
       world: [this.width, this.height],
+      time: performance.now(),
       asteroids,
       ships,
     };

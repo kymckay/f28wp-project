@@ -10,11 +10,12 @@ class Ship extends Entity {
     this.isPlayer = isPlayer;
   }
 
+
+
   serialize() {
     return {
       id: this.id,
       pos: this.pos,
-      vel: this.vel,
       dir: this.dir,
     };
   }
