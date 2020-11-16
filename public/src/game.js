@@ -38,6 +38,12 @@ let screenO = [0, 0];
 let playerId;
 
 function render() {
+  // Screen origin (top left) moves with ship (always centered)
+  screenO = vectorDiff(
+    allEntities[playerId].pos,
+    [window.innerWidth / 2, window.innerHeight / 2]
+  );
+
   Object.values(allEntities).forEach((e) => e.render(screenO));
   requestAnimationFrame(render);
 }
@@ -72,11 +78,6 @@ function keyHandler() {
 // Updates all entity positions in the world
 function simulate() {
   Object.values(allEntities).forEach((e) => {
-    // Screen moves with player's ship (always centered)
-    if (e === allEntities[playerId]) {
-      screenO = vectorAdd(screenO, e.velocity);
-    }
-
     // TODO prevent exiting world boundary
     e.pos = vectorAdd(e.pos, e.velocity);
 
@@ -96,12 +97,6 @@ function simulate() {
 }
 
 function preGameSetup(playArea, data) {
-  // Top left of screen initial coordinates found from initial ship coordinates
-  screenO = vectorDiff(
-    data.pos,
-    [window.innerWidth / 2, window.innerHeight / 2]
-  );
-
   playerId = data.id;
 
   // Ship always starts centered
@@ -112,6 +107,9 @@ function preGameSetup(playArea, data) {
     data.dir,
     true // this is the player's ship
   );
+
+  // Rendering loop starts
+  requestAnimationFrame(render);
 
   // Client side logic loop
   setInterval(() => {
@@ -191,9 +189,6 @@ function onGameTick(playArea, data) {
 // Page must be ready before we can start interacting with it
 window.addEventListener('load', () => {
   const playArea = document.getElementById('playArea');
-
-  // Rendering loop
-  requestAnimationFrame(render);
 
   // Client should know why they're waiting (and how long's left)
   hudMsg('game-start-msg', 'Game loading...');
