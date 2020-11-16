@@ -167,7 +167,7 @@ function onGameStart(playArea, data) {
   setInterval(() => {
     const playerShip = allEntities[playerId];
 
-    io.emit('client tick', {
+    socket.emit('client tick', {
       pos: playerShip.pos,
       vel: playerShip.velocity,
       dir: playerShip.angle,
