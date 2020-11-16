@@ -158,7 +158,9 @@ window.addEventListener('load', () => {
   // Rendering loop
   requestAnimationFrame(render);
 
+  // Client should know why they're waiting (and how long's left)
   hudMsg('game-start-msg', 'Game loading...');
+  socket.on('prestart count', (remaining) => hudMsg('game-start-msg', `Game loading in ${remaining} seconds`));
 
   socket.on('player setup', (data) => preGameSetup(playArea, data));
 
