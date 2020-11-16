@@ -1,56 +1,58 @@
 const express = require('express');
+
 const path = require('path');
 const app = express();
 const port = 8070;
-const mysql = require("mysql");
+const mysql = require('mysql');
 const alert = require('alert');
 
 const bodyParser = require('body-parser');
 const { check } = require('express-validator');
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // Files stored statically in public folder
-app.use(express.static(path.join(__dirname,'../public/')))
+app.use(express.static(path.join(__dirname, '../public/')));
 
 app.post('/play', (req, res) => {
-    // TODO Check if guest name set, or logged in
+// TODO Check if guest name set, or logged in
 
-    res.sendFile(path.join(__dirname,'../public/play.html'))
-})
+  res.sendFile(path.join(__dirname, '../public/play.html'))
+});
 
-// following block of code creates the database and its tables locally. Must do it outside post to avoid overwrite.
+// following block of code creates the database and its tables locally.
+//Must do it outside post to avoid overwrite.
 const con = mysql.createConnection({
-    host: "localhost", // use your own hostname
-    user: "root", // use your mysql username
-    password: "Aceg0864", //use your password
-  })
+  host: 'localhost', // use your own hostname
+  user: 'root', // use your mysql username
+  password: 'Aceg0864', //use your password
+});
 
-  con.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected!");
+con.connect(function (err) {
+  if (err) throw err;
+  console.log('Connected!');
 
-    con.query("DROP DATABASE IF EXISTS steak", function (err, result) {
-        if (err) throw err;
-    })
-
-    con.query("CREATE DATABASE steak", function (err, result) {
+  con.query('DROP DATABASE IF EXISTS steak', function (err, result) {
       if (err) throw err;
-      console.log("Database created");
-    })
+  });
 
-    con.query("USE steak", function (err,result) {
-        if (err) throw err;
-        console.log("Using Database steak");
-    })
+  con.query('CREATE DATABASE steak', function (err, result) {
+    if (err) throw err;
+    console.log('Database created');
+  });
 
-    const query1 = "CREATE TABLE players (username VARCHAR(50) NOT NULL PRIMARY KEY, password VARCHAR(50) NOT NULL)";
+  con.query('USE steak', function (err, result) {
+    if (err) throw err;
+    console.log('Using Database steak');
+  });
 
-    con.query(query1, function (err, result) {
-        if (err) throw err;
-        console.log("Table created");
-    })
+  const query1 = 'CREATE TABLE players (username VARCHAR(50) NOT NULL PRIMARY KEY, password VARCHAR(50) NOT NULL)';
 
-})
+  con.query(query1, function (err, result) {
+    if (err) throw err;
+    console.log("Table created");
+  });
+
+});
 
 
 app.post('/register', (req, res) => {
