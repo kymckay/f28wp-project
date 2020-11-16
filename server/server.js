@@ -67,10 +67,10 @@ app.post('/register', (req, res) => {
     con.query(query2, [name, pass], (err, results, fields) => {
       if (err) {
         console.log('Failed to register: ' + err);
-        // res.send(<script>alert("Username already exists."); 
+        // res.send(<script>alert("Username already exists.");
         // window.location.href = "index.html"; </script>);
         res.sendStatus(500);
-        // res.render('index.html', {alertMsg:"Username already exists."}); 
+        // res.render('index.html', {alertMsg:"Username already exists."});
         // assuming only error possible is violation of primary key
         return;
       }
@@ -88,23 +88,23 @@ app.post('/login', (req, res) => {
   const pass = req.body.pword;
   const credentials = 'SELECT * FROM players WHERE username = ? AND password = ?';
 
-  con.connect(function(err) {
+  con.connect(function (err) {
     con.query(credentials, [name, pass], (err, data, fields) => {
       if (err) {
         console.log('Failed to login: ' + err);
       } else if (data.length > 0) {
         console.log('Successfully logged in.');
         res.redirect('play.html');
-        } else {
-          console.log("Incorrect username or password.");
-          //alert("Incorrect username or password.")
-          //res.sendStatus(500)
-          //return
+      } else {
+        console.log('Incorrect username or password.');
+        // alert('Incorrect username or password.');
+        // res.sendStatus(500);
+        // return;
         }
     });
   });
 });
 
 app.listen(port, () => {
-  console.log(`Listening on http://localhost:${port}`)
+  console.log(`Listening on http://localhost:${port}`);
 });
