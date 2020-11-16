@@ -91,7 +91,7 @@ app.post('/login', (req, res) => {
   con.connect(function (err) {
     con.query(credentials, [name, pass], (err, data, fields) => {
       if (err) {
-        console.log('Failed to login: ' + err);
+        console.log("Failed to login: " + err);
       } else if (data.length > 0) {
         console.log('Successfully logged in.');
         res.redirect('play.html');
@@ -100,7 +100,7 @@ app.post('/login', (req, res) => {
         // alert('Incorrect username or password.');
         // res.sendStatus(500);
         // return;
-        }
+      }
     });
   });
 });
