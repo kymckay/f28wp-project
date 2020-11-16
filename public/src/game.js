@@ -165,9 +165,15 @@ function onGameStart(playArea, data) {
 }
 
 function onGameTick(playArea, data) {
-  data.asteroids.forEach((astData) => {
-    allEntities[astData.id].pos = astData.pos;
-    allEntities[astData.id].vel = astData.vel;
+  data.asteroids.forEach((ast) => {
+    allEntities[ast.id].pos = ast.pos;
+    allEntities[ast.id].velocity = ast.vel;
+  });
+
+  data.ships.forEach((ship) => {
+    allEntities[ship.id].pos = ship.pos;
+    allEntities[ship.id].angle = ship.dir;
+    allEntities[ship.id].velocity = ship.vel;
   });
 }
 
