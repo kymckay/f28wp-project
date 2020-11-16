@@ -53,9 +53,7 @@ con.connect(function (err) {
   con.query(query1, function (err, result) {
     if (err) throw err;
     console.log('Table created');
-  
   });
-
 });
 
 app.post('/register', (req, res) => {
@@ -66,52 +64,47 @@ app.post('/register', (req, res) => {
   const query2 = 'INSERT INTO players (username, password) VALUES (?, ?)';
 
   con.connect(function (err) {
-
     con.query(query2, [name, pass], (err, results, fields) => {
       if (err) {
-        console.log("Failed to register: " + err);
-        //res.send(<script>alert("Username already exists."); window.location.href = "index.html"; </script>);
+        console.log('Failed to register: ' + err);
+        // res.send(<script>alert("Username already exists."); 
+        // window.location.href = "index.html"; </script>);
         res.sendStatus(500);
-        //res.render('index.html', {alertMsg:"Username already exists."}); //assuming only error possible is violation of primary key
+        // res.render('index.html', {alertMsg:"Username already exists."}); 
+        // assuming only error possible is violation of primary key
         return;
       }
-      console.log("Registered new user successfully.");
-      res.redirect("index.html");
-      res.end()
-
-      });
+      console.log('Registered new user successfully.');
+      res.redirect('index.html');
+      res.end();
+    });
   });
 });
 
 app.post('/login', (req, res) => {
-    // TODO Login existing user if exists, refuse otherwise
+  // TODO Login existing user if exists, refuse otherwise
 
-    const name = req.body.user
-    const pass = req.body.pword
-    const credentials = "SELECT * FROM players WHERE username = ? AND password = ?";
+  const name = req.body.user;
+  const pass = req.body.pword;
+  const credentials = 'SELECT * FROM players WHERE username = ? AND password = ?';
 
-    con.connect(function(err) {
-
-        con.query(credentials, [name, pass], (err, data, fields) => {
-
-            if (err) {
-                console.log("Failed to login: " + err)
-            } else if (data.length > 0) {
-                console.log("Successfully logged in.")
-                res.redirect("play.html");
-            } else {
-                console.log("Incorrect username or password.")
-                //alert("Incorrect username or password.")
-                //res.sendStatus(500)
-                //return
-            }
-
-        })
-    })
-
-})
+  con.connect(function(err) {
+    con.query(credentials, [name, pass], (err, data, fields) => {
+      if (err) {
+        console.log('Failed to login: ' + err);
+      } else if (data.length > 0) {
+        console.log('Successfully logged in.');
+        res.redirect('play.html');
+        } else {
+          console.log("Incorrect username or password.");
+          //alert("Incorrect username or password.")
+          //res.sendStatus(500)
+          //return
+        }
+    });
+  });
+});
 
 app.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`)
-})
-
+});
