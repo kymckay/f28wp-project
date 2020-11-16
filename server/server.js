@@ -5,11 +5,11 @@ const path = require('path');
 const app = express();
 const port = 8070;
 const mysql = require('mysql');
-const alert = require('alert');
+// const alert = require('alert');
 
 const bodyParser = require('body-parser');
 
-const { check } = require('express-validator');
+// const { check } = require('express-validator');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -27,7 +27,7 @@ app.post('/play', (req, res) => {
 const con = mysql.createConnection({
   host: 'localhost', // use your own hostname
   user: 'root', // use your mysql username
-  password: 'Aceg0864', //use your password
+  password: 'Aceg0864', // use your password
 });
 
 con.connect(function (err) {
@@ -35,7 +35,7 @@ con.connect(function (err) {
   console.log('Connected!');
 
   con.query('DROP DATABASE IF EXISTS steak', function (err, result) {
-      if (err) throw err;
+    if (err) throw err;
   });
 
   con.query('CREATE DATABASE steak', function (err, result) {
@@ -53,8 +53,9 @@ con.connect(function (err) {
   con.query(query1, function (err, result) {
     if (err) throw err;
     console.log('Table created');
+  
   });
-    
+
 });
 
 app.post('/register', (req, res) => {
@@ -66,20 +67,20 @@ app.post('/register', (req, res) => {
 
   con.connect(function (err) {
 
-      con.query(query2, [name, pass], (err, results, fields) => {
-          if (err) {
-              console.log("Failed to register: " + err);
-              //res.send(<script>alert("Username already exists."); window.location.href = "index.html"; </script>);
-              res.sendStatus(500);
-              //res.render('index.html', {alertMsg:"Username already exists."}); //assuming only error possible is violation of primary key
-              return;
-            }
-                console.log("Registered new user successfully.");
-                res.redirect("index.html");
-                res.end()
+    con.query(query2, [name, pass], (err, results, fields) => {
+      if (err) {
+        console.log("Failed to register: " + err);
+        //res.send(<script>alert("Username already exists."); window.location.href = "index.html"; </script>);
+        res.sendStatus(500);
+        //res.render('index.html', {alertMsg:"Username already exists."}); //assuming only error possible is violation of primary key
+        return;
+      }
+      console.log("Registered new user successfully.");
+      res.redirect("index.html");
+      res.end()
 
-        });
-    });
+      });
+  });
 });
 
 app.post('/login', (req, res) => {
