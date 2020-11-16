@@ -165,6 +165,8 @@ function onGameStart(playArea, data) {
 
   // Inform server about player's position
   setInterval(() => {
+    const playerShip = allEntities[playerId];
+
     io.emit('client tick', {
       pos: playerShip.pos,
       vel: playerShip.velocity,
