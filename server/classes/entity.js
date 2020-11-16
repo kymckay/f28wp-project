@@ -1,8 +1,9 @@
 class Entity {
   // all entities exist somewhere in space
-  constructor(pos, velocity) {
+  constructor(pos, vel) {
     this.pos = pos; // [x, y] vector
-    this.velocity = velocity; // [x, y] vector
+    this.vel = vel; // [x, y] vector
+    this.acc = [0, 0];
 
     // all entites must be identifyable for logic
     this.id = Entity.newId();

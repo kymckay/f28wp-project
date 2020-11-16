@@ -11,7 +11,7 @@ class Asteroid extends Entity {
     return {
       id: this.id,
       pos: this.pos,
-      vel: this.velocity,
+      vel: this.vel,
       size: this.size,
     };
   }

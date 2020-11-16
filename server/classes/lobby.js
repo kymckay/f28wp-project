@@ -75,11 +75,16 @@ class Lobby {
     this.world.start();
 
     this.io.to(this.id).emit('game start', this.world.serialize());
+    setInterval(this.gameTick.bind(this), 100);
+  }
+
+  gameTick() {
+    this.io.to(this.id).emit('game tick', this.world.serialize());
   }
 }
 Lobby.lobbyID = 0;
 
 // Time from first player joining to game starting
-Lobby.startTime = 30; // seconds
+Lobby.startTime = 10; // seconds
 
 module.exports = Lobby;
