@@ -32,7 +32,6 @@ export default class Projectile extends Entity {
   removeProjectile(elementId) {
        var element = document.getElementById(elementId);
        element.parentNode.removeChild(element);
-    }
   }
 }
 
