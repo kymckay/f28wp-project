@@ -12,7 +12,7 @@ export default class Projectile extends Entity {
 
   render(screenOX, screenOY) {
     if (this.isExpired()) {
-      this.removeProjectile();
+      this.removeProjectile(this.id);
       return null;
     }
     super.render(screenOX, screenOY);
@@ -29,8 +29,10 @@ export default class Projectile extends Entity {
   }
 
   //remove the projectile
-  removeProjectile() {
-    this.remove();
+  removeProjectile(elementId) {
+       var element = document.getElementById(elementId);
+       element.parentNode.removeChild(element);
+    }
   }
 }
 
