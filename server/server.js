@@ -3,6 +3,7 @@ const path = require('path');
 const app = express();
 const port = 8070;
 const mysql = require("mysql");
+const alert = require('alert');
 
 const bodyParser = require('body-parser');
 const { check } = require('express-validator');
@@ -64,6 +65,7 @@ app.post('/register', (req, res) => {
         con.query(query2, [name, pass], (err, results, fields) => {
             if (err) {
                 console.log("Failed to register: " + err)
+                //res.send(<script>alert("Username already exists."); window.location.href = "index.html"; </script>);
                 res.sendStatus(500)
                 //res.render('index.html', {alertMsg:"Username already exists."}); //assuming only error possible is violation of primary key
                 return
@@ -93,8 +95,10 @@ app.post('/login', (req, res) => {
                 console.log("Successfully logged in.")
                 res.redirect("play.html");
             } else {
-                res.sendStatus(500)
-                return
+                console.log("Incorrect username or password.")
+                //alert("Incorrect username or password.")
+                //res.sendStatus(500)
+                //return
             }
 
         })
