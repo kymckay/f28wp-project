@@ -36,6 +36,7 @@ class World {
     )[0];
 
     const ship = new Ship(pos, true);
+    ship.id = id;
 
     this.allEntities[id] = ship;
 
@@ -115,12 +116,22 @@ class World {
     });
   }
 
+  playerInput(shipID, input) {
+    const ship = this.allEntities[shipID];
+    const newVel = input.vel;
+    const newDir = input.dir;
+
+    // TODO validate this input
+    ship.vel = newVel;
+    ship.dir = newDir;
+  }
+
   start() {
     // this.genAIShips();
     this.genAsteroids();
 
     // TODO start simulation
-    setInterval(() => { this.simulate(); }, 200);
+    setInterval(() => { this.simulate(); }, 50);
   }
 
   simulate() {

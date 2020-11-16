@@ -23,6 +23,11 @@ class Lobby {
     this.io.to(this.id).emit('joined lobby', socket.id);
     socket.join(this.id); // join the room
 
+    socket.on('client tick', (shipInfo) => {
+      console.log(`$Client tick from : ${socket.id}`);
+      this.world.playerInput(socket.id, shipInfo);
+    });
+
     // Game start countdown begins when anyone is in the lobby
     if (Object.keys(this.players).length === 1) {
       this.startCountdown();

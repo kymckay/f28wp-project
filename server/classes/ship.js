@@ -14,6 +14,7 @@ class Ship extends Entity {
     return {
       id: this.id,
       pos: this.pos,
+      vel: this.vel,
       dir: this.angle,
     };
   }
