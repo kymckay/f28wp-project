@@ -123,7 +123,7 @@ class World {
 
     // TODO validate this input
     ship.vel = newVel;
-    ship.angle = newDir;
+    ship.dir = newDir;
   }
 
   start() {

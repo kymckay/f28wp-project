@@ -6,7 +6,7 @@ class Ship extends Entity {
     super(pos, [0, 0]);
 
     // Initial orientation is superficial (radians)
-    this.angle = Math.random() * Math.PI * 2;
+    this.dir = Math.random() * Math.PI * 2;
     this.isPlayer = isPlayer;
   }
 
@@ -15,7 +15,7 @@ class Ship extends Entity {
       id: this.id,
       pos: this.pos,
       vel: this.vel,
-      dir: this.angle,
+      dir: this.dir,
     };
   }
 }
