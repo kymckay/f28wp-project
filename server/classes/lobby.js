@@ -10,23 +10,45 @@ class Lobby {
     this.world = new World();
     this.inProgress = false;
     this.players = {};
+
+    // FPS determines time between frames
+    // World always simulates so clients can see their ships rotating before the game starts
+    this.loop = setInterval(this.snapshot.bind(this), 1000 / World.fps);
+    console.log(`Lobby[${this.id}] created`);
   }
 
   join(socket) {
     this.players[socket.id] = socket;
 
     // Give the player a ship in the world
-    const ship = this.world.addPlayer(socket.id);
-    socket.emit('player setup', ship.serialize());
+    this.world.addPlayer(socket.id);
+    socket.emit('player setup', {
+      id: socket.id,
+      world: [this.world.width, this.world.height],
+    });
 
     // Tell everyone in the room this player has joined
     this.io.to(this.id).emit('joined lobby', socket.id);
     socket.join(this.id); // join the room
 
+    // Cleanup properly if they leave
+    socket.on('disconnecting', () => {
+      this.leave(socket);
+    });
+
+    // Send inputs recieved from player to simulation
+    socket.on('keydown', (input) => {
+      this.world.playerInput(socket.id, input);
+    });
+    socket.on('keyup', (input) => {
+      this.world.playerInput(socket.id, input, true);
+    });
+
     // Game start countdown begins when anyone is in the lobby
     if (Object.keys(this.players).length === 1) {
       this.startCountdown();
     }
+    console.log(`Lobby[${this.id}] ${socket.id} connected`);
   }
 
   leave(socket) {
@@ -45,6 +67,7 @@ class Lobby {
         this.stopCountdown();
       }
     }
+    console.log(`Lobby[${this.id}] ${socket.id} disconnected`);
   }
 
   startCountdown() {
@@ -62,6 +85,8 @@ class Lobby {
 
       this.io.to(this.id).emit('prestart count', this.countdown);
     }, 1000);
+
+    console.log(`Lobby[${this.id}] starting in ${Lobby.startTime}`);
   }
 
   // Countdown stops if everyone leaves or game starts
@@ -74,12 +99,23 @@ class Lobby {
 
     this.world.start();
 
-    this.io.to(this.id).emit('game start', this.world.serialize());
+    this.io.to(this.id).emit('game start');
+
+    console.log(`Lobby[${this.id}] has started`);
+  }
+
+  snapshot() {
+    this.world.simulate();
+    this.io.to(this.id).emit('snapshot', this.world.serialize());
+  }
+
+  endGame() {
+    clearInterval(this.loop);
   }
 }
 Lobby.lobbyID = 0;
 
 // Time from first player joining to game starting
-Lobby.startTime = 30; // seconds
+Lobby.startTime = 10; // seconds
 
 module.exports = Lobby;

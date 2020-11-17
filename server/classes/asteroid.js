@@ -1,21 +1,19 @@
 const Entity = require('./entity');
 
 class Asteroid extends Entity {
-  constructor(pos, size) {
-    super(pos, [0, 0]);
+  constructor(pos, vel, size) {
+    super(pos, vel);
 
     this.size = size;
   }
 
   serialize() {
-    return {
-      id: this.id,
-      pos: this.pos,
-      vel: this.velocity,
-      size: this.size,
-    };
+    const s = super.serialize();
+    s.size = this.size;
+    return s;
   }
 }
+
 Asteroid.minSize = 40; // px (diameter)
 Asteroid.maxSize = 100; // px (diameter)
 

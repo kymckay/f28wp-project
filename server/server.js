@@ -50,15 +50,7 @@ let currentLobby = new Lobby(io);
 io.on('connection', (socket) => {
   // Need a new lobby if game already started
   currentLobby = currentLobby.inProgress ? new Lobby(io) : currentLobby;
-
-  // Don't forget player's lobby if current lobby changes later
-  const playerLobby = currentLobby;
-
-  playerLobby.join(socket);
-
-  socket.on('disconnecting', () => {
-    playerLobby.leave(socket);
-  });
+  currentLobby.join(socket);
 });
 
 server.listen(port, () => {

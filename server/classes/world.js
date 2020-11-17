@@ -21,7 +21,11 @@ class World {
       }
     }
 
-    this.allEntities = {};
+    // Entites stores in objects as they'll be accessed by ID
+    this.asteroids = {};
+    this.ships = {};
+    this.projectiles = {};
+    this.destroyed = [];
   }
 
   addPlayer(id) {
@@ -36,15 +40,14 @@ class World {
     )[0];
 
     const ship = new Ship(pos, true);
+    ship.id = id;
 
-    this.allEntities[id] = ship;
-
-    return ship;
+    this.ships[id] = ship;
   }
 
   removePlayer(id) {
     // TODO free spawn pos if game not yet started
-    delete this.allEntities[id];
+    delete this.ships[id];
   }
 
   // If more space is needed another column and row are added
@@ -95,11 +98,12 @@ class World {
 
           // All asteroids start randomly sized and distributed
           const ast = new Asteroid(
-            [i + x, j + y], // x,y are within the cell i,j
+            [i + x, j + y],
+            [Math.random() * 6 - 3, Math.random() * 6 - 3], // x,y are within the cell i,j
             Asteroid.minSize + Math.random() * (Asteroid.maxSize - Asteroid.minSize)
           );
 
-          this.allEntities[ast.id] = ast;
+          this.asteroids[ast.id] = ast;
         }
       }
     }
@@ -110,35 +114,126 @@ class World {
     this.spawnPositions.forEach((pos) => {
       const ai = new Ship(pos, false);
 
-      this.allEntities[ai.id] = ai;
+      this.ships[ai.id] = ai;
     });
   }
 
-  start() {
-    this.genAIShips();
-    this.genAsteroids();
+  playerInput(playerID, input, released = false) {
+    const ship = this.ships[playerID];
+    console.log(`${ship.id} ship -> ${input}`);
 
-    // TODO start simulation
+    if (released) {
+      delete ship.controls[input];
+    } else {
+      ship.controls[input] = true;
+    }
   }
 
-  // simulate(dT) {
-  // }
+  start() {
+    // this.genAIShips();
+    this.genAsteroids();
+  }
+
+  simulate() {
+    this.destroyed.forEach((id) => {
+      delete this.asteroids[id];
+      delete this.ships[id];
+      delete this.projectiles[id];
+    });
+    this.destroyed = [];
+
+    Object.values(this.asteroids).forEach((e) => {
+      e.x += e.vel[0] * World.velNorm;
+      e.y += e.vel[1] * World.velNorm;
+
+      // Asteroids wrap to other side of world
+      // 100 px outside world before wrapping (to hide from clients)
+      if (e.x < -100) {
+        e.x += this.width + 100;
+      } else if (e.x > this.width + 100) {
+        e.x -= this.width + 100;
+      }
+
+      if (e.y < -100) {
+        e.y += this.height + 100;
+      } else if (e.y > this.height + 100) {
+        e.y -= this.height + 100;
+      }
+    });
+
+    Object.values(this.ships).forEach((e) => {
+      // Ship can't thrust and break together (hence XOR)
+      const control = e.controls;
+      if (control.ArrowUp ? !control.ArrowDown : control.ArrowDown) {
+        if (control.ArrowUp) {
+          e.accelerate(World.velNorm);
+        } else {
+          e.brake(World.velNorm);
+        }
+      }
+
+      // Ship can't turn boths ways at once (hence XOR)
+      if (control.ArrowLeft ? !control.ArrowRight : control.ArrowRight) {
+        e.turn(control.ArrowLeft, World.velNorm);
+      }
+
+      if (control.Space) {
+        const proj = e.shoot();
+        if (proj) {
+          this.projectiles[proj.id] = proj;
+        }
+      }
+
+      // Update the position of the ship
+      e.x += e.vel[0] * World.velNorm;
+      e.y += e.vel[1] * World.velNorm;
+    });
+
+    Object.values(this.projectiles).forEach((e) => {
+      e.time -= 1 / World.fps;
+      if (e.time <= 0) {
+        console.log(`${e.id} has expired`);
+        this.destroyed.push(e.id);
+        e.dead = true;
+      }
+      e.x += e.vel[0] * World.velNorm;
+      e.y += e.vel[1] * World.velNorm;
+    });
+  }
 
   // end() {
   // }
 
+  // addEntity() {}
+
+  // removeEntity() {}
+
   serialize() {
-    const asteroids = Object.values(this.allEntities)
-      .filter((e) => e instanceof Asteroid)
-      .map((e) => e.serialize());
-    const ships = Object.values(this.allEntities)
-      .filter((e) => e instanceof Ship)
-      .map((e) => e.serialize());
+    // Using ES6 computed property names and the spread operator
+    // We essentially have a .map method for objects
+    const asteroids = Object.assign(
+      {},
+      ...Object.keys(this.asteroids).map(
+        (k) => ({ [k]: this.asteroids[k].serialize() })
+      )
+    );
+    const ships = Object.assign(
+      {},
+      ...Object.keys(this.ships).map(
+        (k) => ({ [k]: this.ships[k].serialize() })
+      )
+    );
+    const projectiles = Object.assign(
+      {},
+      ...Object.keys(this.projectiles).map(
+        (k) => ({ [k]: this.projectiles[k].serialize() })
+      )
+    );
 
     return {
-      world: [this.width, this.height],
       asteroids,
       ships,
+      projectiles,
     };
   }
 }
@@ -146,5 +241,11 @@ World.minPlayers = 10; // a world will scale for at least this many players
 World.cellSize = 2000; // px (player starts in each cell)
 World.clearRadius = 100; // px (clear space around spawn positions)
 World.astFrequency = 5; // asteroids per grid cell
+
+// determines how often simulation occurs and snapshots are sent
+World.fps = 30; // 30 fps ~ 33ms between frames
+
+// Normalise velocities to m/s using time between frames as a percentage of a second
+World.velNorm = 1000 / (World.fps * 1000);
 
 module.exports = World;

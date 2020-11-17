@@ -1,14 +1,8 @@
 /* global io */
-import Ship from './classes/ship';
-import Asteroid from './classes/asteroid';
-import { vectorAdd, vectorDiff } from './coordinates';
 import { hudMsg } from './hud';
 
 // Server sends game events/state via socket
 const socket = io();
-
-// All objects must be tracked for rendering (and any client simulation)
-const allEntities = {};
 
 // Track which keys are pressed
 const keysDown = {};
@@ -20,130 +14,187 @@ window.addEventListener('keydown', (e) => {
   // e.code corresponds to keyboard position
   // and will work the same for any layout
   if (e.code in handledKeys) {
+    // Only need to tell server when key starts being held
+    if (!(e.code in keysDown)) {
+      socket.emit('keydown', e.code);
+    }
+
     keysDown[e.code] = true;
     e.preventDefault();
   }
 });
 window.addEventListener('keyup', (e) => {
-  delete keysDown[e.code];
+  if (e.code in handledKeys) {
+    socket.emit('keyup', e.code);
+
+    delete keysDown[e.code];
+    e.preventDefault();
+  }
 });
 
-// Dimensions to enforce boundary and simulate wrap-around
-const world = [0, 0];
-
-// Screen origin (top left) in world coordinates for rendering
-let screenO = [0, 0];
-
-// Player's ship is signifcant in multiple places
-let playerId;
-
-function render() {
-  Object.values(allEntities).forEach((e) => e.render(screenO));
-  requestAnimationFrame(render);
+function vectorDiff(v1, v2) {
+  return [
+    v1[0] - v2[0],
+    v1[1] - v2[1],
+  ];
 }
 
-function keyHandler() {
-  // Player ship may be a new object on repsawn
-  const playerShip = allEntities[playerId];
-
-  // Ship can't thrust and break together (hence XOR)
-  if (keysDown.ArrowUp ? !keysDown.ArrowDown : keysDown.ArrowDown) {
-    if (keysDown.ArrowUp) {
-      playerShip.accelerate();
-    } else {
-      playerShip.brake();
-    }
-  }
-
-  // Ship can't turn boths ways at once (hence XOR)
-  if (keysDown.ArrowLeft ? !keysDown.ArrowRight : keysDown.ArrowRight) {
-    playerShip.turn(keysDown.ArrowLeft);
-  }
-
-  if (keysDown.Space) {
-    const proj = playerShip.shoot();
-
-    if (proj) {
-      allEntities[proj.id] = proj;
-    }
-  }
+function worldToScreen(worldCoord, screenO) {
+  // Convert coordinate system by subtracting new origin vector
+  return vectorDiff(worldCoord, screenO);
 }
 
-// Updates all entity positions in the world
-function simulate() {
-  Object.values(allEntities).forEach((e) => {
-    // Screen moves with player's ship (always centered)
-    if (e === allEntities[playerId]) {
-      screenO = vectorAdd(screenO, e.velocity);
-    }
+function explosion(x, y) {
 
-    // TODO prevent exiting world boundary
-    e.pos = vectorAdd(e.pos, e.velocity);
-  });
 }
 
-function preGameSetup(playArea, data) {
-  // Top left of screen initial coordinates found from initial ship coordinates
-  screenO = vectorDiff(
-    data.pos,
+function render(snapshot) {
+  // Screen origin (top left) moves with ship (always centered)
+  // Used to convert world coordinates to screen coordinates
+  const screenO = vectorDiff(
+    snapshot.ships[render.playerId].pos,
     [window.innerWidth / 2, window.innerHeight / 2]
   );
 
-  playerId = data.id;
+  Object.keys(snapshot.ships).forEach((k) => {
+    const e = snapshot.ships[k];
+    const [x, y] = worldToScreen(e.pos, screenO);
 
-  // Ship always starts centered
-  allEntities[playerId] = new Ship(
-    playArea,
-    data.id,
-    data.pos,
-    data.dir,
-    true // this is the player's ship
-  );
+    let div = render.divs[k];
 
-  // Client side logic loop
-  setInterval(() => {
-    keyHandler();
-    simulate();
-  }, 10);
+    if (e.dead) {
+      if (div) {
+        // TODO create temp explosion at x,y
+        div.remove();
+      }
+      return;
+    }
+
+    if (!div) {
+      div = document.createElement('div');
+      render.divs[k] = div;
+
+      // May need to retrieve this div by ID
+      div.id = `entity${k}`;
+
+      // Apply ship styling/positioning rules
+      div.classList.add('entity');
+      div.classList.add('ship');
+
+      // Differentiate the player's ship
+      if (k === render.playerId) {
+        div.classList.add('player');
+      }
+
+      // Position before appending to avoid visual artifacts
+      div.style.left = `${x}px`;
+      div.style.top = `${y}px`;
+      div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
+
+      render.playArea.appendChild(div);
+    }
+
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+    div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
+  });
+
+  Object.keys(snapshot.asteroids).forEach((k) => {
+    const e = snapshot.asteroids[k];
+    const [x, y] = worldToScreen(e.pos, screenO);
+
+    let div = render.divs[k];
+
+    if (e.dead) {
+      if (div) {
+        // TODO create temp explosion at x,y
+        div.remove();
+      }
+      return;
+    }
+
+    if (!div) {
+      div = document.createElement('div');
+      render.divs[k] = div;
+
+      // May need to retrieve this div by ID
+      div.id = `entity${k}`;
+
+      // Apply asteroid styling/positioning rules
+      div.classList.add('entity');
+      div.classList.add('asteroid');
+
+      // Asteroids are not all the same size
+      div.style.width = `${e.size}px`;
+      div.style.height = `${e.size}px`;
+
+      // Position before appending to avoid visual artifacts
+      div.style.left = `${x}px`;
+      div.style.top = `${y}px`;
+
+      render.playArea.appendChild(div);
+    }
+
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+  });
+
+  Object.keys(snapshot.projectiles).forEach((k) => {
+    const e = snapshot.projectiles[k];
+
+    let div = render.divs[k];
+
+    // Projectiles just disappear instantly
+    if (e.dead) {
+      if (div) div.remove();
+      return;
+    }
+
+    const [x, y] = worldToScreen(e.pos, screenO);
+
+    if (!div) {
+      div = document.createElement('div');
+      render.divs[k] = div;
+
+      // May need to retrieve this div by ID
+      div.id = `entity${k}`;
+
+      // Apply ship styling/positioning rules
+      div.classList.add('entity');
+      div.classList.add('projectile');
+
+      // Position before appending to avoid visual artifacts
+      div.style.left = `${x}px`;
+      div.style.top = `${y}px`;
+      div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
+
+      render.playArea.appendChild(div);
+    }
+
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+    div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
+  });
+}
+render.divs = {};
+render.explosions = {};
+
+function preGameSetup(data) {
+  // Player ID lets renderer track screen's world position
+  // Also to render the player's ship differently
+  render.playerId = data.id;
+
+  // World bounds allow rendering the edge of the world
+  render.world = data.world;
 
   // Enable only ship rotation until game starts
   handledKeys.ArrowLeft = true;
   handledKeys.ArrowRight = true;
 }
 
-function onGameStart(playArea, data) {
+function onGameStart() {
   // Game starting message no longer applies
   hudMsg('game-start-msg', null);
-
-  // This changes based on players
-  [world[0], world[1]] = data.world;
-
-  // All asteroids initialised at game start
-  data.asteroids.forEach((astData) => {
-    allEntities[astData.id] = new Asteroid(
-      playArea,
-      astData.id,
-      astData.pos,
-      astData.vel,
-      astData.size
-    );
-  });
-
-  // All other ships initialised at game start
-  data.ships.forEach((shipData) => {
-    // Player ship already exists
-    if (shipData.id === playerId) {
-      return;
-    }
-
-    allEntities[shipData.id] = new Ship(
-      playArea,
-      shipData.id,
-      shipData.pos,
-      shipData.dir,
-      false
-    );
-  });
 
   // Enable rest of ship controls now
   handledKeys.ArrowDown = true;
@@ -153,14 +204,16 @@ function onGameStart(playArea, data) {
 
 // Page must be ready before we can start interacting with it
 window.addEventListener('load', () => {
-  const playArea = document.getElementById('playArea');
+  // Rendering will require the right div later
+  render.playArea = document.getElementById('playArea');
 
-  // Rendering loop
-  requestAnimationFrame(render);
-
+  // Client should know why they're waiting (and how long's left)
   hudMsg('game-start-msg', 'Game loading...');
+  socket.on('prestart count', (remaining) => hudMsg('game-start-msg', `Game loading in ${remaining} seconds`));
 
-  socket.on('player setup', (data) => preGameSetup(playArea, data));
+  socket.on('player setup', preGameSetup);
 
-  socket.on('game start', (data) => onGameStart(playArea, data));
+  socket.on('game start', onGameStart);
+
+  socket.on('snapshot', render);
 });
