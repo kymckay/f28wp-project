@@ -26,6 +26,7 @@ class Ship extends Entity {
     this.dir = Math.random() * Math.PI * 2;
     this.isPlayer = isPlayer;
 
+    this.controls = {};
     this.lastShot = performance.now();
   }
 

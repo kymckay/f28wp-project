@@ -117,10 +117,14 @@ class World {
     });
   }
 
-  playerInput(playerID, input) {
+  playerInput(playerID, input, released = false) {
     const ship = this.ships[playerID];
 
-    // TODO track active input of the ships and simulate their controls
+    if (released) {
+      delete ship.controls[input];
+    } else {
+      ship.controls[input] = true;
+    }
   }
 
   start() {

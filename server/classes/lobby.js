@@ -33,9 +33,12 @@ class Lobby {
       this.leave(socket);
     });
 
-    socket.on('client tick', (input) => {
-      // console.log(`$Client tick from : ${socket.id}`);
+    // Send inputs recieved from player to simulation
+    socket.on('keydown', (input) => {
       this.world.playerInput(socket.id, input);
+    });
+    socket.on('keyup', (input) => {
+      this.world.playerInput(socket.id, input, true);
     });
 
     // Game start countdown begins when anyone is in the lobby
