@@ -133,7 +133,7 @@ class World {
   }
 
   simulate() {
-    this.asteroids.forEach((e) => {
+    Object.values(this.asteroids).forEach((e) => {
       e.x += e.vel[0] * World.velNorm;
       e.y += e.vel[1] * World.velNorm;
 
@@ -152,17 +152,15 @@ class World {
       }
     });
 
-    this.ships.forEach((e) => {
+    Object.values(this.ships).forEach((e) => {
       e.x += e.vel[0] * World.velNorm;
       e.y += e.vel[1] * World.velNorm;
     });
 
-    this.projectiles.forEach((e) => {
+    Object.values(this.projectiles).forEach((e) => {
       e.x += e.vel[0] * World.velNorm;
       e.y += e.vel[1] * World.velNorm;
     });
-
-    // TODO send snapshots when simulation occurs (and when events occur)
   }
 
   // end() {
