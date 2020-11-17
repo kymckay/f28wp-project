@@ -25,6 +25,11 @@ class Lobby {
     this.io.to(this.id).emit('joined lobby', socket.id);
     socket.join(this.id); // join the room
 
+    // Cleanup properly if they leave
+    socket.on('disconnecting', () => {
+      this.leave(socket);
+    });
+
     socket.on('client tick', (input) => {
       // console.log(`$Client tick from : ${socket.id}`);
       this.world.playerInput(socket.id, input);
