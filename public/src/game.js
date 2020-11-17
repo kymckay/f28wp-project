@@ -44,6 +44,10 @@ function worldToScreen(worldCoord, screenO) {
   return vectorDiff(worldCoord, screenO);
 }
 
+function explosion(x, y) {
+
+}
+
 function render(snapshot) {
   // Screen origin (top left) moves with ship (always centered)
   // Used to convert world coordinates to screen coordinates
@@ -57,6 +61,15 @@ function render(snapshot) {
     const [x, y] = worldToScreen(e.pos, screenO);
 
     let div = render.divs[k];
+
+    if (e.dead) {
+      if (div) {
+        // TODO create temp explosion at x,y
+        div.remove();
+      }
+      return;
+    }
+
     if (!div) {
       div = document.createElement('div');
       render.divs[k] = div;
@@ -91,6 +104,15 @@ function render(snapshot) {
     const [x, y] = worldToScreen(e.pos, screenO);
 
     let div = render.divs[k];
+
+    if (e.dead) {
+      if (div) {
+        // TODO create temp explosion at x,y
+        div.remove();
+      }
+      return;
+    }
+
     if (!div) {
       div = document.createElement('div');
       render.divs[k] = div;
@@ -155,6 +177,7 @@ function render(snapshot) {
   });
 }
 render.divs = {};
+render.explosions = {};
 
 function preGameSetup(data) {
   // Player ID lets renderer track screen's world position
