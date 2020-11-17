@@ -1,5 +1,4 @@
 /* global io */
-import { vectorDiff } from './coordinates';
 import { hudMsg } from './hud';
 
 // Server sends game events/state via socket
@@ -54,52 +53,88 @@ window.addEventListener('keyup', (e) => {
 //   }
 // }
 
-function render(now) {
-  // Use cumulative time between frames for interpolation
-  render.deltaT += now - render.then; // TODO init `then` properly
+function vectorDiff(v1, v2) {
+  return [
+    v1[0] - v2[0],
+    v1[1] - v2[1],
+  ];
+}
 
-  // TODO take from front of buffer (until a recent snapshot is found)
-  let snapshot = render.buffer.shift();
-  // recent when performance.now() - offset is close (offset found via initial call/response with server)
+function worldToScreen(worldCoord, screenO) {
+  // Convert coordinate system by subtracting new origin vector
+  return vectorDiff(worldCoord, screenO);
+}
 
-  // TODO Interpolate until next snapshot reached
-
-  // Percentage to interpolate by
-  const interp = deltaT / (nextSnapshot.time - lastSnapshot.time);
-
+function render(snapshot) {
   // Screen origin (top left) moves with ship (always centered)
   // Used to convert world coordinates to screen coordinates
-  render.screenO = vectorDiff(
+  const screenO = vectorDiff(
     snapshot.ships[render.playerId].pos,
     [window.innerWidth / 2, window.innerHeight / 2]
   );
 
-  // Object.values(allEntities).forEach((e) => e.render(screenO));
-  // TODO interpolate/render everything in each snapshot
+  snapshot.ships.forEach((e) => {
+    let div = render.divs[e.id];
+    if (!div) {
+      div = document.createElement('div');
+      render.divs[e.id] = div;
 
-  render.then = now;
-  requestAnimationFrame(render);
+      // May need to retrieve this div by ID
+      div.id = `entity${e.id}`;
+
+      // Apply ship styling/positioning rules
+      div.classList.add('entity');
+      div.classList.add('ship');
+
+      render.playArea.appendChild(div);
+
+      // Differentiate the player's ship
+      if (e.id == render.playerId) {
+        div.classList.add('player');
+      }
+    }
+
+    const [x, y] = worldToScreen(e.pos, screenO);
+
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+    div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
+  });
+
+  snapshot.asteroids.forEach((e) => {
+    let div = render.divs[e.id];
+    if (!div) {
+      div = document.createElement('div');
+      render.divs[e.id] = div;
+
+      // May need to retrieve this div by ID
+      div.id = `entity${e.id}`;
+
+      // Apply asteroid styling/positioning rules
+      div.classList.add('entity');
+      div.classList.add('asteroid');
+
+      // Asteroids are not all the same size
+      div.style.width = `${e.size}px`;
+      div.style.height = `${e.size}px`;
+
+      render.playArea.appendChild(div);
+    }
+
+    const [x, y] = worldToScreen(e.pos, screenO);
+
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+  });
+
+  // TODO render projectiles
 }
-render.deltaT = 0; // No time passed yet
+render.divs = {};
 
-// Snapshot interpolation buffer
-// https://gafferongames.com/post/snapshot_interpolation
-render.buffer = [];
-
-// Server sends out timestamped game state snapshots, rendering interpolates between them
-function onGameTick(snapshot) {
-  render.buffer.append(snapshot); // Store in buffer for interpolation
-}
-
-// TODO server sends timestamp, use that to store offset, send offset to server
-// (timestamps are needed for interpolation)
 function preGameSetup(data) {
   // Player ID lets renderer track screen's world position
   // Also to render the player's ship differently
   render.playerId = data.id;
-
-  // Rendering loop starts
-  requestAnimationFrame(render);
 
   // Enable only ship rotation until game starts
   handledKeys.ArrowLeft = true;
@@ -129,5 +164,5 @@ window.addEventListener('load', () => {
 
   socket.on('game start', onGameStart);
 
-  socket.on('game tick', onGameTick);
+  socket.on('game tick', render);
 });
