@@ -25,6 +25,10 @@ class World {
     this.asteroids = {};
     this.ships = {};
     this.projectiles = {};
+
+    // FPS determines time between frames
+    // World always simulates so clients can see their ships rotating before the game starts
+    this.loopInterval = setInterval(this.simulate.bind(this), 1000 / World.fps);
   }
 
   addPlayer(id) {
@@ -130,9 +134,6 @@ class World {
   start() {
     // this.genAIShips();
     this.genAsteroids();
-
-    // FPS determines time between frames
-    this.loopInterval = setInterval(this.simulate.bind(this), 1000 / World.fps);
   }
 
   simulate() {
