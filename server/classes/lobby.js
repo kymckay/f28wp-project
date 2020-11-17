@@ -100,7 +100,6 @@ class Lobby {
     this.world.start();
 
     this.io.to(this.id).emit('game start');
-    setInterval(this.gameTick.bind(this), 100);
 
     console.log(`Lobby[${this.id}] has started`);
   }
