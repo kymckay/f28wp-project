@@ -133,13 +133,27 @@ class World {
 
   simulate() {
     this.asteroids.forEach((e) => {
-      e.pos[0] += e.vel[0];
-      e.pos[1] += e.vel[1];
+      e.x += e.vel[0];
+      e.y += e.vel[1];
+
+      // Asteroids wrap to other side of world
+      // 100 px outside world before wrapping (to hide from clients)
+      if (e.x < -100) {
+        e.x += this.width + 100;
+      } else if (e.x > this.width + 100) {
+        e.x -= this.width + 100;
+      }
+
+      if (e.y < -100) {
+        e.y += this.height + 100;
+      } else if (e.y > this.height + 100) {
+        e.y -= this.height + 100;
+      }
     });
 
     this.ships.forEach((e) => {
-      e.pos[0] += e.vel[0];
-      e.pos[1] += e.vel[1];
+      e.x += e.vel[0];
+      e.y += e.vel[1];
     });
   }
 
