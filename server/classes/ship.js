@@ -81,10 +81,9 @@ class Ship extends Entity {
   }
 
   serialize() {
-    return {
-      pos: this.pos,
-      dir: this.dir,
-    };
+    const s = super.serialize();
+    s.dir = this.dir;
+    return s;
   }
 }
 

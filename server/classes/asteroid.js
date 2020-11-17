@@ -8,12 +8,12 @@ class Asteroid extends Entity {
   }
 
   serialize() {
-    return {
-      pos: this.pos,
-      size: this.size,
-    };
+    const s = super.serialize();
+    s.size = this.size;
+    return s;
   }
 }
+
 Asteroid.minSize = 40; // px (diameter)
 Asteroid.maxSize = 100; // px (diameter)
 

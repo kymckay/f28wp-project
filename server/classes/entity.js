@@ -20,6 +20,14 @@ class Entity {
     Entity.id += 1;
     return Entity.id;
   }
+
+  serialize() {
+    const s = {
+      pos: this.pos,
+    };
+    if (this.dead) s.dead = true;
+    return s;
+  }
 }
 Entity.id = 0;
 
