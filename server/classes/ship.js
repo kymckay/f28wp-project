@@ -31,30 +31,30 @@ class Ship extends Entity {
   }
 
   turn(anticlockwise) {
-    this.angle += (anticlockwise ? -1 : 1) * Ship.turnSpeed;
+    this.dir += (anticlockwise ? -1 : 1) * Ship.turnSpeed;
   }
 
-  accelerate() {
+  accelerate(normFact) {
     const v = this.vel;
 
     // Differential velocity vector
-    const dv = polarToCart(this.dir, Ship.acceleration);
+    const dv = polarToCart(this.dir, Ship.acceleration * normFact);
 
     // Ships cannot infinitely speed up
     this.vel = [
-      Math.max(Math.min(v[0] + dv[0], 5), -5),
-      Math.max(Math.min(v[1] + dv[1], 5), -5),
+      Math.max(Math.min(v[0] + dv[0], Ship.maxSpeed), -Ship.maxSpeed),
+      Math.max(Math.min(v[1] + dv[1], Ship.maxSpeed), -Ship.maxSpeed),
     ];
   }
 
-  brake() {
+  brake(normFact) {
     const v = this.vel;
 
     // Differential velocity vector
     const dv = polarToCart(
       // Braking always opposes current velocity
       Math.atan2(v[1], v[0]) + Math.PI,
-      Ship.deceleration
+      Ship.deceleration * normFact
     );
 
     // Can't decelerate past 0
@@ -90,12 +90,13 @@ class Ship extends Entity {
 
 // Constants control ship handling
 Ship.turnSpeed = 0.05;
-Ship.acceleration = 0.1;
-Ship.deceleration = 0.05;
+Ship.acceleration = 40;
+Ship.deceleration = 20;
+Ship.maxSpeed = 50;
 
 // Constants for cannon behaviour
-Ship.shotSpeed = 5; // px/s
-Ship.shotOffset = 10; // px ahead of ship centre
-Ship.shotCooldown = 5000; // ms between cannon shots
+Ship.shotSpeed = 480; // px/s
+Ship.shotOffset = 40; // px ahead of ship centre
+Ship.shotCooldown = 200; // ms between cannon shots
 
 module.exports = Ship;

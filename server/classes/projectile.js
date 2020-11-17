@@ -5,6 +5,7 @@ class Projectile extends Entity {
     super(pos, vel);
 
     this.dir = dir;
+    this.time = Projectile.lifetime;
   }
 
   serialize() {

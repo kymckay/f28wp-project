@@ -28,31 +28,6 @@ window.addEventListener('keyup', (e) => {
   socket.emit('keyup', e.code);
 });
 
-// TODO server handle these ship controls
-// function keyHandler() {
-//   // Ship can't thrust and break together (hence XOR)
-//   if (keysDown.ArrowUp ? !keysDown.ArrowDown : keysDown.ArrowDown) {
-//     if (keysDown.ArrowUp) {
-//       playerShip.accelerate();
-//     } else {
-//       playerShip.brake();
-//     }
-//   }
-
-//   // Ship can't turn boths ways at once (hence XOR)
-//   if (keysDown.ArrowLeft ? !keysDown.ArrowRight : keysDown.ArrowRight) {
-//     playerShip.turn(keysDown.ArrowLeft);
-//   }
-
-//   if (keysDown.Space) {
-//     const proj = playerShip.shoot();
-
-//     if (proj) {
-//       allEntities[proj.id] = proj;
-//     }
-//   }
-// }
-
 function vectorDiff(v1, v2) {
   return [
     v1[0] - v2[0],

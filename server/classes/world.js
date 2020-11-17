@@ -119,6 +119,7 @@ class World {
 
   playerInput(playerID, input, released = false) {
     const ship = this.ships[playerID];
+    console.log(`${ship.id} ship -> ${input}`);
 
     if (released) {
       delete ship.controls[input];
@@ -153,11 +154,35 @@ class World {
     });
 
     Object.values(this.ships).forEach((e) => {
+      // Ship can't thrust and break together (hence XOR)
+      const control = e.controls;
+      if (control.ArrowUp ? !control.ArrowDown : control.ArrowDown) {
+        if (control.ArrowUp) {
+          e.accelerate(World.velNorm);
+        } else {
+          e.brake(World.velNorm);
+        }
+      }
+      // Ship can't turn boths ways at once (hence XOR)
+      if (control.ArrowLeft ? !control.ArrowRight : control.ArrowRight) {
+        e.turn(e.ArrowLeft);
+      }
+      if (control.Space) {
+        const proj = e.shoot();
+        if (proj) {
+          this.projectiles[proj.id] = proj;
+        }
+      }
+      // Update the position of the ship
       e.x += e.vel[0] * World.velNorm;
       e.y += e.vel[1] * World.velNorm;
     });
 
     Object.values(this.projectiles).forEach((e) => {
+      e.time -= 1 / World.fps;
+      if (e.time <= 0) {
+        console.log(`${e.id} has expired`);
+      }
       e.x += e.vel[0] * World.velNorm;
       e.y += e.vel[1] * World.velNorm;
     });
