@@ -165,7 +165,7 @@ class World {
       }
       // Ship can't turn boths ways at once (hence XOR)
       if (control.ArrowLeft ? !control.ArrowRight : control.ArrowRight) {
-        e.turn(e.ArrowLeft);
+        e.turn(control.ArrowLeft);
       }
       if (control.Space) {
         const proj = e.shoot();
