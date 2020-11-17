@@ -119,9 +119,17 @@ function render(snapshot) {
 
   Object.keys(snapshot.projectiles).forEach((k) => {
     const e = snapshot.projectiles[k];
-    const [x, y] = worldToScreen(e.pos, screenO);
 
     let div = render.divs[k];
+
+    // Projectiles just disappear instantly
+    if (e.dead) {
+      if (div) div.remove();
+      return;
+    }
+
+    const [x, y] = worldToScreen(e.pos, screenO);
+
     if (!div) {
       div = document.createElement('div');
       render.divs[k] = div;

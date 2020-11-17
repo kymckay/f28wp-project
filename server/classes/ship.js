@@ -30,8 +30,8 @@ class Ship extends Entity {
     this.lastShot = performance.now();
   }
 
-  turn(anticlockwise) {
-    this.dir += (anticlockwise ? -1 : 1) * Ship.turnSpeed;
+  turn(anticlockwise, normFact) {
+    this.dir += (anticlockwise ? -1 : 1) * Ship.turnSpeed * normFact;
   }
 
   accelerate(normFact) {
@@ -88,10 +88,10 @@ class Ship extends Entity {
 }
 
 // Constants control ship handling
-Ship.turnSpeed = 0.05;
-Ship.acceleration = 40;
-Ship.deceleration = 20;
-Ship.maxSpeed = 50;
+Ship.turnSpeed = 0.05; // rad/s
+Ship.acceleration = 40; // px/s
+Ship.deceleration = 20; // px/s
+Ship.maxSpeed = 50; // px/s
 
 // Constants for cannon behaviour
 Ship.shotSpeed = 480; // px/s
