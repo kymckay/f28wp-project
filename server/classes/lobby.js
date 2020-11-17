@@ -18,8 +18,11 @@ class Lobby {
     this.players[socket.id] = socket;
 
     // Give the player a ship in the world
-    const ship = this.world.addPlayer(socket.id);
-    socket.emit('player setup', ship.serialize());
+    this.world.addPlayer(socket.id);
+    socket.emit('player setup', {
+      id: socket.id,
+      world: [this.world.width, this.world.height],
+    });
 
     // Tell everyone in the room this player has joined
     this.io.to(this.id).emit('joined lobby', socket.id);

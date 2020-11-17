@@ -1,4 +1,3 @@
-const performance = require('perf_hooks');
 const Ship = require('./ship');
 const Asteroid = require('./asteroid');
 
@@ -43,8 +42,6 @@ class World {
     ship.id = id;
 
     this.ships[id] = ship;
-
-    return ship;
   }
 
   removePlayer(id) {
@@ -171,8 +168,6 @@ class World {
     );
 
     return {
-      world: [this.width, this.height],
-      time: performance.now(),
       asteroids,
       ships,
     };
