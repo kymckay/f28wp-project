@@ -163,16 +163,19 @@ class World {
           e.brake(World.velNorm);
         }
       }
+
       // Ship can't turn boths ways at once (hence XOR)
       if (control.ArrowLeft ? !control.ArrowRight : control.ArrowRight) {
-        e.turn(control.ArrowLeft);
+        e.turn(control.ArrowLeft, World.velNorm);
       }
+
       if (control.Space) {
         const proj = e.shoot();
         if (proj) {
           this.projectiles[proj.id] = proj;
         }
       }
+
       // Update the position of the ship
       e.x += e.vel[0] * World.velNorm;
       e.y += e.vel[1] * World.velNorm;
