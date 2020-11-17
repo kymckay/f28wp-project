@@ -166,10 +166,17 @@ class World {
         (k) => ({ [k]: this.ships[k].serialize() })
       )
     );
+    const projectiles = Object.assign(
+      {},
+      ...Object.keys(this.projectiles).map(
+        (k) => ({ [k]: this.projectiles[k].serialize() })
+      )
+    );
 
     return {
       asteroids,
       ships,
+      projectiles,
     };
   }
 }

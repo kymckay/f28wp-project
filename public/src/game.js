@@ -74,7 +74,8 @@ function render(snapshot) {
   );
 
   Object.keys(snapshot.ships).forEach((k) => {
-    const e = snapshot.asteroids[k];
+    const e = snapshot.ships[k];
+    const [x, y] = worldToScreen(e.pos, screenO);
 
     let div = render.divs[k];
     if (!div) {
@@ -88,15 +89,18 @@ function render(snapshot) {
       div.classList.add('entity');
       div.classList.add('ship');
 
-      render.playArea.appendChild(div);
-
       // Differentiate the player's ship
       if (k == render.playerId) {
         div.classList.add('player');
       }
-    }
 
-    const [x, y] = worldToScreen(e.pos, screenO);
+      // Position before appending to avoid visual artifacts
+      div.style.left = `${x}px`;
+      div.style.top = `${y}px`;
+      div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
+
+      render.playArea.appendChild(div);
+    }
 
     div.style.left = `${x}px`;
     div.style.top = `${y}px`;
@@ -105,6 +109,7 @@ function render(snapshot) {
 
   Object.keys(snapshot.asteroids).forEach((k) => {
     const e = snapshot.asteroids[k];
+    const [x, y] = worldToScreen(e.pos, screenO);
 
     let div = render.divs[k];
     if (!div) {
@@ -122,16 +127,45 @@ function render(snapshot) {
       div.style.width = `${e.size}px`;
       div.style.height = `${e.size}px`;
 
+      // Position before appending to avoid visual artifacts
+      div.style.left = `${x}px`;
+      div.style.top = `${y}px`;
+
       render.playArea.appendChild(div);
     }
-
-    const [x, y] = worldToScreen(e.pos, screenO);
 
     div.style.left = `${x}px`;
     div.style.top = `${y}px`;
   });
 
-  // TODO render projectiles
+  Object.keys(snapshot.projectiles).forEach((k) => {
+    const e = snapshot.projectiles[k];
+    const [x, y] = worldToScreen(e.pos, screenO);
+
+    let div = render.divs[k];
+    if (!div) {
+      div = document.createElement('div');
+      render.divs[k] = div;
+
+      // May need to retrieve this div by ID
+      div.id = `entity${k}`;
+
+      // Apply ship styling/positioning rules
+      div.classList.add('entity');
+      div.classList.add('projectile');
+
+      // Position before appending to avoid visual artifacts
+      div.style.left = `${x}px`;
+      div.style.top = `${y}px`;
+      div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
+
+      render.playArea.appendChild(div);
+    }
+
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+    div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
+  });
 }
 render.divs = {};
 
@@ -139,6 +173,9 @@ function preGameSetup(data) {
   // Player ID lets renderer track screen's world position
   // Also to render the player's ship differently
   render.playerId = data.id;
+
+  // World bounds allow rendering the edge of the world
+  render.world = data.world;
 
   // Enable only ship rotation until game starts
   handledKeys.ArrowLeft = true;
