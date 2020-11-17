@@ -90,7 +90,7 @@ function render(snapshot) {
       div.classList.add('ship');
 
       // Differentiate the player's ship
-      if (k == render.playerId) {
+      if (k === render.playerId) {
         div.classList.add('player');
       }
 
@@ -182,7 +182,7 @@ function preGameSetup(data) {
   handledKeys.ArrowRight = true;
 }
 
-function onGameStart(data) {
+function onGameStart() {
   // Game starting message no longer applies
   hudMsg('game-start-msg', null);
 
@@ -205,5 +205,5 @@ window.addEventListener('load', () => {
 
   socket.on('game start', onGameStart);
 
-  socket.on('game tick', render);
+  socket.on('snapshot', render);
 });

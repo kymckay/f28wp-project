@@ -11,6 +11,9 @@ class Lobby {
     this.inProgress = false;
     this.players = {};
 
+    // FPS determines time between frames
+    // World always simulates so clients can see their ships rotating before the game starts
+    this.loop = setInterval(this.snapshot.bind(this), 1000 / World.fps);
     console.log(`Lobby[${this.id}] created`);
   }
 
@@ -96,14 +99,19 @@ class Lobby {
 
     this.world.start();
 
-    this.io.to(this.id).emit('game start', this.world.serialize());
+    this.io.to(this.id).emit('game start');
     setInterval(this.gameTick.bind(this), 100);
 
     console.log(`Lobby[${this.id}] has started`);
   }
 
-  gameTick() {
-    this.io.to(this.id).emit('game tick', this.world.serialize());
+  snapshot() {
+    this.world.simulate();
+    this.io.to(this.id).emit('snapshot', this.world.serialize());
+  }
+
+  endGame() {
+    clearInterval(this.loop);
   }
 }
 Lobby.lobbyID = 0;
