@@ -127,8 +127,8 @@ class World {
     // this.genAIShips();
     this.genAsteroids();
 
-    // TODO start simulation
-    this.loopInterval = setInterval(() => { this.simulate(); }, 50);
+    // FPS determines time between frames
+    this.loopInterval = setInterval(this.simulate.bind(this), 1000 / World.fps);
   }
 
   simulate() {
@@ -198,5 +198,8 @@ World.minPlayers = 10; // a world will scale for at least this many players
 World.cellSize = 2000; // px (player starts in each cell)
 World.clearRadius = 100; // px (clear space around spawn positions)
 World.astFrequency = 5; // asteroids per grid cell
+
+// determines how often simulation occurs and snapshots are sent
+World.fps = 30; // 30 fps ~ 33ms between frames
 
 module.exports = World;
