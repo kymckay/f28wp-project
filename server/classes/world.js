@@ -133,8 +133,8 @@ class World {
 
   simulate() {
     this.asteroids.forEach((e) => {
-      e.x += e.vel[0];
-      e.y += e.vel[1];
+      e.x += e.vel[0] * World.velNorm;
+      e.y += e.vel[1] * World.velNorm;
 
       // Asteroids wrap to other side of world
       // 100 px outside world before wrapping (to hide from clients)
@@ -152,9 +152,16 @@ class World {
     });
 
     this.ships.forEach((e) => {
-      e.x += e.vel[0];
-      e.y += e.vel[1];
+      e.x += e.vel[0] * World.velNorm;
+      e.y += e.vel[1] * World.velNorm;
     });
+
+    this.projectiles.forEach((e) => {
+      e.x += e.vel[0] * World.velNorm;
+      e.y += e.vel[1] * World.velNorm;
+    });
+
+    // TODO send snapshots when simulation occurs (and when events occur)
   }
 
   end() {
@@ -201,5 +208,8 @@ World.astFrequency = 5; // asteroids per grid cell
 
 // determines how often simulation occurs and snapshots are sent
 World.fps = 30; // 30 fps ~ 33ms between frames
+
+// Normalise velocities to m/s using time between frames as a percentage of a second
+World.velNorm = 1000 / (World.fps * 1000);
 
 module.exports = World;
