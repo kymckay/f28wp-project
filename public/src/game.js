@@ -73,14 +73,16 @@ function render(snapshot) {
     [window.innerWidth / 2, window.innerHeight / 2]
   );
 
-  snapshot.ships.forEach((e) => {
-    let div = render.divs[e.id];
+  Object.keys(snapshot.ships).forEach((k) => {
+    const e = snapshot.asteroids[k];
+
+    let div = render.divs[k];
     if (!div) {
       div = document.createElement('div');
-      render.divs[e.id] = div;
+      render.divs[k] = div;
 
       // May need to retrieve this div by ID
-      div.id = `entity${e.id}`;
+      div.id = `entity${k}`;
 
       // Apply ship styling/positioning rules
       div.classList.add('entity');
@@ -89,7 +91,7 @@ function render(snapshot) {
       render.playArea.appendChild(div);
 
       // Differentiate the player's ship
-      if (e.id == render.playerId) {
+      if (k == render.playerId) {
         div.classList.add('player');
       }
     }
@@ -101,14 +103,16 @@ function render(snapshot) {
     div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
   });
 
-  snapshot.asteroids.forEach((e) => {
-    let div = render.divs[e.id];
+  Object.keys(snapshot.asteroids).forEach((k) => {
+    const e = snapshot.asteroids[k];
+
+    let div = render.divs[k];
     if (!div) {
       div = document.createElement('div');
-      render.divs[e.id] = div;
+      render.divs[k] = div;
 
       // May need to retrieve this div by ID
-      div.id = `entity${e.id}`;
+      div.id = `entity${k}`;
 
       // Apply asteroid styling/positioning rules
       div.classList.add('entity');

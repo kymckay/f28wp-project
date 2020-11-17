@@ -22,7 +22,10 @@ class World {
       }
     }
 
-    this.allEntities = [];
+    // Entites stores in objects as they'll be accessed by ID
+    this.asteroids = {};
+    this.ships = {};
+    this.projectiles = {};
   }
 
   addPlayer(id) {
@@ -39,14 +42,14 @@ class World {
     const ship = new Ship(pos, true);
     ship.id = id;
 
-    this.allEntities[id] = ship;
+    this.ships[id] = ship;
 
     return ship;
   }
 
   removePlayer(id) {
     // TODO free spawn pos if game not yet started
-    delete this.allEntities[id];
+    delete this.ships[id];
   }
 
   // If more space is needed another column and row are added
@@ -102,7 +105,7 @@ class World {
             Asteroid.minSize + Math.random() * (Asteroid.maxSize - Asteroid.minSize)
           );
 
-          this.allEntities[ast.id] = ast;
+          this.asteroids[ast.id] = ast;
         }
       }
     }
@@ -113,18 +116,14 @@ class World {
     this.spawnPositions.forEach((pos) => {
       const ai = new Ship(pos, false);
 
-      this.allEntities[ai.id] = ai;
+      this.ships[ai.id] = ai;
     });
   }
 
-  playerInput(shipID, input) {
-    const ship = this.allEntities[shipID];
-    const newVel = input.vel;
-    const newDir = input.dir;
+  playerInput(playerID, input) {
+    const ship = this.ships[playerID];
 
-    // TODO validate this input
-    ship.vel = newVel;
-    ship.dir = newDir;
+    // TODO track active input of the ships and simulate their controls
   }
 
   start() {
@@ -136,8 +135,12 @@ class World {
   }
 
   simulate() {
-    this.allEntities.forEach((e) => {
-      // console.log(`${entity.id}`);
+    this.asteroids.forEach((e) => {
+      e.pos[0] += e.vel[0];
+      e.pos[1] += e.vel[1];
+    });
+
+    this.ships.forEach((e) => {
       e.pos[0] += e.vel[0];
       e.pos[1] += e.vel[1];
     });
@@ -152,12 +155,20 @@ class World {
   // removeEntity() {}
 
   serialize() {
-    const asteroids = Object.values(this.allEntities)
-      .filter((e) => e instanceof Asteroid)
-      .map((e) => e.serialize());
-    const ships = Object.values(this.allEntities)
-      .filter((e) => e instanceof Ship)
-      .map((e) => e.serialize());
+    // Using ES6 computed property names and the spread operator
+    // We essentially have a .map method for objects
+    const asteroids = Object.assign(
+      {},
+      ...Object.keys(this.asteroids).map(
+        (k) => ({ [k]: this.asteroids[k].serialize() })
+      )
+    );
+    const ships = Object.assign(
+      {},
+      ...Object.keys(this.ships).map(
+        (k) => ({ [k]: this.ships[k].serialize() })
+      )
+    );
 
     return {
       world: [this.width, this.height],

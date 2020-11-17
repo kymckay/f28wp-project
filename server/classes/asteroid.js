@@ -9,7 +9,6 @@ class Asteroid extends Entity {
 
   serialize() {
     return {
-      id: this.id,
       pos: this.pos,
       size: this.size,
     };
