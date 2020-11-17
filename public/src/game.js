@@ -24,8 +24,12 @@ window.addEventListener('keydown', (e) => {
   }
 });
 window.addEventListener('keyup', (e) => {
-  delete keysDown[e.code];
-  socket.emit('keyup', e.code);
+  if (e.code in handledKeys) {
+    socket.emit('keyup', e.code);
+
+    delete keysDown[e.code];
+    e.preventDefault();
+  }
 });
 
 function vectorDiff(v1, v2) {
