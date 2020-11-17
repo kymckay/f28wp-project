@@ -25,7 +25,7 @@ class World {
     this.asteroids = {};
     this.ships = {};
     this.projectiles = {};
-    this.destroyed = {};
+    this.destroyed = [];
   }
 
   addPlayer(id) {
@@ -140,7 +140,7 @@ class World {
       delete this.ships[id];
       delete this.projectiles[id];
     });
-    this.destroyed = {};
+    this.destroyed = [];
 
     Object.values(this.asteroids).forEach((e) => {
       e.x += e.vel[0] * World.velNorm;
