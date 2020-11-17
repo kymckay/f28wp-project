@@ -15,38 +15,44 @@ window.addEventListener('keydown', (e) => {
   // e.code corresponds to keyboard position
   // and will work the same for any layout
   if (e.code in handledKeys) {
+    // Only need to tell server when key starts being held
+    if (!(e.code in keysDown)) {
+      socket.emit('keydown', e.code);
+    }
+
     keysDown[e.code] = true;
     e.preventDefault();
   }
 });
 window.addEventListener('keyup', (e) => {
   delete keysDown[e.code];
+  socket.emit('keyup', e.code);
 });
 
-// TODO send input events to server for simulation
-function keyHandler() {
-  // Ship can't thrust and break together (hence XOR)
-  if (keysDown.ArrowUp ? !keysDown.ArrowDown : keysDown.ArrowDown) {
-    if (keysDown.ArrowUp) {
-      playerShip.accelerate();
-    } else {
-      playerShip.brake();
-    }
-  }
+// TODO server handle these ship controls
+// function keyHandler() {
+//   // Ship can't thrust and break together (hence XOR)
+//   if (keysDown.ArrowUp ? !keysDown.ArrowDown : keysDown.ArrowDown) {
+//     if (keysDown.ArrowUp) {
+//       playerShip.accelerate();
+//     } else {
+//       playerShip.brake();
+//     }
+//   }
 
-  // Ship can't turn boths ways at once (hence XOR)
-  if (keysDown.ArrowLeft ? !keysDown.ArrowRight : keysDown.ArrowRight) {
-    playerShip.turn(keysDown.ArrowLeft);
-  }
+//   // Ship can't turn boths ways at once (hence XOR)
+//   if (keysDown.ArrowLeft ? !keysDown.ArrowRight : keysDown.ArrowRight) {
+//     playerShip.turn(keysDown.ArrowLeft);
+//   }
 
-  if (keysDown.Space) {
-    const proj = playerShip.shoot();
+//   if (keysDown.Space) {
+//     const proj = playerShip.shoot();
 
-    if (proj) {
-      allEntities[proj.id] = proj;
-    }
-  }
-}
+//     if (proj) {
+//       allEntities[proj.id] = proj;
+//     }
+//   }
+// }
 
 function render(now) {
   // Use cumulative time between frames for interpolation
