@@ -25,6 +25,7 @@ class World {
     this.asteroids = {};
     this.ships = {};
     this.projectiles = {};
+    this.destroyed = {};
   }
 
   addPlayer(id) {
@@ -134,6 +135,13 @@ class World {
   }
 
   simulate() {
+    this.destroyed.forEach((id) => {
+      delete this.asteroids[id];
+      delete this.ships[id];
+      delete this.projectiles[id];
+    });
+    this.destroyed = {};
+
     Object.values(this.asteroids).forEach((e) => {
       e.x += e.vel[0] * World.velNorm;
       e.y += e.vel[1] * World.velNorm;
@@ -182,6 +190,8 @@ class World {
       e.time -= 1 / World.fps;
       if (e.time <= 0) {
         console.log(`${e.id} has expired`);
+        this.destroyed.push(e.id);
+        e.dead = true;
       }
       e.x += e.vel[0] * World.velNorm;
       e.y += e.vel[1] * World.velNorm;
