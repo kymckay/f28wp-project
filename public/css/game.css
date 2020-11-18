@@ -36,7 +36,7 @@
   background-size: contain;
   animation-name: boom;
   animation-duration: 1s;
-  animation-iteration-count: infinite;
+  animation-iteration-count: 1;
   z-index: 4; /* explosions are always on top */
 }
 
