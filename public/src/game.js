@@ -44,7 +44,7 @@ function worldToScreen(worldCoord, screenO) {
   return vectorDiff(worldCoord, screenO);
 }
 
-function explosion(x, y, size) {
+function explosion(x, y, size, playArea, list) {
   const div = document.createElement('div');
   div.classList.add('entity');
   div.classList.add('explosion');
@@ -55,10 +55,10 @@ function explosion(x, y, size) {
   div.style.height = `${size}px`;
   div.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 360}deg)`;
 
-  render.playArea.appendChild(div);
+  playArea.appendChild(div);
 
   // explosions will be removed after some time
-  render.explosions.push([div, performance.now()]);
+  list.push([div, performance.now()]);
 }
 
 function render(snapshot) {
@@ -68,7 +68,6 @@ function render(snapshot) {
     snapshot.ships[render.playerId].pos,
     [window.innerWidth / 2, window.innerHeight / 2]
   );
-
 
   // First remove any expired explosions (don't iterate over new ones)
   // Loop backwards to safely remove from array while iterating
@@ -92,7 +91,7 @@ function render(snapshot) {
 
     if (e.dead) {
       if (div) {
-        explosion(x, y, 60);
+        explosion(x, y, 60, render.playArea, render.explosions);
         div.remove();
       }
       return;
@@ -135,7 +134,7 @@ function render(snapshot) {
 
     if (e.dead) {
       if (div) {
-        explosion(x, y, e.size);
+        explosion(x, y, e.size, render.playArea, render.explosions);
         div.remove();
       }
       return;
