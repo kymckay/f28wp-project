@@ -98,9 +98,10 @@ class World {
 
           // All asteroids start randomly sized and distributed
           const ast = new Asteroid(
-            [i + x, j + y],
-            [Math.random() * 6 - 3, Math.random() * 6 - 3], // x,y are within the cell i,j
-            Asteroid.minSize + Math.random() * (Asteroid.maxSize - Asteroid.minSize)
+            [i + x, j + y], // x,y are within the cell i,j
+            Asteroid.minSize + Math.random() * (Asteroid.maxSize - Asteroid.minSize),
+            // 5% chance asteroid starts stationary
+            Math.random() < 0.05 ? 0 : Asteroid.maxSpeed * Math.random()
           );
 
           this.asteroids[ast.id] = ast;
@@ -143,21 +144,21 @@ class World {
     this.destroyed = [];
 
     Object.values(this.asteroids).forEach((e) => {
-      e.x += e.vel[0] * World.velNorm;
-      e.y += e.vel[1] * World.velNorm;
+      e.x += e.vel[0] * World.normCoef;
+      e.y += e.vel[1] * World.normCoef;
 
       // Asteroids wrap to other side of world
       // 100 px outside world before wrapping (to hide from clients)
-      if (e.x < -100) {
-        e.x += this.width + 100;
-      } else if (e.x > this.width + 100) {
-        e.x -= this.width + 100;
+      if (e.x < -World.margin) {
+        e.x += this.width + World.margin;
+      } else if (e.x > this.width + World.margin) {
+        e.x -= this.width + World.margin;
       }
 
-      if (e.y < -100) {
-        e.y += this.height + 100;
-      } else if (e.y > this.height + 100) {
-        e.y -= this.height + 100;
+      if (e.y < -World.margin) {
+        e.y += this.height + World.margin;
+      } else if (e.y > this.height + World.margin) {
+        e.y -= this.height + World.margin;
       }
     });
 
@@ -166,15 +167,15 @@ class World {
       const control = e.controls;
       if (control.ArrowUp ? !control.ArrowDown : control.ArrowDown) {
         if (control.ArrowUp) {
-          e.accelerate(World.velNorm);
+          e.accelerate(World.normCoef);
         } else {
-          e.brake(World.velNorm);
+          e.brake(World.normCoef);
         }
       }
 
       // Ship can't turn boths ways at once (hence XOR)
       if (control.ArrowLeft ? !control.ArrowRight : control.ArrowRight) {
-        e.turn(control.ArrowLeft, World.velNorm);
+        e.turn(control.ArrowLeft, World.normCoef);
       }
 
       if (control.Space) {
@@ -185,8 +186,8 @@ class World {
       }
 
       // Update the position of the ship
-      e.x += e.vel[0] * World.velNorm;
-      e.y += e.vel[1] * World.velNorm;
+      e.x += e.vel[0] * World.normCoef;
+      e.y += e.vel[1] * World.normCoef;
     });
 
     Object.values(this.projectiles).forEach((e) => {
@@ -196,8 +197,8 @@ class World {
         this.destroyed.push(e.id);
         e.dead = true;
       }
-      e.x += e.vel[0] * World.velNorm;
-      e.y += e.vel[1] * World.velNorm;
+      e.x += e.vel[0] * World.normCoef;
+      e.y += e.vel[1] * World.normCoef;
     });
   }
 
@@ -245,7 +246,10 @@ World.astFrequency = 5; // asteroids per grid cell
 // determines how often simulation occurs and snapshots are sent
 World.fps = 30; // 30 fps ~ 33ms between frames
 
-// Normalise velocities to m/s using time between frames as a percentage of a second
-World.velNorm = 1000 / (World.fps * 1000);
+// Normalise any unit to per second using time between frames as a percentage of a second
+World.normCoef = 1000 / (World.fps * 1000);
+
+// Entities that wrap (mostyl asteroids) go this far outside world bounds before "teleporting"
+World.margin = Asteroid.maxSize / 2 + 1;
 
 module.exports = World;

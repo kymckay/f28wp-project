@@ -15,6 +15,6 @@ class Projectile extends Entity {
   }
 }
 
-Projectile.lifetime = 2; // in seconds
+Projectile.lifetime = 1; // in seconds
 
 module.exports = Projectile;

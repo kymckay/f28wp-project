@@ -9,11 +9,22 @@ function vectorAdd(v1, v2) {
   ];
 }
 
-function polarToCart(theta, z) {
+function polarToCart(v) {
+  const [theta, z] = v;
+
   return [
     // Angles in this world are measured clockwise from x-axis
-    Math.cos(theta) * z,
-    Math.sin(theta) * z,
+    Math.cos(theta) * z, // x
+    Math.sin(theta) * z, // y
+  ];
+}
+
+function cartToPolar(v) {
+  const [x, y] = v;
+
+  return [
+    Math.atan2(y, x), // theta
+    Math.sqrt(x * x + y * y), // z
   ];
 }
 
@@ -30,32 +41,30 @@ class Ship extends Entity {
     this.lastShot = performance.now();
   }
 
-  turn(anticlockwise, normFact) {
-    this.dir += (anticlockwise ? -1 : 1) * Ship.turnSpeed * normFact;
+  turn(anticlockwise, normCoef) {
+    this.dir += (anticlockwise ? -1 : 1) * Ship.turnSpeed * normCoef;
   }
 
-  accelerate(normFact) {
+  accelerate(normCoef) {
+    // Differential velocity vector in direction ship faces
+    const dv = polarToCart([this.dir, Ship.acceleration * normCoef]);
+
+    // Use polar to easily limit new speed direction independently
+    const polarV = cartToPolar(vectorAdd(this.vel, dv));
+    polarV[1] = Math.min(polarV[1], Ship.maxSpeed);
+
+    this.vel = polarToCart(polarV);
+  }
+
+  brake(normCoef) {
     const v = this.vel;
 
     // Differential velocity vector
-    const dv = polarToCart(this.dir, Ship.acceleration * normFact);
-
-    // Ships cannot infinitely speed up
-    this.vel = [
-      Math.max(Math.min(v[0] + dv[0], Ship.maxSpeed), -Ship.maxSpeed),
-      Math.max(Math.min(v[1] + dv[1], Ship.maxSpeed), -Ship.maxSpeed),
-    ];
-  }
-
-  brake(normFact) {
-    const v = this.vel;
-
-    // Differential velocity vector
-    const dv = polarToCart(
+    const dv = polarToCart([
       // Braking always opposes current velocity
       Math.atan2(v[1], v[0]) + Math.PI,
-      Ship.deceleration * normFact
-    );
+      Ship.deceleration * normCoef,
+    ]);
 
     // Can't decelerate past 0
     this.vel = [
@@ -72,10 +81,10 @@ class Ship extends Entity {
     this.lastShot = performance.now();
 
     // Projectile appears ahead of ship
-    const pos = vectorAdd(this.pos, polarToCart(this.dir, Ship.shotOffset));
+    const pos = vectorAdd(this.pos, polarToCart([this.dir, Ship.shotOffset]));
 
     // Projectile inherits ship velocity plus firing velocity
-    const vel = vectorAdd(this.vel, polarToCart(this.dir, Ship.shotSpeed));
+    const vel = vectorAdd(this.vel, polarToCart([this.dir, Ship.shotSpeed]));
 
     return new Projectile(pos, this.dir, vel);
   }
@@ -88,14 +97,14 @@ class Ship extends Entity {
 }
 
 // Constants control ship handling
-Ship.turnSpeed = 0.05; // rad/s
-Ship.acceleration = 40; // px/s
-Ship.deceleration = 20; // px/s
-Ship.maxSpeed = 50; // px/s
+Ship.turnSpeed = Math.PI; // rad/s
+Ship.acceleration = 300; // px/s
+Ship.deceleration = 300; // px/s
+Ship.maxSpeed = 600; // px/s
 
 // Constants for cannon behaviour
-Ship.shotSpeed = 480; // px/s
+Ship.shotSpeed = 1000; // px/s
 Ship.shotOffset = 40; // px ahead of ship centre
-Ship.shotCooldown = 200; // ms between cannon shots
+Ship.shotCooldown = 800; // ms between cannon shots
 
 module.exports = Ship;
