@@ -44,8 +44,21 @@ function worldToScreen(worldCoord, screenO) {
   return vectorDiff(worldCoord, screenO);
 }
 
-function explosion(x, y) {
+function explosion(x, y, size, playArea, list) {
+  const div = document.createElement('div');
+  div.classList.add('entity');
+  div.classList.add('explosion');
 
+  div.style.left = `${x}px`;
+  div.style.top = `${y}px`;
+  div.style.width = `${size}px`;
+  div.style.height = `${size}px`;
+  div.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 360}deg)`;
+
+  playArea.appendChild(div);
+
+  // explosions will be removed after some time
+  list.push([div, performance.now()]);
 }
 
 function render(snapshot) {
@@ -56,6 +69,20 @@ function render(snapshot) {
     [window.innerWidth / 2, window.innerHeight / 2]
   );
 
+  // First remove any expired explosions (don't iterate over new ones)
+  // Loop backwards to safely remove from array while iterating
+  const time = performance.now();
+  for (let i = render.explosions.length - 1; i >= 0; i--) {
+    const exp = render.explosions[i];
+
+    // Explosions last 1s each
+    if (time - exp[1] > 1000) {
+      exp[0].remove();
+      // NOTE could be optimised to a single splice since they're stored in order
+      render.explosions.splice(i, 1);
+    }
+  }
+
   Object.keys(snapshot.ships).forEach((k) => {
     const e = snapshot.ships[k];
     const [x, y] = worldToScreen(e.pos, screenO);
@@ -64,7 +91,7 @@ function render(snapshot) {
 
     if (e.dead) {
       if (div) {
-        // TODO create temp explosion at x,y
+        explosion(x, y, 60, render.playArea, render.explosions);
         div.remove();
       }
       return;
@@ -107,7 +134,7 @@ function render(snapshot) {
 
     if (e.dead) {
       if (div) {
-        // TODO create temp explosion at x,y
+        explosion(x, y, e.size, render.playArea, render.explosions);
         div.remove();
       }
       return;
@@ -177,7 +204,7 @@ function render(snapshot) {
   });
 }
 render.divs = {};
-render.explosions = {};
+render.explosions = [];
 
 function preGameSetup(data) {
   // Player ID lets renderer track screen's world position
