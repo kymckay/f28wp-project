@@ -27,6 +27,10 @@ Commands:
 - `npm run lint` for just static analysis
 - `npm test` to run all testing (currently also just static analysis, will add unit tests here in future)
 
+### Travis CI
+
+The repository does contain configuration for [Travis CI](https://travis-ci.org) which automatically runs `npm test` and reports any failed tests automatically in the GitHub UI (little green checks or red crosses beside the commit). Note that this has only been configured to run on the master branch and I'm only allocated a certain number of free tokens each month so if those run out it will stop running until they're refreshed the next month.
+
 ## Deployment
 
 Whenever `npm run build` or `npm run start` is used, our client-side JavaScript is both bundled and transpiled for the best of both worlds (browser compatibility and newer language features) as detailed below.
