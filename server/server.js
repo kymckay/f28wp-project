@@ -3,7 +3,7 @@ const socketio = require('socket.io');
 const http = require('http');
 const path = require('path');
 const bodyParser = require('body-parser');
-const mysql = require('mysql');
+const database = require('./database');
 
 const Lobby = require('./classes/lobby');
 
@@ -38,83 +38,18 @@ app.post('/play', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dist/play.html'));
 });
 
-// following block of code creates the database and its tables locally.
-// Must do it outside post to avoid overwrite.
-const con = mysql.createConnection({
-  host: 'localhost', // use your own hostname
-  user: 'root', // use your mysql username
-  password: 'Aceg0864', // use your password
-});
-
-con.connect((err) => {
-  if (err) throw err;
-  console.log('Connected!');
-
-  con.query('DROP DATABASE IF EXISTS steak', (err, result) => {
-    if (err) throw err;
-  });
-
-  con.query('CREATE DATABASE steak', (err, result) => {
-    if (err) throw err;
-    console.log('Database created');
-  });
-
-  con.query('USE steak', (err, result) => {
-    if (err) throw err;
-    console.log('Using Database steak');
-  });
-
-  const query1 = 'CREATE TABLE players (username VARCHAR(50) NOT NULL PRIMARY KEY, password VARCHAR(50) NOT NULL)';
-
-  con.query(query1, (err, result) => {
-    if (err) throw err;
-    console.log('Table created');
-  });
-});
-
 app.post('/register', (req, res) => {
   const name = req.body.user;
   const pass = req.body.pword;
-  const query2 = 'INSERT INTO players (username, password) VALUES (?, ?)';
 
-  con.connect((err) => {
-    con.query(query2, [name, pass], (err, results, fields) => {
-      if (err) {
-        console.log('Failed to register: ' + err);
-        // res.send(<script>alert("Username already exists.");
-        // window.location.href = "index.html"; </script>);
-        res.sendStatus(500);
-        // res.render('index.html', {alertMsg:"Username already exists."});
-        // assuming only error possible is violation of primary key
-        return;
-      }
-      console.log('Registered new user successfully.');
-      res.redirect('index.html');
-      res.end();
-    });
-  });
+  database.userRegister(name, pass, res);
 });
 
 app.post('/login', (req, res) => {
   const name = req.body.user;
   const pass = req.body.pword;
-  const credentials = 'SELECT * FROM players WHERE username = ? AND password = ?';
 
-  con.connect((err) => {
-    con.query(credentials, [name, pass], (err, data, fields) => {
-      if (err) {
-        console.log("Failed to login: " + err);
-      } else if (data.length > 0) {
-        console.log('Successfully logged in.');
-        res.redirect('/play');
-      } else {
-        console.log('Incorrect username or password.');
-        // alert('Incorrect username or password.');
-        // res.sendStatus(500);
-        // return;
-      }
-    });
-  });
+  database.userLogin(name, pass, res);
 });
 
 // Track lobbies which exist and their state
