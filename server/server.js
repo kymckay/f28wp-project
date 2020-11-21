@@ -31,6 +31,7 @@ app.use(
 // Files stored statically in public folder
 app.use(express.static(path.join(__dirname, '../public/')));
 
+// Express middleware that makes form inputs easily accessible
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Play submission sends client to the game
