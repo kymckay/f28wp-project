@@ -1,10 +1,9 @@
 const mysql = require('mysql');
+const fs = require('fs');
 
-const con = mysql.createConnection({
-  host: 'localhost', // use your own hostname
-  user: 'root', // use your mysql username
-  password: 'secret', // use your password
-});
+let config = JSON.parse(fs.readFileSync('./server/db.json'));
+
+const con = mysql.createConnection(config);
 
 // Database should persist between server restarts
 con.query(
