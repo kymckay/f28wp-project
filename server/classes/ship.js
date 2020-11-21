@@ -81,10 +81,10 @@ class Ship extends Entity {
     this.lastShot = performance.now();
 
     // Projectile appears ahead of ship
-    const pos = vectorAdd(this.pos, polarToCart(this.dir, Ship.shotOffset));
+    const pos = vectorAdd(this.pos, polarToCart([this.dir, Ship.shotOffset]));
 
     // Projectile inherits ship velocity plus firing velocity
-    const vel = vectorAdd(this.vel, polarToCart(this.dir, Ship.shotSpeed));
+    const vel = vectorAdd(this.vel, polarToCart([this.dir, Ship.shotSpeed]));
 
     return new Projectile(pos, this.dir, vel);
   }
@@ -103,8 +103,8 @@ Ship.deceleration = 300; // px/s
 Ship.maxSpeed = 600; // px/s
 
 // Constants for cannon behaviour
-Ship.shotSpeed = 480; // px/s
+Ship.shotSpeed = 1000; // px/s
 Ship.shotOffset = 40; // px ahead of ship centre
-Ship.shotCooldown = 200; // ms between cannon shots
+Ship.shotCooldown = 800; // ms between cannon shots
 
 module.exports = Ship;
