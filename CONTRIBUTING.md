@@ -29,7 +29,7 @@ Commands:
 
 ### Travis CI
 
-The repository does contain configuration for [Travis CI](https://travis-ci.org) which automatically runs `npm test` and reports any failed tests automatically in the GitHub UI (little green checks or red crosses beside the commit). Note that this has only been configured to run for pull requests and I'm only allocated a certain number of free tokens each month so if those run out it will stop running until they're refreshed the next month.
+The repository does contain configuration for [Travis CI](https://travis-ci.org) which automatically runs `npm test` and reports any failed tests automatically in the GitHub UI (little green checks or red crosses beside the commit). Note that this has only been configured to run on the master branch and I'm only allocated a certain number of free tokens each month so if those run out it will stop running until they're refreshed the next month.
 
 ## Deployment
 
