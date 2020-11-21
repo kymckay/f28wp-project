@@ -1,114 +1,219 @@
-import ActionMap from './actionMap';
-import Controller from './controller';
-import PhysicsObject from './physicsObject';
-import Particle from './particle';
-import Vector from './vector';
-import circleCircle from './collision';
+/* global io */
+import { hudMsg } from './hud';
 
-const gameObjects = {};
-const playerID = 0;
-const bindings = new ActionMap();
-const keyState = {};
+// Server sends game events/state via socket
+const socket = io();
 
-let [width, height] = [0, 0];
-let gameWindow;
-let lastFrame;
-let playerController;
+// Track which keys are pressed
+const keysDown = {};
 
-function loop() {
-  // CALCULATE ELAPSED TIME SINCE LAST FRAME
-  const now = Date.now();
-  const dT = Math.min((now - lastFrame) / 1000, 200);
-  lastFrame = now;
+// Controls are enabled at different setup stages (this object tracks them)
+const handledKeys = {};
 
-  // HANDLE INPUTS
-  Object.keys(bindings.mappings).forEach((key) => {
-    if (keyState[key]) playerController.handleInput(key);
-  });
+window.addEventListener('keydown', (e) => {
+  // e.code corresponds to keyboard position
+  // and will work the same for any layout
+  if (e.code in handledKeys) {
+    // Only need to tell server when key starts being held
+    if (!(e.code in keysDown)) {
+      socket.emit('keydown', e.code);
+    }
 
-  // UPDATE ALL PHYSICS OBJECTS
-  const objsToDestroy = [];
-  Object.values(gameObjects).forEach((obj) => {
-    obj.update(dT);
-    if (obj.destroyNextFrame) objsToDestroy.push(obj.id);
-  });
-
-  Object.entries(gameObjects).forEach((objID, obj) => {
-    Object.entries(gameObjects).forEach((otherID, other) => {
-      if (objID === otherID) return;
-      if (circleCircle(obj, other)) {
-        if (obj.hasTag('projectile') && other.hasTag('asteroid')) {
-          objsToDestroy.push(obj.id);
-          objsToDestroy.push(other.id);
-          const explosion = new Particle(gameWindow, obj, Vector.zero, 1);
-          explosion.div.classList.add('explosion');
-          explosion.addTag('effect');
-          gameObjects[explosion.id] = explosion;
-        }
-      }
-    });
-    obj.bounds(true);
-  });
-  objsToDestroy.forEach((id) => {
-    gameObjects[id].cleanUp();
-    delete gameObjects[id];
-  });
-}
-
-function render() {
-  // ITERATE THROUGH ALL gameObjects
-  Object.values(gameObjects).forEach((obj) => obj.render());
-  requestAnimationFrame(render);
-}
-
-function setup() {
-  gameWindow = document.getElementById('gameWindow');
-  width = gameWindow.style.width.slice(0, -2);
-  height = gameWindow.style.height.slice(0, -2);
-  const center = new Vector(width / 2, height / 2);
-  lastFrame = Date.now();
-
-  const playerObj = new PhysicsObject(gameWindow,
-    new Vector(width / 2, height / 2),
-    new Vector(),
-    32);
-  playerObj.div.classList.add('player');
-  playerObj.addTag('ship');
-  playerObj.collidable = true;
-  gameObjects[playerObj.id] = playerObj;
-
-  for (let i = 0; i < 8; i += 1) {
-    const position = Vector.randomUnit();
-    position.mul(width / 2);
-    position.add(center);
-    const velocity = Vector.fromAngle(Math.random() * Math.PI * 2, 2);
-    const rockObj = new PhysicsObject(gameWindow, position, velocity, 40);
-    rockObj.div.classList.add('rock');
-    rockObj.addTag('asteroid');
-    rockObj.canRotate = true;
-    rockObj.pangle -= (Math.random() * 0.0872665) - 0.0436332;
-    gameObjects[rockObj.id] = rockObj;
+    keysDown[e.code] = true;
+    e.preventDefault();
   }
+});
+window.addEventListener('keyup', (e) => {
+  if (e.code in handledKeys) {
+    socket.emit('keyup', e.code);
 
-  playerController = new Controller(gameWindow, gameObjects, playerID, bindings);
-  bindings.add('ArrowUp', playerController.forward);
-  bindings.add('ArrowDown', playerController.backward);
-  bindings.add('ArrowLeft', playerController.left);
-  bindings.add('ArrowRight', playerController.right);
-  bindings.add(' ', playerController.shoot);
+    delete keysDown[e.code];
+    e.preventDefault();
+  }
+});
 
-  setInterval(loop, 10);
-  requestAnimationFrame(render);
+function vectorDiff(v1, v2) {
+  return [
+    v1[0] - v2[0],
+    v1[1] - v2[1],
+  ];
 }
 
-function keydownEvent(e) {
-  keyState[e.key] = true;
+function worldToScreen(worldCoord, screenO) {
+  // Convert coordinate system by subtracting new origin vector
+  return vectorDiff(worldCoord, screenO);
 }
 
-function keyupEvent(e) {
-  keyState[e.key] = false;
+function explosion(x, y) {
+
 }
 
-window.addEventListener('load', setup);
-window.addEventListener('keyDown', keydownEvent);
-window.addEventListener('keyUp', keyupEvent);
+function render(snapshot) {
+  // Screen origin (top left) moves with ship (always centered)
+  // Used to convert world coordinates to screen coordinates
+  const screenO = vectorDiff(
+    snapshot.ships[render.playerId].pos,
+    [window.innerWidth / 2, window.innerHeight / 2]
+  );
+
+  Object.keys(snapshot.ships).forEach((k) => {
+    const e = snapshot.ships[k];
+    const [x, y] = worldToScreen(e.pos, screenO);
+
+    let div = render.divs[k];
+
+    if (e.dead) {
+      if (div) {
+        // TODO create temp explosion at x,y
+        div.remove();
+      }
+      return;
+    }
+
+    if (!div) {
+      div = document.createElement('div');
+      render.divs[k] = div;
+
+      // May need to retrieve this div by ID
+      div.id = `entity${k}`;
+
+      // Apply ship styling/positioning rules
+      div.classList.add('entity');
+      div.classList.add('ship');
+
+      // Differentiate the player's ship
+      if (k === render.playerId) {
+        div.classList.add('player');
+      }
+
+      // Position before appending to avoid visual artifacts
+      div.style.left = `${x}px`;
+      div.style.top = `${y}px`;
+      div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
+
+      render.playArea.appendChild(div);
+    }
+
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+    div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
+  });
+
+  Object.keys(snapshot.asteroids).forEach((k) => {
+    const e = snapshot.asteroids[k];
+    const [x, y] = worldToScreen(e.pos, screenO);
+
+    let div = render.divs[k];
+
+    if (e.dead) {
+      if (div) {
+        // TODO create temp explosion at x,y
+        div.remove();
+      }
+      return;
+    }
+
+    if (!div) {
+      div = document.createElement('div');
+      render.divs[k] = div;
+
+      // May need to retrieve this div by ID
+      div.id = `entity${k}`;
+
+      // Apply asteroid styling/positioning rules
+      div.classList.add('entity');
+      div.classList.add('asteroid');
+
+      // Asteroids are not all the same size
+      div.style.width = `${e.size}px`;
+      div.style.height = `${e.size}px`;
+
+      // Position before appending to avoid visual artifacts
+      div.style.left = `${x}px`;
+      div.style.top = `${y}px`;
+
+      render.playArea.appendChild(div);
+    }
+
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+  });
+
+  Object.keys(snapshot.projectiles).forEach((k) => {
+    const e = snapshot.projectiles[k];
+
+    let div = render.divs[k];
+
+    // Projectiles just disappear instantly
+    if (e.dead) {
+      if (div) div.remove();
+      return;
+    }
+
+    const [x, y] = worldToScreen(e.pos, screenO);
+
+    if (!div) {
+      div = document.createElement('div');
+      render.divs[k] = div;
+
+      // May need to retrieve this div by ID
+      div.id = `entity${k}`;
+
+      // Apply ship styling/positioning rules
+      div.classList.add('entity');
+      div.classList.add('projectile');
+
+      // Position before appending to avoid visual artifacts
+      div.style.left = `${x}px`;
+      div.style.top = `${y}px`;
+      div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
+
+      render.playArea.appendChild(div);
+    }
+
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+    div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
+  });
+}
+render.divs = {};
+render.explosions = {};
+
+function preGameSetup(data) {
+  // Player ID lets renderer track screen's world position
+  // Also to render the player's ship differently
+  render.playerId = data.id;
+
+  // World bounds allow rendering the edge of the world
+  render.world = data.world;
+
+  // Enable only ship rotation until game starts
+  handledKeys.ArrowLeft = true;
+  handledKeys.ArrowRight = true;
+}
+
+function onGameStart() {
+  // Game starting message no longer applies
+  hudMsg('game-start-msg', null);
+
+  // Enable rest of ship controls now
+  handledKeys.ArrowDown = true;
+  handledKeys.ArrowUp = true;
+  handledKeys.Space = true;
+}
+
+// Page must be ready before we can start interacting with it
+window.addEventListener('load', () => {
+  // Rendering will require the right div later
+  render.playArea = document.getElementById('playArea');
+
+  // Client should know why they're waiting (and how long's left)
+  hudMsg('game-start-msg', 'Game loading...');
+  socket.on('prestart count', (remaining) => hudMsg('game-start-msg', `Game loading in ${remaining} seconds`));
+
+  socket.on('player setup', preGameSetup);
+
+  socket.on('game start', onGameStart);
+
+  socket.on('snapshot', render);
+});
