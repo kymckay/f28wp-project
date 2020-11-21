@@ -9,11 +9,22 @@ function vectorAdd(v1, v2) {
   ];
 }
 
-function polarToCart(theta, z) {
+function polarToCart(v) {
+  const [theta, z] = v;
+
   return [
     // Angles in this world are measured clockwise from x-axis
-    Math.cos(theta) * z,
-    Math.sin(theta) * z,
+    Math.cos(theta) * z, // x
+    Math.sin(theta) * z, // y
+  ];
+}
+
+function cartToPolar(v) {
+  const [x, y] = v;
+
+  return [
+    Math.atan2(y, x), // theta
+    Math.sqrt(x * x + y * y), // z
   ];
 }
 
@@ -35,27 +46,25 @@ class Ship extends Entity {
   }
 
   accelerate(normCoef) {
-    const v = this.vel;
+    // Differential velocity vector in direction ship faces
+    const dv = polarToCart([this.dir, Ship.acceleration * normCoef]);
 
-    // Differential velocity vector
-    const dv = polarToCart(this.dir, Ship.acceleration * normCoef);
+    // Use polar to easily limit new speed direction independently
+    const polarV = cartToPolar(vectorAdd(this.vel, dv));
+    polarV[1] = Math.min(polarV[1], Ship.maxSpeed);
 
-    // Ships cannot infinitely speed up
-    this.vel = [
-      Math.max(Math.min(v[0] + dv[0], Ship.maxSpeed), -Ship.maxSpeed),
-      Math.max(Math.min(v[1] + dv[1], Ship.maxSpeed), -Ship.maxSpeed),
-    ];
+    this.vel = polarToCart(polarV);
   }
 
   brake(normCoef) {
     const v = this.vel;
 
     // Differential velocity vector
-    const dv = polarToCart(
+    const dv = polarToCart([
       // Braking always opposes current velocity
       Math.atan2(v[1], v[0]) + Math.PI,
-      Ship.deceleration * normCoef
-    );
+      Ship.deceleration * normCoef,
+    ]);
 
     // Can't decelerate past 0
     this.vel = [
