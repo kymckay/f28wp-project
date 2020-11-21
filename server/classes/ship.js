@@ -30,15 +30,15 @@ class Ship extends Entity {
     this.lastShot = performance.now();
   }
 
-  turn(anticlockwise, normFact) {
-    this.dir += (anticlockwise ? -1 : 1) * Ship.turnSpeed * normFact;
+  turn(anticlockwise, normCoef) {
+    this.dir += (anticlockwise ? -1 : 1) * Ship.turnSpeed * normCoef;
   }
 
-  accelerate(normFact) {
+  accelerate(normCoef) {
     const v = this.vel;
 
     // Differential velocity vector
-    const dv = polarToCart(this.dir, Ship.acceleration * normFact);
+    const dv = polarToCart(this.dir, Ship.acceleration * normCoef);
 
     // Ships cannot infinitely speed up
     this.vel = [
@@ -47,14 +47,14 @@ class Ship extends Entity {
     ];
   }
 
-  brake(normFact) {
+  brake(normCoef) {
     const v = this.vel;
 
     // Differential velocity vector
     const dv = polarToCart(
       // Braking always opposes current velocity
       Math.atan2(v[1], v[0]) + Math.PI,
-      Ship.deceleration * normFact
+      Ship.deceleration * normCoef
     );
 
     // Can't decelerate past 0
