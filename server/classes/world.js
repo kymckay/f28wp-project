@@ -98,9 +98,10 @@ class World {
 
           // All asteroids start randomly sized and distributed
           const ast = new Asteroid(
-            [i + x, j + y],
-            [Math.random() * 6 - 3, Math.random() * 6 - 3], // x,y are within the cell i,j
-            Asteroid.minSize + Math.random() * (Asteroid.maxSize - Asteroid.minSize)
+            [i + x, j + y], // x,y are within the cell i,j
+            Asteroid.minSize + Math.random() * (Asteroid.maxSize - Asteroid.minSize),
+            // 5% chance asteroid starts stationary
+            Math.random() < 0.05 ? 0 : Asteroid.maxSpeed * Math.random()
           );
 
           this.asteroids[ast.id] = ast;
