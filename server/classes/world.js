@@ -148,16 +148,16 @@ class World {
 
       // Asteroids wrap to other side of world
       // 100 px outside world before wrapping (to hide from clients)
-      if (e.x < -100) {
-        e.x += this.width + 100;
-      } else if (e.x > this.width + 100) {
-        e.x -= this.width + 100;
+      if (e.x < -World.margin) {
+        e.x += this.width + World.margin;
+      } else if (e.x > this.width + World.margin) {
+        e.x -= this.width + World.margin;
       }
 
-      if (e.y < -100) {
-        e.y += this.height + 100;
-      } else if (e.y > this.height + 100) {
-        e.y -= this.height + 100;
+      if (e.y < -World.margin) {
+        e.y += this.height + World.margin;
+      } else if (e.y > this.height + World.margin) {
+        e.y -= this.height + World.margin;
       }
     });
 
@@ -247,5 +247,8 @@ World.fps = 30; // 30 fps ~ 33ms between frames
 
 // Normalise any unit to per second using time between frames as a percentage of a second
 World.normCoef = 1000 / (World.fps * 1000);
+
+// Entities that wrap (mostyl asteroids) go this far outside world bounds before "teleporting"
+World.margin = Asteroid.maxSize / 2 + 1;
 
 module.exports = World;
