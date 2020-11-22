@@ -153,34 +153,18 @@ class World {
     });
 
     Object.values(this.ships).forEach((e) => {
-      // Ship can't thrust and break together (hence XOR)
-      const control = e.controls;
-      if (control.ArrowUp ? !control.ArrowDown : control.ArrowDown) {
-        if (control.ArrowUp) {
-          e.accelerate(World.normCoef);
-        } else {
-          e.brake(World.normCoef);
-        }
-      }
-
-      // Ship can't turn boths ways at once (hence XOR)
-      if (control.ArrowLeft ? !control.ArrowRight : control.ArrowRight) {
-        e.turn(control.ArrowLeft, World.normCoef);
-      }
-
-      if (control.Space) {
-        const proj = e.shoot();
-        if (proj) {
-          this.projectiles[proj.id] = proj;
-        }
-      }
-
       e.simulate(
         this.width,
         this.height,
         World.margin,
         World.normCoef
       );
+
+      // Ship may have fired a new projectile
+      if (e.fired) {
+        this.projectiles[e.fired.id] = e.fired;
+        e.fired = null;
+      }
 
       // TODO check for collisions with asteroids
     });
