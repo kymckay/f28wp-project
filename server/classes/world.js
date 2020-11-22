@@ -181,22 +181,25 @@ class World {
         World.margin,
         World.normCoef
       );
+
+      // TODO check for collisions with asteroids
     });
 
     Object.values(this.projectiles).forEach((e) => {
-      e.time -= 1 / World.fps;
-      if (e.time <= 0) {
-        console.log(`${e.id} has expired`);
-        this.destroyed.push(e.id);
-        e.dead = true;
-      }
-
       e.simulate(
         this.width,
         this.height,
         World.margin,
-        World.normCoef
+        World.normCoef,
+        World.fps
       );
+
+      // TODO check for collisions with asteroids or ships
+
+      // Projectile may expire this frame
+      if (e.dead) {
+        this.destroyed.push(e.id);
+      }
     });
   }
 
