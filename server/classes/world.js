@@ -144,61 +144,46 @@ class World {
     this.destroyed = [];
 
     Object.values(this.asteroids).forEach((e) => {
-      e.x += e.vel[0] * World.normCoef;
-      e.y += e.vel[1] * World.normCoef;
-
-      // Asteroids wrap to other side of world
-      // 100 px outside world before wrapping (to hide from clients)
-      if (e.x < -World.margin) {
-        e.x += this.width + World.margin;
-      } else if (e.x > this.width + World.margin) {
-        e.x -= this.width + World.margin;
-      }
-
-      if (e.y < -World.margin) {
-        e.y += this.height + World.margin;
-      } else if (e.y > this.height + World.margin) {
-        e.y -= this.height + World.margin;
-      }
+      e.simulate(
+        this.width,
+        this.height,
+        World.margin,
+        World.normCoef
+      );
     });
 
     Object.values(this.ships).forEach((e) => {
-      // Ship can't thrust and break together (hence XOR)
-      const control = e.controls;
-      if (control.ArrowUp ? !control.ArrowDown : control.ArrowDown) {
-        if (control.ArrowUp) {
-          e.accelerate(World.normCoef);
-        } else {
-          e.brake(World.normCoef);
-        }
+      e.simulate(
+        this.width,
+        this.height,
+        World.margin,
+        World.normCoef
+      );
+
+      // Ship may have fired a new projectile
+      if (e.fired) {
+        this.projectiles[e.fired.id] = e.fired;
+        e.fired = null;
       }
 
-      // Ship can't turn boths ways at once (hence XOR)
-      if (control.ArrowLeft ? !control.ArrowRight : control.ArrowRight) {
-        e.turn(control.ArrowLeft, World.normCoef);
-      }
-
-      if (control.Space) {
-        const proj = e.shoot();
-        if (proj) {
-          this.projectiles[proj.id] = proj;
-        }
-      }
-
-      // Update the position of the ship
-      e.x += e.vel[0] * World.normCoef;
-      e.y += e.vel[1] * World.normCoef;
+      // TODO check for collisions with asteroids
     });
 
     Object.values(this.projectiles).forEach((e) => {
-      e.time -= 1 / World.fps;
-      if (e.time <= 0) {
-        console.log(`${e.id} has expired`);
+      e.simulate(
+        this.width,
+        this.height,
+        World.margin,
+        World.normCoef,
+        World.fps
+      );
+
+      // TODO check for collisions with asteroids or ships
+
+      // Projectile may expire this frame
+      if (e.dead) {
         this.destroyed.push(e.id);
-        e.dead = true;
       }
-      e.x += e.vel[0] * World.normCoef;
-      e.y += e.vel[1] * World.normCoef;
     });
   }
 

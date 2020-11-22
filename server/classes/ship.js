@@ -76,7 +76,7 @@ class Ship extends Entity {
   shoot() {
     // Cooldown between shots of 5s (5000ms)
     if (performance.now() - this.lastShot < Ship.shotCooldown) {
-      return null;
+      return;
     }
     this.lastShot = performance.now();
 
@@ -86,7 +86,30 @@ class Ship extends Entity {
     // Projectile inherits ship velocity plus firing velocity
     const vel = vectorAdd(this.vel, polarToCart([this.dir, Ship.shotSpeed]));
 
-    return new Projectile(pos, this.dir, vel);
+    this.fired = new Projectile(pos, this.dir, vel);
+  }
+
+  simulate(maxX, maxY, margin, normCoef) {
+    // Ship can't thrust and break together (hence XOR)
+    const control = this.controls;
+    if (control.ArrowUp ? !control.ArrowDown : control.ArrowDown) {
+      if (control.ArrowUp) {
+        this.accelerate(normCoef);
+      } else {
+        this.brake(normCoef);
+      }
+    }
+
+    // Ship can't turn boths ways at once (hence XOR)
+    if (control.ArrowLeft ? !control.ArrowRight : control.ArrowRight) {
+      this.turn(control.ArrowLeft, normCoef);
+    }
+
+    if (control.Space) {
+      this.shoot();
+    }
+
+    super.simulate(maxX, maxY, margin, normCoef);
   }
 
   serialize() {
