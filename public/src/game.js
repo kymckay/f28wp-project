@@ -62,12 +62,28 @@ function explosion(x, y, size, playArea, list) {
 }
 
 function render(snapshot) {
+  const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
+
   // Screen origin (top left) moves with ship (always centered)
   // Used to convert world coordinates to screen coordinates
   const screenO = vectorDiff(
     snapshot.ships[render.playerId].pos,
-    [window.innerWidth / 2, window.innerHeight / 2]
+    [screenW / 2, screenH / 2]
   );
+
+  // Boundaries let players see where world ends (once it exists)
+  if (render.world) {
+    const top = screenH - (0 - screenO[1]);
+    const bottom = render.world[1] - screenO[1];
+    const left = screenW - (0 - screenO[0]);
+    const right = render.world[0] - screenO[0];
+
+    render.boundt.style.bottom = `${top}px`;
+    render.boundb.style.top = `${bottom}px`;
+    render.boundl.style.right = `${left}px`;
+    render.boundr.style.left = `${right}px`;
+  }
 
   // First remove any expired explosions (don't iterate over new ones)
   // Loop backwards to safely remove from array while iterating
@@ -233,6 +249,11 @@ function onGameStart() {
 window.addEventListener('load', () => {
   // Rendering will require the right div later
   render.playArea = document.getElementById('playArea');
+  // Rendering will update the boundaries
+  render.boundt = document.getElementById('boundt');
+  render.boundb = document.getElementById('boundb');
+  render.boundl = document.getElementById('boundl');
+  render.boundr = document.getElementById('boundr');
 
   // Client should know why they're waiting (and how long's left)
   hudMsg('game-start-msg', 'Game loading...');
