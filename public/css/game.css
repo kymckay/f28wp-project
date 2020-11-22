@@ -46,28 +46,24 @@
 .boundary {
   position: fixed;
   z-index: 4;
-}
-#boundt {
   top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
+}
+#boundt {
+  bottom: 100vh;
   background: linear-gradient(0deg, rgba(0,0,0,0) 0%, #000 10%);
 }
 #boundb {
-  bottom: 0;
-  left: 0;
-  right: 0;
+  top: 100vh;
   background: linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 10%);
 }
 #boundl {
-  top: 0;
-  bottom: 0;
-  left: 0;
+  right: 100vw;
   background: linear-gradient(270deg, rgba(0,0,0,0) 0%, #000 10%);
 }
 #boundr {
-  top: 0;
-  bottom: 0;
-  right: 0;
+  left: 100vw;
   background: linear-gradient(90deg, rgba(0,0,0,0) 0%, #000 10%);
 }
