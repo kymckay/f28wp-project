@@ -144,22 +144,12 @@ class World {
     this.destroyed = [];
 
     Object.values(this.asteroids).forEach((e) => {
-      e.x += e.vel[0] * World.normCoef;
-      e.y += e.vel[1] * World.normCoef;
-
-      // Asteroids wrap to other side of world
-      // 100 px outside world before wrapping (to hide from clients)
-      if (e.x < -World.margin) {
-        e.x += this.width + World.margin;
-      } else if (e.x > this.width + World.margin) {
-        e.x -= this.width + World.margin;
-      }
-
-      if (e.y < -World.margin) {
-        e.y += this.height + World.margin;
-      } else if (e.y > this.height + World.margin) {
-        e.y -= this.height + World.margin;
-      }
+      e.simulate(
+        this.width,
+        this.height,
+        World.margin,
+        World.normCoef
+      );
     });
 
     Object.values(this.ships).forEach((e) => {
@@ -185,9 +175,12 @@ class World {
         }
       }
 
-      // Update the position of the ship
-      e.x += e.vel[0] * World.normCoef;
-      e.y += e.vel[1] * World.normCoef;
+      e.simulate(
+        this.width,
+        this.height,
+        World.margin,
+        World.normCoef
+      );
     });
 
     Object.values(this.projectiles).forEach((e) => {
@@ -197,8 +190,13 @@ class World {
         this.destroyed.push(e.id);
         e.dead = true;
       }
-      e.x += e.vel[0] * World.normCoef;
-      e.y += e.vel[1] * World.normCoef;
+
+      e.simulate(
+        this.width,
+        this.height,
+        World.margin,
+        World.normCoef
+      );
     });
   }
 
