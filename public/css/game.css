@@ -1,10 +1,7 @@
 .entity {
   position: fixed; /* always position relative to viewport */
-  transform-origin: center center;
   transform: translate(-50%, -50%);
   z-index: 3;
-  text-align: center;
-  vertical-align: middle;
 }
 
 .ship {
@@ -44,4 +41,33 @@
   0%  {width: 0px;    height: 0px;}
   10% {width: 120px;  height: 120px;}
   100%{width: 0px;    height: 0px;}
+}
+
+.boundary {
+  position: fixed;
+  z-index: 4;
+}
+#boundt {
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0) 0%, #000 10%);
+}
+#boundb {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 10%);
+}
+#boundl {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(270deg, rgba(0,0,0,0) 0%, #000 10%);
+}
+#boundr {
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(90deg, rgba(0,0,0,0) 0%, #000 10%);
 }

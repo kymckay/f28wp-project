@@ -8,6 +8,9 @@
 
   /* No scrollbars */
   overflow: hidden;
+
+  /* HUD is always on top */
+  z-index: 100;
 }
 
 #msg-list {
