@@ -112,7 +112,7 @@ class Ship extends Entity {
     super.simulate(maxX, maxY, margin, normCoef);
   }
 
-  getOuterPoints() {
+  getTriangle() {
     const perpendicular = this.dir + Math.PI / 2;
 
     // Ship is 60px by 30px in the CSS (would be nice to not hardcode this)
@@ -130,13 +130,13 @@ class Ship extends Entity {
       const e = asteroids[i];
       const radiusA = e.size / 2;
 
-      // Ship's longest dimension is 60px in the CSS (would be nice to not hardcode this)
       // Quick square collision check before more accurate (but costly) check
+      // Ship's longest dimension is 60px in the CSS (would be nice to not hardcode this)
       if (
         Math.abs(e.x - this.x) < radiusA + 30
         && Math.abs(e.y - this.y) < radiusA + 30
       ) {
-        const points = this.getOuterPoints();
+        const points = this.getTriangle();
 
         // Find distance from outer points of the ship to the asteroid center
         // Collide if less than asteroid radius
