@@ -66,6 +66,7 @@ class Lobby {
   leave(socket) {
     this.world.removePlayer(socket.id);
     delete this.players[socket.id];
+    socket.leave(this.id);
 
     // TODO handle this client-side
     this.io.to(this.id).emit('left lobby', socket.id);
@@ -122,7 +123,12 @@ class Lobby {
   }
 
   endGame() {
+    this.io.to(this.id).emit('game over', {});
     clearInterval(this.loop);
+    this.players.forEach((p) => {
+      this.leave(p);
+    });
+    delete this.world;
   }
 }
 Lobby.lobbyID = 0;
