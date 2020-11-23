@@ -66,9 +66,9 @@ class Projectile extends Entity {
 
         // The dot product condition
         if (
-          dot1 <= 0
-          && dot2 <= 0
-          && dot3 <= 0
+          dot1 > 0
+          && dot2 > 0
+          && dot3 > 0
         ) {
           this.dead = true;
           return e;
