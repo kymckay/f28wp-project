@@ -141,9 +141,11 @@ class Ship extends Entity {
         // Find distance from outer points of the ship to the asteroid center
         // Collide if less than asteroid radius
         const collide = points.some((p) => {
-          const distSqr = Math.pow(p[0] - e.x, 2) + Math.pow(p[1] - e.y, 2);
+          const dx = p[0] - e.x;
+          const dy = p[1] - e.y;
+          const distSqr = dx * dx + dy * dy;
           // It's quicker to exponent than sqrt
-          return distSqr < Math.pow(radiusA, 2);
+          return distSqr < radiusA * radiusA;
         });
 
         if (collide) {
