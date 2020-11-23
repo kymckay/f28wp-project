@@ -187,9 +187,13 @@ class World {
       );
 
       // Projectiles can destroy asteroids and ships
-      e.collisions(asteroids, ships);
+      const hit = e.collision(asteroids, ships);
+      if (hit) {
+        hit.dead = true;
+        this.destroyed.push(hit.id);
+      }
 
-      // Projectile may expire this frame
+      // Projectile may expire this frame or hit something
       if (e.dead) {
         this.destroyed.push(e.id);
       }

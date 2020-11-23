@@ -14,12 +14,27 @@ class Projectile extends Entity {
     if (this.time <= 0) {
       console.log(`${this.id} has expired`);
       this.dead = true;
+    } else {
+      super.simulate(maxX, maxY, margin, normCoef);
     }
-
-    super.simulate(maxX, maxY, margin, normCoef);
   }
 
-  collisions(asteroids, ships) {
+  // Returns an asteroid or ship the projectile is colliding with (or null)
+  collision(asteroids, ships) {
+    for (let i = 0; i < asteroids.length; i++) {
+      const e = asteroids[i];
+      const radiusSqr = Math.pow(e.size / 2, 2);
+
+      // Asteroids are circular so this is a simple distance check
+      const dx = this.x - e.x;
+      const dy = this.y - e.y;
+      if (dx * dx + dy * dy < radiusSqr) {
+        this.dead = true;
+        return e;
+      }
+    }
+
+    return null;
   }
 
   serialize() {
