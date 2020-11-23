@@ -1,4 +1,4 @@
-export function hudMsg(id, msg) {
+export default function hudMsg(id, msg) {
   // Message elements are added to a stacked column
   if (!(id in hudMsg.elements)) {
     const list = document.getElementById('msg-list');
@@ -13,14 +13,10 @@ export function hudMsg(id, msg) {
 
   if (msg === null) {
     e.remove();
+    delete hudMsg.elements[id];
   } else {
     e.innerHTML = msg;
   }
 }
 // Store added messages for removal
 hudMsg.elements = {};
-
-export function hudLives(num) {
-  console.log(num);
-  // TODO reflect remaining number of lives in the HUD
-}

@@ -1,5 +1,5 @@
 /* global io */
-import { hudMsg } from './hud';
+import hudMsg from './hud';
 
 // Server sends game events/state via socket
 const socket = io();
@@ -62,17 +62,16 @@ function explosion(x, y, size, playArea, list) {
 }
 
 function render(snapshot) {
-  const playerShip = snapshot.ships[render.playerId];
   const screenW = window.innerWidth;
   const screenH = window.innerHeight;
 
   // Screen origin (top left) moves with ship (always centered)
   // Used to convert world coordinates to screen coordinates
-  if (playerShip) {
+  if (render.playerId in snapshot.ships) {
     // Persist screenO for cases where ship no longer exists
     // Screen will remain in place until respwn
     render.screenO = vectorDiff(
-      playerShip.pos,
+      snapshot.ships[render.playerId].pos,
       [screenW / 2, screenH / 2]
     );
   }
@@ -113,9 +112,15 @@ function render(snapshot) {
 
     if (e.dead) {
       if (div) {
+        delete render.divs[k];
         explosion(x, y, 60, render.playArea, render.explosions);
         div.remove();
       }
+
+      if (k === render.playerId) {
+        hudMsg('respawn-msg', 'Respawning...');
+      }
+
       return;
     }
 
@@ -133,6 +138,8 @@ function render(snapshot) {
       // Differentiate the player's ship
       if (k === render.playerId) {
         div.classList.add('player');
+
+        hudMsg('respawn-msg', null);
       }
 
       // Position before appending to avoid visual artifacts
