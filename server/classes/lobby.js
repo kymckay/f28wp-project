@@ -64,11 +64,8 @@ class Lobby {
   }
 
   leave(socket) {
-    this.world.removePlayer(socket.id);
+    this.world.removePlayer(socket.id, this.inProgress);
     delete this.players[socket.id];
-
-    // TODO handle this client-side
-    this.io.to(this.id).emit('left lobby', socket.id);
 
     // Server needs to clean up if all players leave
     if (Object.keys(this.players).length === 0) {
