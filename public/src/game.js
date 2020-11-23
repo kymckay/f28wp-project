@@ -62,15 +62,21 @@ function explosion(x, y, size, playArea, list) {
 }
 
 function render(snapshot) {
+  const playerShip = snapshot.ships[render.playerId];
   const screenW = window.innerWidth;
   const screenH = window.innerHeight;
 
   // Screen origin (top left) moves with ship (always centered)
   // Used to convert world coordinates to screen coordinates
-  const screenO = vectorDiff(
-    snapshot.ships[render.playerId].pos,
-    [screenW / 2, screenH / 2]
-  );
+  if (playerShip) {
+    // Persist screenO for cases where ship no longer exists
+    // Screen will remain in place until respwn
+    render.screenO = vectorDiff(
+      playerShip.pos,
+      [screenW / 2, screenH / 2]
+    );
+  }
+  const { screenO } = render;
 
   // Boundaries let players see where world ends (once it exists)
   if (render.world) {
@@ -221,6 +227,7 @@ function render(snapshot) {
 }
 render.divs = {};
 render.explosions = [];
+render.screenO = [0, 0]; // Need some initial value until ship exists
 
 function preGameSetup(data) {
   // Player ID lets renderer track screen's world position
