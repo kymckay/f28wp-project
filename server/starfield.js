@@ -1,3 +1,8 @@
+/*
+  File: Generates a starfield background and injects it into the served HTML files every hour
+  Author(s): Kyle
+*/
+
 const path = require('path');
 const fs = require('fs');
 

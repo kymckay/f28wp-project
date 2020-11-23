@@ -1,3 +1,11 @@
+/*
+  File: Projectile class
+
+  - Handles projectile simulation behaviour (e.g. lifetime)
+
+  Author(s): Kyle, Tom
+*/
+
 const Entity = require('./entity');
 
 class Projectile extends Entity {

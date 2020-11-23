@@ -1,3 +1,11 @@
+/*
+  File: Asteroid class
+
+  - Handles asteroid simulation behaviour
+
+  Author(s): Kyle, Tom
+*/
+
 const Entity = require('./entity');
 
 function polarToCart(v) {

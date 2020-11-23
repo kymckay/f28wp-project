@@ -1,3 +1,8 @@
+/*
+  File: Main entry point for the server, handles setup for serving files
+  Author(s): Kyle, Tom
+*/
+
 const express = require('express');
 const socketio = require('socket.io');
 const http = require('http');

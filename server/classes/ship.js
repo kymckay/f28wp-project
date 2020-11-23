@@ -1,3 +1,11 @@
+/*
+  File: Ship class
+
+  - Handles ship controls and simulation behaviour
+
+  Author(s): Kyle, Tom
+*/
+
 const { performance } = require('perf_hooks');
 const Entity = require('./entity');
 const Projectile = require('./projectile');

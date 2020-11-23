@@ -1,3 +1,12 @@
+/*
+  File: World class
+
+  - Initiated by a lobby
+  - Generates initial world conditions (player placement, asteroids)
+  - Handles simulation of all entties in the world
+
+  Author(s): Kyle, Tom
+*/
 const Ship = require('./ship');
 const Asteroid = require('./asteroid');
 
