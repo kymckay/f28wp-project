@@ -113,28 +113,36 @@ class Ship extends Entity {
   }
 
   getOuterPoints() {
-    // TODO return world coords of ships outer 3 points
-    return [this.pos];
+    const perpendicular = this.dir + Math.PI / 2;
+
+    // Ship is 60px by 30px in the CSS (would be nice to not hardcode this)
+    const tip = vectorAdd(this.pos, polarToCart([this.dir, 30]));
+    const backM = vectorAdd(this.pos, polarToCart([this.dir, -30]));
+    const backL = vectorAdd(backM, polarToCart([perpendicular, -15]));
+    const backR = vectorAdd(backM, polarToCart([perpendicular, 15]));
+
+    return [tip, backL, backR];
   }
 
   collisions(asteroids) {
     for (let i = 0; i < asteroids.length; i++) {
       const e = asteroids[i];
-      const points = this.getOuterPoints();
+      const radiusA = e.size / 2;
 
-      // Using hardcoded values based on asteroid max size and ship's longest dimension
       // Ship's longest dimension is 60px in the CSS (would be nice to not hardcode this)
-      // Quick distance check before more accurate (but costly) check
+      // Quick square collision check before more accurate (but costly) check
       if (
-        Math.abs(e.x - this.x) < 80
-        || Math.abs(e.y - this.y) < 80
+        Math.abs(e.x - this.x) < radiusA + 30
+        && Math.abs(e.y - this.y) < radiusA + 30
       ) {
+        const points = this.getOuterPoints();
+
         // Find distance from outer points of the ship to the asteroid center
         // Collide if less than asteroid radius
         const collide = points.some((p) => {
           const distSqr = Math.pow(p[0] - e.x, 2) + Math.pow(p[1] - e.y, 2);
           // It's quicker to exponent than sqrt
-          return distSqr <= Math.pow(e.size / 2, 2);
+          return distSqr < Math.pow(radiusA, 2);
         });
 
         if (collide) {
