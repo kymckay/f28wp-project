@@ -21,7 +21,7 @@ class Lobby {
 
     this.world = new World();
     this.inProgress = false;
-    this.players = {};
+    this.players = [];
 
     // FPS determines time between frames
     // World always simulates so clients can see their ships rotating before the game starts
@@ -31,8 +31,7 @@ class Lobby {
 
   join(socket) {
     console.log(`${socket.id} -> added to players`);
-    this.players[socket.id] = socket;
-    const player = this.players[socket.id];
+    this.players.push(socket);
 
     // Give the player a ship in the world
     this.world.addPlayer(socket.id);
@@ -45,17 +44,11 @@ class Lobby {
     this.io.to(this.id).emit('joined lobby', socket.id);
     socket.join(this.id); // join the room
 
-    // Cleanup properly if they leave
-    socket.on('disconnecting', () => {
-      this.world.removePlayer(socket.id);
-      this.leave(socket);
-    });
-
     // Send inputs recieved from player to simulation
-    player.keyDown = socket.on('keydown', (input) => {
+    socket.on('keydown', (input) => {
       this.world.playerInput(socket.id, input);
     });
-    player.keyUp = socket.on('keyup', (input) => {
+    socket.on('keyup', (input) => {
       this.world.playerInput(socket.id, input, true);
     });
 
@@ -67,16 +60,11 @@ class Lobby {
   }
 
   leave(socket) {
-    const player = this.players[socket.id];
-    console.log(`${socket.id} -> leave`);
     if (this.world) {
       this.world.removePlayer(socket.id);
     }
-    console.log(`${socket.id} -> remove keydown`);
-    // socket.removeListener(player.KeyDown);
-    socket.removeListener();
-    console.log(`${socket.id} -> remove keyup`);
-    socket.removeListener(player.KeyUp);
+    socket.removeAllListeners('keydown');
+    socket.removeAllListeners('keyup');
     socket.leave(this.id);
     delete this.players[socket.id];
 
@@ -142,7 +130,7 @@ class Lobby {
     console.log('Emitting `game over`');
     this.io.to(this.id).emit('game over', {});
     console.log(`Iterating through ${this.players.length} connections`);
-    Object.values(this.players).forEach((p) => {
+    this.players.forEach((p) => {
       console.log(`${p} -> leave`);
       this.leave(p);
     });
