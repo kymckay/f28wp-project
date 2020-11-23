@@ -30,7 +30,9 @@ class Lobby {
   }
 
   join(socket) {
+    console.log(`${socket.id} -> added to players`);
     this.players[socket.id] = socket;
+    const player = this.players[socket.id];
 
     // Give the player a ship in the world
     this.world.addPlayer(socket.id);
@@ -45,14 +47,15 @@ class Lobby {
 
     // Cleanup properly if they leave
     socket.on('disconnecting', () => {
+      this.world.removePlayer(socket.id);
       this.leave(socket);
     });
 
     // Send inputs recieved from player to simulation
-    socket.on('keydown', (input) => {
+    player.keyDown = socket.on('keydown', (input) => {
       this.world.playerInput(socket.id, input);
     });
-    socket.on('keyup', (input) => {
+    player.keyUp = socket.on('keyup', (input) => {
       this.world.playerInput(socket.id, input, true);
     });
 
@@ -64,9 +67,18 @@ class Lobby {
   }
 
   leave(socket) {
-    this.world.removePlayer(socket.id);
-    delete this.players[socket.id];
+    const player = this.players[socket.id];
+    console.log(`${socket.id} -> leave`);
+    if (this.world) {
+      this.world.removePlayer(socket.id);
+    }
+    console.log(`${socket.id} -> remove keydown`);
+    // socket.removeListener(player.KeyDown);
+    socket.removeListener();
+    console.log(`${socket.id} -> remove keyup`);
+    socket.removeListener(player.KeyUp);
     socket.leave(this.id);
+    delete this.players[socket.id];
 
     // TODO handle this client-side
     this.io.to(this.id).emit('left lobby', socket.id);
@@ -74,7 +86,7 @@ class Lobby {
     // Server needs to clean up if all players leave
     if (Object.keys(this.players).length === 0) {
       if (this.inProgress) {
-        // TODO stop game running
+        this.endGame();
       } else {
         // Don't start a game without players
         this.stopCountdown();
@@ -115,6 +127,8 @@ class Lobby {
     this.io.to(this.id).emit('game start');
 
     console.log(`Lobby[${this.id}] has started`);
+
+    setTimeout(this.endGame.bind(this), 3000);
   }
 
   snapshot() {
@@ -123,9 +137,13 @@ class Lobby {
   }
 
   endGame() {
-    this.io.to(this.id).emit('game over', {});
+    console.log('Clearing Interval');
     clearInterval(this.loop);
-    this.players.forEach((p) => {
+    console.log('Emitting `game over`');
+    this.io.to(this.id).emit('game over', {});
+    console.log(`Iterating through ${this.players.length} connections`);
+    Object.values(this.players).forEach((p) => {
+      console.log(`${p} -> leave`);
       this.leave(p);
     });
     delete this.world;
