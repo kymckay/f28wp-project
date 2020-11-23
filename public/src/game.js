@@ -3,7 +3,7 @@
   - Sends player input to server
   - Handles rendering incoming world frames
 
-  Author(s): Kyle
+  Author(s): Kyle, Tom
 */
 
 /* global io */
