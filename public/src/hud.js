@@ -1,3 +1,8 @@
+/*
+  File: Contains functions for manipulating the player HUD
+  Author(s): Kyle
+*/
+
 export default function hudMsg(id, msg) {
   // Message elements are added to a stacked column
   if (!(id in hudMsg.elements)) {

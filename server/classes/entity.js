@@ -1,3 +1,13 @@
+/*
+  File: Entity class
+
+  - Common anscestor to all world entities
+  - Has all shared logic/behaviour
+  - Generates the entity IDs
+
+  Author(s): Kyle, Tom
+*/
+
 class Entity {
   // all entities exist somewhere in space
   constructor(pos, vel) {

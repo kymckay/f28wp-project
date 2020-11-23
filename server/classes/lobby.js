@@ -1,3 +1,15 @@
+/*
+  File: Lobby class
+
+  - Instantiated by the server
+  - Instantiates a world
+  - Manages all socket I/O with clients in the lobby
+  - Handles pre-game logic (e.g. countdown timer)
+  - Handles end-game logic (TBD)
+
+  Author(s): Kyle, Tom
+*/
+
 const World = require('./world');
 
 class Lobby {

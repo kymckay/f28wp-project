@@ -1,3 +1,11 @@
+/*
+  File: Client side game flow
+  - Sends player input to server
+  - Handles rendering incoming world frames
+
+  Author(s): Kyle
+*/
+
 /* global io */
 import hudMsg from './hud';
 
