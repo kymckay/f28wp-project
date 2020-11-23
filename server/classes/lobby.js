@@ -61,15 +61,13 @@ class Lobby {
 
   leave(socket) {
     if (this.world) {
-      this.world.removePlayer(socket.id);
+      this.world.removePlayer(socket.id, this.inProgress);
     }
     socket.removeAllListeners('keydown');
     socket.removeAllListeners('keyup');
     socket.leave(this.id);
-    delete this.players[socket.id];
 
-    // TODO handle this client-side
-    this.io.to(this.id).emit('left lobby', socket.id);
+    delete this.players[socket.id];
 
     // Server needs to clean up if all players leave
     if (Object.keys(this.players).length === 0) {
@@ -94,12 +92,10 @@ class Lobby {
       if (this.countdown === 0) {
         this.stopCountdown();
         this.startGame();
+      } else {
+        this.io.to(this.id).emit('prestart count', this.countdown);
       }
-
-      this.io.to(this.id).emit('prestart count', this.countdown);
     }, 1000);
-
-    console.log(`Lobby[${this.id}] starting in ${Lobby.startTime}`);
   }
 
   // Countdown stops if everyone leaves or game starts
