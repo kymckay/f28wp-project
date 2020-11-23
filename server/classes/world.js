@@ -50,6 +50,21 @@ class World {
     delete this.ships[id];
   }
 
+  killPlayer(id) {
+    setTimeout(() => this.respawnPlayer(id), World.respawnTime);
+  }
+
+  respawnPlayer(id) {
+    const pos = [
+      Math.random() * this.width,
+      Math.random() * this.height,
+    ];
+    const ship = new Ship(pos, true);
+    ship.id = id;
+
+    this.ships[id] = ship;
+  }
+
   // If more space is needed another column and row are added
   expandWorld() {
     this.width += World.cellSize;
@@ -176,6 +191,9 @@ class World {
       // Ships die if hit by an asteroid
       if (e.collision(asteroids)) {
         this.destroyed.push(e.id);
+        if (e.isPlayer) {
+          this.killPlayer(e.id);
+        }
       }
     });
 
@@ -193,6 +211,9 @@ class World {
       if (hit) {
         hit.dead = true;
         this.destroyed.push(hit.id);
+        if (hit.isPlayer) {
+          this.killPlayer(hit.id);
+        }
       }
 
       // Projectile may expire this frame or hit something
@@ -251,5 +272,7 @@ World.normCoef = 1000 / (World.fps * 1000);
 
 // Entities that wrap (mostyl asteroids) go this far outside world bounds before "teleporting"
 World.margin = Asteroid.maxSize / 2 + 1;
+
+World.respawnTime = 10000; // ms
 
 module.exports = World;
