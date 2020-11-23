@@ -7,7 +7,7 @@
 */
 
 /* global io */
-import { hudMsg } from './hud';
+import hudMsg from './hud';
 
 // Server sends game events/state via socket
 const socket = io();
@@ -75,10 +75,15 @@ function render(snapshot) {
 
   // Screen origin (top left) moves with ship (always centered)
   // Used to convert world coordinates to screen coordinates
-  const screenO = vectorDiff(
-    snapshot.ships[render.playerId].pos,
-    [screenW / 2, screenH / 2]
-  );
+  if (render.playerId in snapshot.ships) {
+    // Persist screenO for cases where ship no longer exists
+    // Screen will remain in place until respwn
+    render.screenO = vectorDiff(
+      snapshot.ships[render.playerId].pos,
+      [screenW / 2, screenH / 2]
+    );
+  }
+  const { screenO } = render;
 
   // Boundaries let players see where world ends (once it exists)
   if (render.world) {
@@ -115,9 +120,15 @@ function render(snapshot) {
 
     if (e.dead) {
       if (div) {
+        delete render.divs[k];
         explosion(x, y, 60, render.playArea, render.explosions);
         div.remove();
       }
+
+      if (k === render.playerId) {
+        hudMsg('respawn-msg', 'Respawning...');
+      }
+
       return;
     }
 
@@ -135,6 +146,8 @@ function render(snapshot) {
       // Differentiate the player's ship
       if (k === render.playerId) {
         div.classList.add('player');
+
+        hudMsg('respawn-msg', null);
       }
 
       // Position before appending to avoid visual artifacts
@@ -229,6 +242,7 @@ function render(snapshot) {
 }
 render.divs = {};
 render.explosions = [];
+render.screenO = [0, 0]; // Need some initial value until ship exists
 
 function preGameSetup(data) {
   // Player ID lets renderer track screen's world position

@@ -59,6 +59,21 @@ class World {
     delete this.ships[id];
   }
 
+  killPlayer(id) {
+    setTimeout(() => this.respawnPlayer(id), World.respawnTime);
+  }
+
+  respawnPlayer(id) {
+    const pos = [
+      Math.random() * this.width,
+      Math.random() * this.height,
+    ];
+    const ship = new Ship(pos, true);
+    ship.id = id;
+
+    this.ships[id] = ship;
+  }
+
   // If more space is needed another column and row are added
   expandWorld() {
     this.width += World.cellSize;
@@ -130,7 +145,9 @@ class World {
 
   playerInput(playerID, input, released = false) {
     const ship = this.ships[playerID];
-    console.log(`${ship.id} ship -> ${input}`);
+
+    // Ignore player input while they're dead (have no ship)
+    if (!ship) return;
 
     if (released) {
       delete ship.controls[input];
@@ -145,6 +162,7 @@ class World {
   }
 
   simulate() {
+    // Destroyed entities persist for one frame so that clients are informed
     this.destroyed.forEach((id) => {
       delete this.asteroids[id];
       delete this.ships[id];
@@ -152,7 +170,11 @@ class World {
     });
     this.destroyed = [];
 
-    Object.values(this.asteroids).forEach((e) => {
+    const asteroids = Object.values(this.asteroids);
+    const ships = Object.values(this.ships);
+    const projectiles = Object.values(this.projectiles);
+
+    asteroids.forEach((e) => {
       e.simulate(
         this.width,
         this.height,
@@ -161,7 +183,7 @@ class World {
       );
     });
 
-    Object.values(this.ships).forEach((e) => {
+    ships.forEach((e) => {
       e.simulate(
         this.width,
         this.height,
@@ -175,10 +197,16 @@ class World {
         e.fired = null;
       }
 
-      // TODO check for collisions with asteroids
+      // Ships die if hit by an asteroid
+      if (e.collision(asteroids)) {
+        this.destroyed.push(e.id);
+        if (e.isPlayer) {
+          this.killPlayer(e.id);
+        }
+      }
     });
 
-    Object.values(this.projectiles).forEach((e) => {
+    projectiles.forEach((e) => {
       e.simulate(
         this.width,
         this.height,
@@ -187,9 +215,17 @@ class World {
         World.fps
       );
 
-      // TODO check for collisions with asteroids or ships
+      // Projectiles can destroy asteroids and ships
+      const hit = e.collision(asteroids, ships);
+      if (hit) {
+        hit.dead = true;
+        this.destroyed.push(hit.id);
+        if (hit.isPlayer) {
+          this.killPlayer(hit.id);
+        }
+      }
 
-      // Projectile may expire this frame
+      // Projectile may expire this frame or hit something
       if (e.dead) {
         this.destroyed.push(e.id);
       }
@@ -245,5 +281,7 @@ World.normCoef = 1000 / (World.fps * 1000);
 
 // Entities that wrap (mostyl asteroids) go this far outside world bounds before "teleporting"
 World.margin = Asteroid.maxSize / 2 + 1;
+
+World.respawnTime = 10000; // ms
 
 module.exports = World;

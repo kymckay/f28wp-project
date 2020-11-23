@@ -93,12 +93,10 @@ class Lobby {
       if (this.countdown === 0) {
         this.stopCountdown();
         this.startGame();
+      } else {
+        this.io.to(this.id).emit('prestart count', this.countdown);
       }
-
-      this.io.to(this.id).emit('prestart count', this.countdown);
     }, 1000);
-
-    console.log(`Lobby[${this.id}] starting in ${Lobby.startTime}`);
   }
 
   // Countdown stops if everyone leaves or game starts
