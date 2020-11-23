@@ -54,9 +54,19 @@ class World {
     this.ships[id] = ship;
   }
 
-  removePlayer(id) {
-    // TODO free spawn pos if game not yet started
-    delete this.ships[id];
+  removePlayer(id, inProgress) {
+    const ship = this.ships[id];
+
+    // Free their spawn position if game hasn't started
+    if (!inProgress) {
+      this.spawnPositions.push(ship.pos);
+    }
+
+    // Player may be dead when they leave
+    if (ship) {
+      // Will be automatically destroyed
+      ship.dead = true;
+    }
   }
 
   killPlayer(id) {
