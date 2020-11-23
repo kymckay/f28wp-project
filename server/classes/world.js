@@ -143,7 +143,11 @@ class World {
     });
     this.destroyed = [];
 
-    Object.values(this.asteroids).forEach((e) => {
+    const asteroids = Object.values(this.asteroids);
+    const ships = Object.values(this.ships);
+    const projectiles = Object.values(this.projectiles);
+
+    asteroids.forEach((e) => {
       e.simulate(
         this.width,
         this.height,
@@ -152,7 +156,7 @@ class World {
       );
     });
 
-    Object.values(this.ships).forEach((e) => {
+    ships.forEach((e) => {
       e.simulate(
         this.width,
         this.height,
@@ -166,10 +170,11 @@ class World {
         e.fired = null;
       }
 
-      // TODO check for collisions with asteroids
+      // Ships die if hit by an asteroid
+      e.collisions(asteroids);
     });
 
-    Object.values(this.projectiles).forEach((e) => {
+    projectiles.forEach((e) => {
       e.simulate(
         this.width,
         this.height,
@@ -178,7 +183,8 @@ class World {
         World.fps
       );
 
-      // TODO check for collisions with asteroids or ships
+      // Projectiles can destroy asteroids and ships
+      e.collisions(asteroids, ships);
 
       // Projectile may expire this frame
       if (e.dead) {

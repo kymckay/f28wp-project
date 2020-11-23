@@ -19,6 +19,9 @@ class Projectile extends Entity {
     super.simulate(maxX, maxY, margin, normCoef);
   }
 
+  collisions(asteroids, ships) {
+  }
+
   serialize() {
     const s = super.serialize();
     s.dir = this.dir;

@@ -112,6 +112,40 @@ class Ship extends Entity {
     super.simulate(maxX, maxY, margin, normCoef);
   }
 
+  getOuterPoints() {
+    // TODO return world coords of ships outer 3 points
+    return [this.pos];
+  }
+
+  collisions(asteroids) {
+    for (let i = 0; i < asteroids.length; i++) {
+      const e = asteroids[i];
+      const points = this.getOuterPoints();
+
+      // Using hardcoded values based on asteroid max size and ship's longest dimension
+      // Ship's longest dimension is 60px in the CSS (would be nice to not hardcode this)
+      // Quick distance check before more accurate (but costly) check
+      if (
+        Math.abs(e.x - this.x) < 80
+        || Math.abs(e.y - this.y) < 80
+      ) {
+        // Find distance from outer points of the ship to the asteroid center
+        // Collide if less than asteroid radius
+        const collide = points.some((p) => {
+          const distSqr = Math.pow(p[0] - e.x, 2) + Math.pow(p[1] - e.y, 2);
+          // It's quicker to exponent than sqrt
+          return distSqr <= Math.pow(e.size / 2, 2);
+        });
+
+        if (collide) {
+          // When a ship collides it dies, no point checking further
+          this.dead = true;
+          return;
+        }
+      }
+    }
+  }
+
   serialize() {
     const s = super.serialize();
     s.dir = this.dir;
