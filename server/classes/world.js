@@ -121,7 +121,9 @@ class World {
 
   playerInput(playerID, input, released = false) {
     const ship = this.ships[playerID];
-    console.log(`${ship.id} ship -> ${input}`);
+
+    // Ignore player input while they're dead (have no ship)
+    if (!ship) return;
 
     if (released) {
       delete ship.controls[input];
