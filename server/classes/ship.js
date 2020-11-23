@@ -124,7 +124,8 @@ class Ship extends Entity {
     return [tip, backL, backR];
   }
 
-  collisions(asteroids) {
+  // Returns an asteroid the ship is colliding with (or null)
+  collision(asteroids) {
     for (let i = 0; i < asteroids.length; i++) {
       const e = asteroids[i];
       const radiusA = e.size / 2;
@@ -148,10 +149,12 @@ class Ship extends Entity {
         if (collide) {
           // When a ship collides it dies, no point checking further
           this.dead = true;
-          return;
+          return e;
         }
       }
     }
+
+    return null;
   }
 
   serialize() {

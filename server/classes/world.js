@@ -136,6 +136,7 @@ class World {
   }
 
   simulate() {
+    // Destroyed entities persist for one frame so that clients are informed
     this.destroyed.forEach((id) => {
       delete this.asteroids[id];
       delete this.ships[id];
@@ -171,7 +172,9 @@ class World {
       }
 
       // Ships die if hit by an asteroid
-      e.collisions(asteroids);
+      if (e.collision(asteroids)) {
+        this.destroyed.push(e.id);
+      }
     });
 
     projectiles.forEach((e) => {
