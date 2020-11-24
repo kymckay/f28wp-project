@@ -33,6 +33,8 @@ The repository does contain configuration for [Travis CI](https://travis-ci.org)
 
 ## Deployment
 
+The `master` branch is automatically deployed using Heroku's CI. Test the [latest deployment here](https://steak-game.herokuapp.com). Heroku automatically runs the build script in `package.json` then starts the server process as defined in the root level `Procfile`.
+
 Whenever `npm run build` or `npm run start` is used, our client-side JavaScript is both bundled and transpiled for the best of both worlds (browser compatibility and newer language features) as detailed below.
 
 ### Bundling
