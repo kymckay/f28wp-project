@@ -113,7 +113,7 @@ class Lobby {
     this.io.to(this.id).emit('game start');
 
     // Set end game condition now (2 minute timer)
-    setTimeout(this.endGame.bind(this), 1000*60*2);
+    this.timer = setTimeout(this.endGame.bind(this), 1000*60*2);
   }
 
   snapshot() {
@@ -124,6 +124,7 @@ class Lobby {
   endGame() {
     // Stop sending out simulation frames
     clearInterval(this.loop);
+    clearTimeout(this.timer);
 
     // Tell clients the game has ended
     // Pass out score stats for client-side leaderboard
