@@ -113,7 +113,7 @@ class Lobby {
     this.io.to(this.id).emit('game start');
 
     // Set end game condition now (2 minute timer)
-    this.timer = setTimeout(this.endGame.bind(this), 1000*60*2);
+    this.timer = setTimeout(this.endGame.bind(this), 1000 * 60 * 2);
   }
 
   snapshot() {
@@ -130,7 +130,10 @@ class Lobby {
 
     // Tell clients the game has ended
     // Pass out score stats for client-side leaderboard
-    this.io.to(this.id).emit('game over', {});
+    this.io.to(this.id).emit('game over', { // sending some dummy data until scoring implemented
+      someuser: { kills: 2, deaths: 1, score: 3245 },
+      1: { kills: 1, deaths: 0, score: 53 }, // numbers will represent guest players
+    });
 
     delete this.world;
 
