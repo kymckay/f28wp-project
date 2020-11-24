@@ -13,7 +13,9 @@ const Lobby = require('./classes/lobby');
 // Start hourly background generation
 require('./starfield').starGeneration(60);
 
-const port = 8080;
+// Heroku sets the environment variable PORT (must bind to it)
+const port = process.env.PORT || 8080; // Backup for locally ran testing
+
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
