@@ -83,7 +83,7 @@ app.post('/register', (req, res) => {
 
   if (!database.isValidUsername(name)) {
     res.send({
-      msg: 'Invalid username. Alphanumeric characters only.',
+      msg: 'Invalid username. Alphanumeric characters only and max length 25.',
     });
     return;
   }

@@ -30,7 +30,7 @@ con.query('USE steak', (err) => { if (err) throw err; });
 
 con.query(
   [
-    'CREATE TABLE IF NOT EXISTS players (username VARCHAR(50) NOT NULL PRIMARY KEY',
+    'CREATE TABLE IF NOT EXISTS players (username VARCHAR(25) NOT NULL PRIMARY KEY',
     'password VARCHAR(50) NOT NULL',
     'highscore INT UNSIGNED NOT NULL',
     'kills INT UNSIGNED NOT NULL',
@@ -44,11 +44,11 @@ con.query(
 module.exports = {
   isValidUsername(name) {
     // Basically, names can't have symbols
-    return name.match(/^\w[1,50]$/);
+    return name.match(/^\w{1,25}$/);
   },
 
   isValidPassword(pass) {
-    return pass.match(/.[8,50]/);
+    return pass.match(/.{8,50}/);
   },
 
   userLogin(name, pass) {
