@@ -65,14 +65,14 @@ app.post('/login', (req, res) => {
     } else {
       // Always send incorrect password even if user doesn't exist
       // Don't give attackers any information about the DB
-      payload.msg = 'Incorrect password';
+      payload.msg = 'Incorrect password.';
     }
 
     res.send(payload);
   }).catch(() => {
     res.status(500);
     res.send({
-      msg: '500: Internal server error',
+      msg: '500: Internal server error.',
     });
   });
 });
@@ -88,9 +88,9 @@ app.post('/register', (req, res) => {
     return;
   }
 
-  if (pass.length === 0) {
+  if (!database.isValidPassword(pass)) {
     res.send({
-      msg: 'Password is a required field.',
+      msg: 'Invalid password. Must be between 8 and 50 characters.',
     });
     return;
   }
@@ -100,9 +100,9 @@ app.post('/register', (req, res) => {
 
     if (success) {
       payload.user = name;
-      payload.msg = 'Registration successful';
+      payload.msg = 'Registration successful.';
     } else {
-      payload.msg = 'User already exists';
+      payload.msg = 'User already exists.';
     }
 
     res.send(payload);

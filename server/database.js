@@ -24,7 +24,6 @@ con.query(
   'CREATE DATABASE IF NOT EXISTS steak',
   (err) => {
     if (err) throw err;
-    console.log('Database created');
   }
 );
 con.query('USE steak', (err) => { if (err) throw err; });
@@ -33,14 +32,17 @@ con.query(
   'CREATE TABLE IF NOT EXISTS players (username VARCHAR(50) NOT NULL PRIMARY KEY, password VARCHAR(50) NOT NULL)',
   (err) => {
     if (err) throw err;
-    console.log('Table created');
   }
 );
 
 module.exports = {
   isValidUsername(name) {
     // Basically, names can't have symbols
-    return name.match(/^\w+$/);
+    return name.match(/^\w[1,50]$/);
+  },
+
+  isValidPassword(pass) {
+    return pass.match(/.[8,50]/);
   },
 
   userLogin(name, pass) {
