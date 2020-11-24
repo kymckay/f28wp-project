@@ -124,6 +124,8 @@ class Lobby {
   endGame() {
     // Stop sending out simulation frames
     clearInterval(this.loop);
+
+    // Game may end prematurely (if everyone leaves)
     clearTimeout(this.timer);
 
     // Tell clients the game has ended
