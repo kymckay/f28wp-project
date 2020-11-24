@@ -29,7 +29,13 @@ con.query(
 con.query('USE steak', (err) => { if (err) throw err; });
 
 con.query(
-  'CREATE TABLE IF NOT EXISTS players (username VARCHAR(50) NOT NULL PRIMARY KEY, password VARCHAR(50) NOT NULL)',
+  [
+    'CREATE TABLE IF NOT EXISTS players (username VARCHAR(50) NOT NULL PRIMARY KEY',
+    'password VARCHAR(50) NOT NULL',
+    'highscore INT UNSIGNED NOT NULL',
+    'kills INT UNSIGNED NOT NULL',
+    'deaths INT UNSIGNED NOT NULL)',
+  ].join(','),
   (err) => {
     if (err) throw err;
   }
@@ -50,7 +56,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       con.query(
         // Using placeholders "?" escapes user input to prevent SQL injection
-        'SELECT * FROM players WHERE username = ? AND password = ?',
+        'SELECT username FROM players WHERE username = ? AND password = ?',
         [name, pass],
         (err, result) => {
           if (err) {
@@ -70,7 +76,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       con.query(
         // Using placeholders "?" escapes user input to prevent SQL injection
-        'INSERT INTO players (username, password) VALUES (?, ?)',
+        'INSERT INTO players (username, password, highscore, kills, deaths) VALUES (?, ?, ?, ?, ?)',
         [name, pass],
         (err) => {
           if (err) {
