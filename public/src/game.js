@@ -52,21 +52,25 @@ function worldToScreen(worldCoord, screenO) {
   return vectorDiff(worldCoord, screenO);
 }
 
-function explosion(x, y, size, playArea, list) {
-  const div = document.createElement('div');
-  div.classList.add('entity');
-  div.classList.add('explosion');
+function explosion(wPos, sPos, size, playArea, list) {
+  const d = document.createElement('div');
+  d.classList.add('entity');
+  d.classList.add('explosion');
 
-  div.style.left = `${x}px`;
-  div.style.top = `${y}px`;
-  div.style.width = `${size}px`;
-  div.style.height = `${size}px`;
-  div.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 360}deg)`;
+  d.style.left = `${sPos[0]}px`;
+  d.style.top = `${sPos[1]}px`;
+  d.style.width = `${size}px`;
+  d.style.height = `${size}px`;
+  d.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 360}deg)`;
 
-  playArea.appendChild(div);
+  playArea.appendChild(d);
 
   // explosions will be removed after some time
-  list.push([div, performance.now()]);
+  list.push({
+    div: d,
+    time: performance.now(),
+    pos: wPos,
+  });
 }
 
 function render(snapshot) {
@@ -105,10 +109,15 @@ function render(snapshot) {
     const exp = render.explosions[i];
 
     // Explosions last 1s each
-    if (time - exp[1] > 1000) {
-      exp[0].remove();
+    if (time - exp.time > 1000) {
+      exp.div.remove();
       // NOTE could be optimised to a single splice since they're stored in order
       render.explosions.splice(i, 1);
+    } else {
+      const [x, y] = worldToScreen(exp.pos);
+
+      exp[0].style.left = `${x}px`;
+      exp[0].style.top = `${y}px`;
     }
   }
 
@@ -121,7 +130,7 @@ function render(snapshot) {
     if (e.dead) {
       if (div) {
         delete render.divs[k];
-        explosion(x, y, 60, render.playArea, render.explosions);
+        explosion(e.pos, [x, y], 60, render.playArea, render.explosions);
         div.remove();
       }
 
@@ -156,6 +165,10 @@ function render(snapshot) {
       div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
 
       render.playArea.appendChild(div);
+    }
+
+    if (k === render.playerId) {
+      // explosion(e.pos, [x, y], 40, render.playArea, render.explosions);
     }
 
     div.style.left = `${x}px`;
