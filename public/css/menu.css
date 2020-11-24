@@ -52,14 +52,22 @@
   font-weight: bold;
 }
 
-#menu form input:first-child {
+#userForms form input:first-child {
   border-radius: 10px 10px 0 0;
   border-style: solid;
 }
 
-#menu form input:last-child {
+#userForms form input:last-child {
   border-radius: 0 0 10px 10px;
   border-style: solid;
+}
+
+/* play button is alone so round on all sides */
+#playbutton {
+  border-radius: 10px;
+  min-width: 200px;
+  min-height: 40px;
+  font-size: 14pt;
 }
 
 #userForms {
