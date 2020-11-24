@@ -30,12 +30,44 @@ window.addEventListener('load', () => {
   const register = document.getElementById('register');
 
   login.addEventListener('submit', (event) => {
-    console.log('submit');
+    const user = encodeURIComponent(
+      document.getElementById('loginUser').value
+    );
+    const pword = encodeURIComponent(
+      document.getElementById('loginPword').value
+    );
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = () => {
+
+    };
+
+    xhttp.open('POST', '/login', true);
+    xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+
+    xhttp.send(`user=${user}&pword=${pword}`);
+
     event.preventDefault();
   });
 
   register.addEventListener('submit', (event) => {
-    console.log('submit');
+    const user = encodeURIComponent(
+      document.getElementById('regUser').value
+    );
+    const pword = encodeURIComponent(
+      document.getElementById('regPword').value
+    );
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = () => {
+
+    };
+
+    xhttp.open('POST', '/register', true);
+    xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    xhttp.send(`user=${user}&pword=${pword}`);
+
     event.preventDefault();
   });
 });
