@@ -41,14 +41,32 @@ app.post('/play', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dist/play.html'));
 });
 
-// TODO Login submission returns success or not (and client updates page)
 app.post('/login', (req, res) => {
-  console.log(req, res);
+  // TODO use actual DB
+  const payload = {};
+  if (Math.random() < 0.5) {
+    payload.user = 'dave';
+    payload.msg = 'Login successful';
+  } else {
+    // Always send incorrect password even if user doesn't exist
+    // Don't give attackers any information about the DB
+    payload.msg = 'Incorrect password';
+  }
+
+  res.send(payload);
 });
 
-// TODO Register submission returns success or not (and client updates page)
 app.post('/register', (req, res) => {
-  console.log(req, res);
+  // TODO check against actual DB
+  const payload = {};
+  if (Math.random() < 0.5) {
+    payload.user = 'dave';
+    payload.msg = 'Registration successful';
+  } else {
+    payload.msg = 'User already exists';
+  }
+
+  res.send(payload);
 });
 
 // Track lobbies which exist and their state

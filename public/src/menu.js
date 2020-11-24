@@ -24,11 +24,57 @@ window.addEventListener('load', () => {
   }
 });
 
+function handleResponse() {
+  // Successful request
+  if (this.readyState === 4 && this.status === 200) {
+    const res = JSON.parse(this.responseText);
+
+    const msg = document.getElementById('formMsg');
+    if (res.msg) {
+      msg.innerHTML = res.msg;
+      msg.style.display = 'block';
+    } else {
+      msg.style.display = '';
+    }
+
+    // Hide forms once logged in
+    if (res.user) {
+      const forms = document.getElementById('userForms');
+
+      forms.style.display = 'none';
+
+      // TODO store logged in user in browser storage to persist
+
+      const logout = document.getElementById('logout');
+      const a = document.createElement('a');
+
+      a.addEventListener('click', (event) => {
+        // TODO clear stored log in
+
+        // Hide the logout option
+        logout.innerHTML = '';
+        logout.style.display = '';
+
+        // Re-show the forms
+        forms.style.display = '';
+
+        event.preventDefault();
+      });
+      a.innerHTML = 'Click here to logout.';
+
+      logout.innerHTML = `Logged in as "${res.user}". `;
+      logout.append(a);
+      logout.style.display = 'block';
+    }
+  }
+}
+
 // Form submission AJAX
 window.addEventListener('load', () => {
   const login = document.getElementById('login');
   const register = document.getElementById('register');
 
+  // Login handling
   login.addEventListener('submit', (event) => {
     const user = encodeURIComponent(
       document.getElementById('loginUser').value
@@ -38,9 +84,7 @@ window.addEventListener('load', () => {
     );
 
     const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = () => {
-
-    };
+    xhttp.onreadystatechange = handleResponse;
 
     xhttp.open('POST', '/login', true);
     xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
@@ -50,6 +94,7 @@ window.addEventListener('load', () => {
     event.preventDefault();
   });
 
+  // Registration handling
   register.addEventListener('submit', (event) => {
     const user = encodeURIComponent(
       document.getElementById('regUser').value
@@ -59,9 +104,7 @@ window.addEventListener('load', () => {
     );
 
     const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = () => {
-
-    };
+    xhttp.onreadystatechange = handleResponse;
 
     xhttp.open('POST', '/register', true);
     xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
