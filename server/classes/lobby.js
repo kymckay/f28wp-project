@@ -1,3 +1,15 @@
+/*
+  File: Lobby class
+
+  - Instantiated by the server
+  - Instantiates a world
+  - Manages all socket I/O with clients in the lobby
+  - Handles pre-game logic (e.g. countdown timer)
+  - Handles end-game logic (TBD)
+
+  Author(s): Kyle, Tom
+*/
+
 const World = require('./world');
 
 class Lobby {
@@ -9,16 +21,15 @@ class Lobby {
 
     this.world = new World();
     this.inProgress = false;
-    this.players = {};
+    this.players = [];
 
     // FPS determines time between frames
     // World always simulates so clients can see their ships rotating before the game starts
     this.loop = setInterval(this.snapshot.bind(this), 1000 / World.fps);
-    console.log(`Lobby[${this.id}] created`);
   }
 
   join(socket) {
-    this.players[socket.id] = socket;
+    this.players.push(socket);
 
     // Give the player a ship in the world
     this.world.addPlayer(socket.id);
@@ -32,9 +43,7 @@ class Lobby {
     socket.join(this.id); // join the room
 
     // Cleanup properly if they leave
-    socket.on('disconnecting', () => {
-      this.leave(socket);
-    });
+    socket.on('disconnecting', () => this.leave(socket));
 
     // Send inputs recieved from player to simulation
     socket.on('keydown', (input) => {
@@ -45,29 +54,33 @@ class Lobby {
     });
 
     // Game start countdown begins when anyone is in the lobby
-    if (Object.keys(this.players).length === 1) {
+    if (this.players.length === 1) {
       this.startCountdown();
     }
-    console.log(`Lobby[${this.id}] ${socket.id} connected`);
   }
 
   leave(socket) {
-    this.world.removePlayer(socket.id);
-    delete this.players[socket.id];
+    socket.removeAllListeners('keydown');
+    socket.removeAllListeners('keyup');
+    socket.leave(this.id);
 
-    // TODO handle this client-side
-    this.io.to(this.id).emit('left lobby', socket.id);
+    const i = this.players.find((p) => socket.id === p.id);
+    this.players.splice(i, 1);
 
-    // Server needs to clean up if all players leave
-    if (Object.keys(this.players).length === 0) {
-      if (this.inProgress) {
-        // TODO stop game running
-      } else {
-        // Don't start a game without players
-        this.stopCountdown();
+    // World exists until game reaches end condition
+    if (this.world) {
+      this.world.removePlayer(socket.id, this.inProgress);
+
+      // Server needs to clean up if all players leave
+      if (this.players.length === 0) {
+        if (this.inProgress) {
+          this.endGame();
+        } else {
+          // Don't start a game without players
+          this.stopCountdown();
+        }
       }
     }
-    console.log(`Lobby[${this.id}] ${socket.id} disconnected`);
   }
 
   startCountdown() {
@@ -81,12 +94,10 @@ class Lobby {
       if (this.countdown === 0) {
         this.stopCountdown();
         this.startGame();
+      } else {
+        this.io.to(this.id).emit('prestart count', this.countdown);
       }
-
-      this.io.to(this.id).emit('prestart count', this.countdown);
     }, 1000);
-
-    console.log(`Lobby[${this.id}] starting in ${Lobby.startTime}`);
   }
 
   // Countdown stops if everyone leaves or game starts
@@ -97,11 +108,12 @@ class Lobby {
   startGame() {
     this.inProgress = true;
 
+    // Start the game and tell clients
     this.world.start();
-
     this.io.to(this.id).emit('game start');
 
-    console.log(`Lobby[${this.id}] has started`);
+    // Set end game condition now (2 minute timer)
+    this.timer = setTimeout(this.endGame.bind(this), 1000 * 60 * 2);
   }
 
   snapshot() {
@@ -110,7 +122,28 @@ class Lobby {
   }
 
   endGame() {
+    // Stop sending out simulation frames
     clearInterval(this.loop);
+
+    // Game may end prematurely (if everyone leaves)
+    clearTimeout(this.timer);
+
+    // Tell clients the game has ended
+    // Pass out score stats for client-side leaderboard
+    this.io.to(this.id).emit(
+      'game over',
+      // TODO send final stats here, sort by score beforehand
+      // TODO generate guest usernames for use here
+      { // sending some dummy data until scoring implemented
+        someuser: { kills: 2, deaths: 1, score: 3245 },
+        otheruser: { kills: 1, deaths: 0, score: 53 },
+      }
+    );
+
+    delete this.world;
+
+    // Remove all players from the lobby
+    this.players.forEach((p) => this.leave(p));
   }
 }
 Lobby.lobbyID = 0;

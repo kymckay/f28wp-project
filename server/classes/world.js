@@ -1,3 +1,12 @@
+/*
+  File: World class
+
+  - Initiated by a lobby
+  - Generates initial world conditions (player placement, asteroids)
+  - Handles simulation of all entties in the world
+
+  Author(s): Kyle, Tom
+*/
 const Ship = require('./ship');
 const Asteroid = require('./asteroid');
 
@@ -45,9 +54,34 @@ class World {
     this.ships[id] = ship;
   }
 
-  removePlayer(id) {
-    // TODO free spawn pos if game not yet started
-    delete this.ships[id];
+  removePlayer(id, inProgress) {
+    const ship = this.ships[id];
+
+    // Free their spawn position if game hasn't started
+    if (!inProgress) {
+      this.spawnPositions.push(ship.pos);
+    }
+
+    // Player may be dead when they leave
+    if (ship) {
+      // Will be automatically destroyed
+      ship.dead = true;
+    }
+  }
+
+  killPlayer(id) {
+    setTimeout(() => this.respawnPlayer(id), World.respawnTime);
+  }
+
+  respawnPlayer(id) {
+    const pos = [
+      Math.random() * this.width,
+      Math.random() * this.height,
+    ];
+    const ship = new Ship(pos, true);
+    ship.id = id;
+
+    this.ships[id] = ship;
   }
 
   // If more space is needed another column and row are added
@@ -98,9 +132,10 @@ class World {
 
           // All asteroids start randomly sized and distributed
           const ast = new Asteroid(
-            [i + x, j + y],
-            [Math.random() * 6 - 3, Math.random() * 6 - 3], // x,y are within the cell i,j
-            Asteroid.minSize + Math.random() * (Asteroid.maxSize - Asteroid.minSize)
+            [i + x, j + y], // x,y are within the cell i,j
+            Asteroid.minSize + Math.random() * (Asteroid.maxSize - Asteroid.minSize),
+            // 5% chance asteroid starts stationary
+            Math.random() < 0.05 ? 0 : Asteroid.maxSpeed * Math.random()
           );
 
           this.asteroids[ast.id] = ast;
@@ -120,7 +155,9 @@ class World {
 
   playerInput(playerID, input, released = false) {
     const ship = this.ships[playerID];
-    console.log(`${ship.id} ship -> ${input}`);
+
+    // Ignore player input while they're dead (have no ship)
+    if (!ship) return;
 
     if (released) {
       delete ship.controls[input];
@@ -135,6 +172,7 @@ class World {
   }
 
   simulate() {
+    // Destroyed entities persist for one frame so that clients are informed
     this.destroyed.forEach((id) => {
       delete this.asteroids[id];
       delete this.ships[id];
@@ -142,62 +180,65 @@ class World {
     });
     this.destroyed = [];
 
-    Object.values(this.asteroids).forEach((e) => {
-      e.x += e.vel[0] * World.velNorm;
-      e.y += e.vel[1] * World.velNorm;
+    const asteroids = Object.values(this.asteroids);
+    const ships = Object.values(this.ships);
+    const projectiles = Object.values(this.projectiles);
 
-      // Asteroids wrap to other side of world
-      // 100 px outside world before wrapping (to hide from clients)
-      if (e.x < -100) {
-        e.x += this.width + 100;
-      } else if (e.x > this.width + 100) {
-        e.x -= this.width + 100;
-      }
-
-      if (e.y < -100) {
-        e.y += this.height + 100;
-      } else if (e.y > this.height + 100) {
-        e.y -= this.height + 100;
-      }
+    asteroids.forEach((e) => {
+      e.simulate(
+        this.width,
+        this.height,
+        World.margin,
+        World.normCoef
+      );
     });
 
-    Object.values(this.ships).forEach((e) => {
-      // Ship can't thrust and break together (hence XOR)
-      const control = e.controls;
-      if (control.ArrowUp ? !control.ArrowDown : control.ArrowDown) {
-        if (control.ArrowUp) {
-          e.accelerate(World.velNorm);
-        } else {
-          e.brake(World.velNorm);
-        }
+    ships.forEach((e) => {
+      e.simulate(
+        this.width,
+        this.height,
+        World.margin,
+        World.normCoef
+      );
+
+      // Ship may have fired a new projectile
+      if (e.fired) {
+        this.projectiles[e.fired.id] = e.fired;
+        e.fired = null;
       }
 
-      // Ship can't turn boths ways at once (hence XOR)
-      if (control.ArrowLeft ? !control.ArrowRight : control.ArrowRight) {
-        e.turn(control.ArrowLeft, World.velNorm);
-      }
-
-      if (control.Space) {
-        const proj = e.shoot();
-        if (proj) {
-          this.projectiles[proj.id] = proj;
-        }
-      }
-
-      // Update the position of the ship
-      e.x += e.vel[0] * World.velNorm;
-      e.y += e.vel[1] * World.velNorm;
-    });
-
-    Object.values(this.projectiles).forEach((e) => {
-      e.time -= 1 / World.fps;
-      if (e.time <= 0) {
-        console.log(`${e.id} has expired`);
+      // Ships die if hit by an asteroid
+      if (e.collision(asteroids)) {
         this.destroyed.push(e.id);
-        e.dead = true;
+        if (e.isPlayer) {
+          this.killPlayer(e.id);
+        }
       }
-      e.x += e.vel[0] * World.velNorm;
-      e.y += e.vel[1] * World.velNorm;
+    });
+
+    projectiles.forEach((e) => {
+      e.simulate(
+        this.width,
+        this.height,
+        World.margin,
+        World.normCoef,
+        World.fps
+      );
+
+      // Projectiles can destroy asteroids and ships
+      const hit = e.collision(asteroids, ships);
+      if (hit) {
+        hit.dead = true;
+        this.destroyed.push(hit.id);
+        if (hit.isPlayer) {
+          this.killPlayer(hit.id);
+        }
+      }
+
+      // Projectile may expire this frame or hit something
+      if (e.dead) {
+        this.destroyed.push(e.id);
+      }
     });
   }
 
@@ -245,7 +286,12 @@ World.astFrequency = 5; // asteroids per grid cell
 // determines how often simulation occurs and snapshots are sent
 World.fps = 30; // 30 fps ~ 33ms between frames
 
-// Normalise velocities to m/s using time between frames as a percentage of a second
-World.velNorm = 1000 / (World.fps * 1000);
+// Normalise any unit to per second using time between frames as a percentage of a second
+World.normCoef = 1000 / (World.fps * 1000);
+
+// Entities that wrap (mostyl asteroids) go this far outside world bounds before "teleporting"
+World.margin = Asteroid.maxSize / 2 + 1;
+
+World.respawnTime = 10000; // ms
 
 module.exports = World;

@@ -1,5 +1,13 @@
+/*
+  File: Client side game flow
+  - Sends player input to server
+  - Handles rendering incoming world frames
+
+  Author(s): Kyle, Tom
+*/
+
 /* global io */
-import { hudMsg } from './hud';
+import { hudMsg, scoreboard } from './hud';
 
 // Server sends game events/state via socket
 const socket = io();
@@ -44,17 +52,65 @@ function worldToScreen(worldCoord, screenO) {
   return vectorDiff(worldCoord, screenO);
 }
 
-function explosion(x, y) {
+function explosion(x, y, size, playArea, list) {
+  const div = document.createElement('div');
+  div.classList.add('entity');
+  div.classList.add('explosion');
 
+  div.style.left = `${x}px`;
+  div.style.top = `${y}px`;
+  div.style.width = `${size}px`;
+  div.style.height = `${size}px`;
+  div.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 360}deg)`;
+
+  playArea.appendChild(div);
+
+  // explosions will be removed after some time
+  list.push([div, performance.now()]);
 }
 
 function render(snapshot) {
+  const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
+
   // Screen origin (top left) moves with ship (always centered)
   // Used to convert world coordinates to screen coordinates
-  const screenO = vectorDiff(
-    snapshot.ships[render.playerId].pos,
-    [window.innerWidth / 2, window.innerHeight / 2]
-  );
+  if (render.playerId in snapshot.ships) {
+    // Persist screenO for cases where ship no longer exists
+    // Screen will remain in place until respwn
+    render.screenO = vectorDiff(
+      snapshot.ships[render.playerId].pos,
+      [screenW / 2, screenH / 2]
+    );
+  }
+  const { screenO } = render;
+
+  // Boundaries let players see where world ends (once it exists)
+  if (render.world) {
+    const top = screenH - (0 - screenO[1]);
+    const bottom = render.world[1] - screenO[1];
+    const left = screenW - (0 - screenO[0]);
+    const right = render.world[0] - screenO[0];
+
+    render.boundt.style.bottom = `${top}px`;
+    render.boundb.style.top = `${bottom}px`;
+    render.boundl.style.right = `${left}px`;
+    render.boundr.style.left = `${right}px`;
+  }
+
+  // First remove any expired explosions (don't iterate over new ones)
+  // Loop backwards to safely remove from array while iterating
+  const time = performance.now();
+  for (let i = render.explosions.length - 1; i >= 0; i--) {
+    const exp = render.explosions[i];
+
+    // Explosions last 1s each
+    if (time - exp[1] > 1000) {
+      exp[0].remove();
+      // NOTE could be optimised to a single splice since they're stored in order
+      render.explosions.splice(i, 1);
+    }
+  }
 
   Object.keys(snapshot.ships).forEach((k) => {
     const e = snapshot.ships[k];
@@ -64,9 +120,15 @@ function render(snapshot) {
 
     if (e.dead) {
       if (div) {
-        // TODO create temp explosion at x,y
+        delete render.divs[k];
+        explosion(x, y, 60, render.playArea, render.explosions);
         div.remove();
       }
+
+      if (k === render.playerId) {
+        hudMsg('respawn-msg', 'Respawning...');
+      }
+
       return;
     }
 
@@ -84,6 +146,8 @@ function render(snapshot) {
       // Differentiate the player's ship
       if (k === render.playerId) {
         div.classList.add('player');
+
+        hudMsg('respawn-msg', null);
       }
 
       // Position before appending to avoid visual artifacts
@@ -107,7 +171,7 @@ function render(snapshot) {
 
     if (e.dead) {
       if (div) {
-        // TODO create temp explosion at x,y
+        explosion(x, y, e.size, render.playArea, render.explosions);
         div.remove();
       }
       return;
@@ -177,7 +241,8 @@ function render(snapshot) {
   });
 }
 render.divs = {};
-render.explosions = {};
+render.explosions = [];
+render.screenO = [0, 0]; // Need some initial value until ship exists
 
 function preGameSetup(data) {
   // Player ID lets renderer track screen's world position
@@ -206,6 +271,11 @@ function onGameStart() {
 window.addEventListener('load', () => {
   // Rendering will require the right div later
   render.playArea = document.getElementById('playArea');
+  // Rendering will update the boundaries
+  render.boundt = document.getElementById('boundt');
+  render.boundb = document.getElementById('boundb');
+  render.boundl = document.getElementById('boundl');
+  render.boundr = document.getElementById('boundr');
 
   // Client should know why they're waiting (and how long's left)
   hudMsg('game-start-msg', 'Game loading...');
@@ -216,4 +286,7 @@ window.addEventListener('load', () => {
   socket.on('game start', onGameStart);
 
   socket.on('snapshot', render);
+
+  // When game ends scoreboard will be shown which offers to play again
+  socket.on('game over', scoreboard);
 });

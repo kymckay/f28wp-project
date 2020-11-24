@@ -8,7 +8,9 @@
     "start": "npm run build && npm run start:server",
     "start:server": "node server/server.js",
     "test": "npm run lint",
-    "build": "rollup -c"
+    "build": "npm run build:game && npm run build:menu",
+    "build:game": "rollup --config config/rollup.config.game.js",
+    "build:menu": "rollup --config config/rollup.config.menu.js"
   },
   "repository": {
     "type": "git",
@@ -41,5 +43,8 @@
     "express": "^4.16.4",
     "mysql": "^2.18.1",
     "socket.io": "^2.3.0"
+  },
+  "engines": {
+    "node": "12.x"
   }
 }

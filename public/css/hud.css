@@ -8,10 +8,13 @@
 
   /* No scrollbars */
   overflow: hidden;
+
+  /* HUD is always on top */
+  z-index: 100;
 }
 
 #msg-list {
-  position: absolute;
+  position: fixed;
 
   /* center horizontally */
   left: 50%;
@@ -20,15 +23,16 @@
   /* position near top of screen */
   top: 1vh;
 
+  /* extend to bottom of screen */
+  bottom: 0px;
+
   /* messages are listed as a column */
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
 
-  /* column to bottom of screen */
   width: 120px;
-  height: 99vh;
 }
 
 #msg-list p {
@@ -37,4 +41,62 @@
 
   width: inherit;
   height: 40px;
+}
+
+
+#scoreboard {
+  /* fill hud */
+  width: 100%;
+  height: 100%;
+
+  /* elements appear in a column */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* big title */
+#scoreboard h1 {
+  padding: 8px;
+  border-radius: 20px;
+  background: #FFF;
+  font-size: 25pt;
+}
+
+/* neat data presentation */
+#scoreboard table {
+  background: #FFF;
+  border-radius: 5px;
+
+  padding: 5px 10px;
+
+  text-align: center;
+
+  /* never grow beyond 30% of the screen */
+  max-height: 30vh;
+  overflow: scroll;
+}
+
+#scoreboard td,
+#scoreboard th {
+  padding: 10px;
+
+  /* long usernames should not ruin the table */
+  overflow: hidden;
+}
+
+/* big play again button */
+#scoreboard input {
+  padding: 15px;
+  margin: 10px;
+
+  border-radius: 5px;
+
+  background: #FFF;
+  color: #000;
+
+  font-weight: bold;
+  font-size: 18pt;
+
 }

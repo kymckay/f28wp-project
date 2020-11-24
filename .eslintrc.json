@@ -13,6 +13,10 @@
       "functions": "never"
     }],
     "no-warning-comments": 1,
-    "no-plusplus": 0
+    "no-plusplus": 0,
+    "no-restricted-properties": [2, {
+        "object": "math",
+        "property": "pow"
+    }]
   }
 }

@@ -1,3 +1,13 @@
+/*
+  File: Entity class
+
+  - Common anscestor to all world entities
+  - Has all shared logic/behaviour
+  - Generates the entity IDs
+
+  Author(s): Kyle, Tom
+*/
+
 class Entity {
   // all entities exist somewhere in space
   constructor(pos, vel) {
@@ -19,6 +29,25 @@ class Entity {
   static newId() {
     Entity.id += 1;
     return Entity.id;
+  }
+
+  simulate(maxX, maxY, margin, normCoef) {
+    this.x += this.vel[0] * normCoef;
+    this.y += this.vel[1] * normCoef;
+
+    // Entities all wrap to other side of world
+    // Margin hides teleportation below border
+    if (this.x < -margin) {
+      this.x += maxX + margin;
+    } else if (this.x > maxX + margin) {
+      this.x -= maxX + margin;
+    }
+
+    if (this.y < -margin) {
+      this.y += maxY + margin;
+    } else if (this.y > maxY + margin) {
+      this.y -= maxY + margin;
+    }
   }
 
   serialize() {

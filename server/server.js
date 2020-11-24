@@ -1,3 +1,8 @@
+/*
+  File: Main entry point for the server, handles setup for serving files
+  Author(s): Kyle, Tom
+*/
+
 const express = require('express');
 const socketio = require('socket.io');
 const http = require('http');
@@ -10,7 +15,9 @@ const Lobby = require('./classes/lobby');
 // Start hourly background generation
 require('./starfield').starGeneration(60);
 
-const port = 8080;
+// Heroku sets the environment variable PORT (must bind to it)
+const port = process.env.PORT || 8080; // Backup for locally ran testing
+
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
@@ -39,18 +46,72 @@ app.post('/play', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dist/play.html'));
 });
 
-app.post('/register', (req, res) => {
-  const name = req.body.user;
-  const pass = req.body.pword;
-
-  database.userRegister(name, pass, res);
-});
-
 app.post('/login', (req, res) => {
   const name = req.body.user;
   const pass = req.body.pword;
 
-  database.userLogin(name, pass, res);
+  if (!database.isValidUsername(name)) {
+    res.send({
+      msg: 'Invalid username. Alphanumeric characters only.',
+    });
+    return;
+  }
+
+  database.userLogin(name, pass).then((success) => {
+    const payload = {};
+
+    if (success) {
+      payload.user = name;
+    } else {
+      // Always send incorrect password even if user doesn't exist
+      // Don't give attackers any information about the DB
+      payload.msg = 'Incorrect password';
+    }
+
+    res.send(payload);
+  }).catch(() => {
+    res.status(500);
+    res.send({
+      msg: '500: Internal server error',
+    });
+  });;
+});
+
+app.post('/register', (req, res) => {
+  const name = req.body.user;
+  const pass = req.body.pword;
+
+  if (!database.isValidUsername(name)) {
+    res.send({
+      msg: 'Invalid username. Alphanumeric characters only.',
+    });
+    return;
+  }
+
+  if (pass.length === 0) {
+    res.send({
+      msg: 'Password is a required field.',
+    });
+    return;
+  }
+
+  database.userRegister(name, pass).then((success) => {
+    const payload = {};
+
+    if (success) {
+      payload.user = name;
+      payload.msg = 'Registration successful';
+    } else {
+      payload.msg = 'User already exists';
+    }
+
+    res.send(payload);
+  }).catch(() => {
+    res.status(500);
+    res.send({
+      msg: '500: Internal server error',
+    });
+  });
 });
 
 // Track lobbies which exist and their state

@@ -1,3 +1,8 @@
+/*
+  File: Generates a starfield background and injects it into the served HTML files every hour
+  Author(s): Kyle
+*/
+
 const path = require('path');
 const fs = require('fs');
 
@@ -47,7 +52,7 @@ function addStars(file, stars) {
     const insertAt = content.indexOf('<div id="stars">') + 15;
 
     let out = content.substring(0, insertAt);
-    out += 'style="';
+    out += ' style="';
     out += 'background-repeat: repeat;';
     out += `background-size: ${resolution}px ${resolution}px;`;
     out += `background-image: ${stars};"`;

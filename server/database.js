@@ -1,8 +1,13 @@
+/*
+  File: Handles initialising and interfacing with the MySQL database
+
+  Author(s): Sharick, Kyle
+*/
+
 const mysql = require('mysql');
 const fs = require('fs');
 
-let config = JSON.parse(fs.readFileSync('./server/db.json'));
-
+const config = JSON.parse(fs.readFileSync('./server/db.json'));
 const con = mysql.createConnection(config);
 
 // Database should persist between server restarts
@@ -24,46 +29,50 @@ con.query(
 );
 
 module.exports = {
-  userLogin(name, pass, res) {
-    con.query(
-      // Using placeholders "?" escapes user input to prevent SQL injection
-      'SELECT * FROM players WHERE username = ? AND password = ?',
-      [name, pass],
-      (err, result) => {
-        if (err) {
-          console.log(`Failed to login: ${err}`);
-        } else if (result.length === 1) {
-          console.log('Successfully logged in.');
-          res.redirect('/');
-        } else {
-          console.log('Incorrect username or password.');
-          // alert('Incorrect username or password.');
-          // res.sendStatus(500);
-          // return;
-        }
-      }
-    );
+  isValidUsername(name) {
+    // Basically, names can't have symbols
+    return name.match(/^\w+$/);
   },
 
-  userRegister(name, pass, res) {
-    con.query(
-      // Using placeholders "?" escapes user input to prevent SQL injection
-      'INSERT INTO players (username, password) VALUES (?, ?)',
-      [name, pass],
-      (err) => {
-        if (err) {
-          console.log(`Failed to register: ${err}`);
-          // res.send(<script>alert("Username already exists.");
-          // window.location.href = "index.html"; </script>);
-          res.sendStatus(500);
-          // res.render('index.html', {alertMsg:"Username already exists."});
-          // assuming only error possible is violation of primary key
-          return;
+  userLogin(name, pass) {
+    // Resolves true/false as logged in state, rejects on error
+    return new Promise((resolve, reject) => {
+      con.query(
+        // Using placeholders "?" escapes user input to prevent SQL injection
+        'SELECT * FROM players WHERE username = ? AND password = ?',
+        [name, pass],
+        (err, result) => {
+          if (err) {
+            reject(err);
+          } else if (result.length === 1) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
         }
-        console.log('Registered new user successfully.');
-        res.redirect('/');
-        res.end();
-      }
-    );
+      );
+    });
+  },
+
+  userRegister(name, pass) {
+    // Resolves true/false as registration success, rejects on error
+    return new Promise((resolve, reject) => {
+      con.query(
+        // Using placeholders "?" escapes user input to prevent SQL injection
+        'INSERT INTO players (username, password) VALUES (?, ?)',
+        [name, pass],
+        (err) => {
+          if (err) {
+            if (err.code === 'ER_DUP_ENTRY') {
+              resolve(false);
+            } else {
+              reject(err);
+            }
+          }
+
+          resolve(true);
+        }
+      );
+    });
   },
 };

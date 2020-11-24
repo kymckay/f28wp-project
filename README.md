@@ -1,6 +1,8 @@
 # F28WP-Project
 Web based game group project for web programming course.
 
+Branch `master` automatically deployed to: https://steak-game.herokuapp.com
+
 Check out [CONTRIBUTING.md](CONTRIBUTING.md) for instructions on setting up for development as well as details on testing, deployment and style standards.
 
 ## Our Game
@@ -10,10 +12,10 @@ Our initial game idea was an asteroids-inspired deathmatch in which players pilo
 Features:
 - Rolling lobby system to manage amount of players in a game instance and reduce networking load per game.
 - World generation/scaling based on number of players in a lobby.
+- Collision interactions between player ships, asteroids and projectiles.
 
 Desired features:
-- Collision interactions between player ships, asteroids and projectiles.
-- Defined scoring system and gameplay elements (possibly HP, powerups, etc.).
+- Scoring system and gameplay elements
 - Sign up/in system with backend database to track users and high scores (with guest sign in option for quick play).
 - Basic text chat system.
 - Anti-cheat measures (ensuring clients are sending reasonable gameplay data to server, etc.).
