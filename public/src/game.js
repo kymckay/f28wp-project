@@ -3,11 +3,11 @@
   - Sends player input to server
   - Handles rendering incoming world frames
 
-  Author(s): Kyle
+  Author(s): Kyle, Tom
 */
 
 /* global io */
-import hudMsg from './hud';
+import { hudMsg, scoreboard } from './hud';
 
 // Server sends game events/state via socket
 const socket = io();
@@ -286,4 +286,7 @@ window.addEventListener('load', () => {
   socket.on('game start', onGameStart);
 
   socket.on('snapshot', render);
+
+  // When game ends scoreboard will be shown which offers to play again
+  socket.on('game over', scoreboard);
 });
