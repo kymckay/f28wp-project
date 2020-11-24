@@ -74,7 +74,7 @@ app.post('/login', (req, res) => {
     res.send({
       msg: '500: Internal server error',
     });
-  });;
+  });
 });
 
 app.post('/register', (req, res) => {

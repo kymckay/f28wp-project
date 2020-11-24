@@ -7,7 +7,16 @@
 const mysql = require('mysql');
 const fs = require('fs');
 
-const config = JSON.parse(fs.readFileSync('./server/db.json'));
+// When running on Heroku the DB config is set in environment variables
+let config = {};
+if (process.env.CLEARDB_DATABASE_URL) {
+  config.host = process.env.CLEARDB_DATABASE_URL;
+  config.user = process.env.CLEARDB_DATABASE_USER;
+  config.password = process.env.CLEARDB_DATABASE_PASS;
+} else {
+  config = JSON.parse(fs.readFileSync('./server/db.json'));
+}
+
 const con = mysql.createConnection(config);
 
 // Database should persist between server restarts
