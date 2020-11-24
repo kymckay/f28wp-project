@@ -58,10 +58,6 @@ io.on('connection', (socket) => {
   currentLobby.join(socket);
 });
 
-io.on('disconnecting', (socket) => {
-  console.log(`${socket.id} has disconnected`);
-});
-
 server.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`);
 });

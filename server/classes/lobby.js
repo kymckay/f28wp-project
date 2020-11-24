@@ -26,11 +26,9 @@ class Lobby {
     // FPS determines time between frames
     // World always simulates so clients can see their ships rotating before the game starts
     this.loop = setInterval(this.snapshot.bind(this), 1000 / World.fps);
-    console.log(`Lobby[${this.id}] created`);
   }
 
   join(socket) {
-    console.log(`${socket.id} -> added to players`);
     this.players.push(socket);
 
     // Give the player a ship in the world
@@ -44,6 +42,9 @@ class Lobby {
     this.io.to(this.id).emit('joined lobby', socket.id);
     socket.join(this.id); // join the room
 
+    // Cleanup properly if they leave
+    socket.on('disconnecting', () => this.leave(socket));
+
     // Send inputs recieved from player to simulation
     socket.on('keydown', (input) => {
       this.world.playerInput(socket.id, input);
@@ -53,32 +54,33 @@ class Lobby {
     });
 
     // Game start countdown begins when anyone is in the lobby
-    if (Object.keys(this.players).length === 1) {
+    if (this.players.length === 1) {
       this.startCountdown();
     }
-    console.log(`Lobby[${this.id}] ${socket.id} connected`);
   }
 
   leave(socket) {
-    if (this.world) {
-      this.world.removePlayer(socket.id, this.inProgress);
-    }
     socket.removeAllListeners('keydown');
     socket.removeAllListeners('keyup');
     socket.leave(this.id);
 
-    delete this.players[socket.id];
+    const i = this.players.find((p) => socket.id === p.id);
+    this.players.splice(i, 1);
 
-    // Server needs to clean up if all players leave
-    if (Object.keys(this.players).length === 0) {
-      if (this.inProgress) {
-        this.endGame();
-      } else {
-        // Don't start a game without players
-        this.stopCountdown();
+    // World exists until game reaches end condition
+    if (this.world) {
+      this.world.removePlayer(socket.id, this.inProgress);
+
+      // Server needs to clean up if all players leave
+      if (this.players.length === 0) {
+        if (this.inProgress) {
+          this.endGame();
+        } else {
+          // Don't start a game without players
+          this.stopCountdown();
+        }
       }
     }
-    console.log(`Lobby[${this.id}] ${socket.id} disconnected`);
   }
 
   startCountdown() {
@@ -106,13 +108,12 @@ class Lobby {
   startGame() {
     this.inProgress = true;
 
+    // Start the game and tell clients
     this.world.start();
-
     this.io.to(this.id).emit('game start');
 
-    console.log(`Lobby[${this.id}] has started`);
-
-    setTimeout(this.endGame.bind(this), 3000);
+    // Set end game condition now (2 minute timer)
+    setTimeout(this.endGame.bind(this), 1000*60*2);
   }
 
   snapshot() {
@@ -121,16 +122,17 @@ class Lobby {
   }
 
   endGame() {
-    console.log('Clearing Interval');
+    // Stop sending out simulation frames
     clearInterval(this.loop);
-    console.log('Emitting `game over`');
+
+    // Tell clients the game has ended
+    // Pass out score stats for client-side leaderboard
     this.io.to(this.id).emit('game over', {});
-    console.log(`Iterating through ${this.players.length} connections`);
-    this.players.forEach((p) => {
-      console.log(`${p} -> leave`);
-      this.leave(p);
-    });
+
     delete this.world;
+
+    // Remove all players from the lobby
+    this.players.forEach((p) => this.leave(p));
   }
 }
 Lobby.lobbyID = 0;
