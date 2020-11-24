@@ -4,25 +4,7 @@
     <title>Team STEAK Game</title>
     <link rel="stylesheet" type="text/css" href="css/common.css">
     <link rel="stylesheet" type="text/css" href="css/menu.css">
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      window.onload = function() {
-        // Tooltips for our initials
-        var tiles = document.getElementsByClassName('tile');
-
-        for (var i = 0; i < tiles.length; i++) {
-          tiles[i].addEventListener("mouseover", function(event) {
-            var tt = event.target.getElementsByClassName('tooltip')[0];
-
-            // Event fires when over the tooltip itself
-            if (tt) {
-              tt.style.bottom = (window.innerHeight - event.y) + 'px';
-              tt.style.left = event.x + 'px';
-            }
-          });
-        }
-      }
-    </script>
+    <script src="dist/menu.js"></script>
   </head>
   <body>
     <div id="background">
@@ -39,13 +21,13 @@
 
         <!-- login and register on same flex row -->
         <div id="userForms">
-          <form action="login" method="post">
+          <form id="login">
             <input type="text" name="user" placeholder="Username">
             <input type="password" name="pword" placeholder="Password">
             <input type="submit" value="LOGIN">
           </form>
 
-          <form action="register" method="post">
+          <form id="register">
             <input type="text" name="user" placeholder="Username">
             <input type="password" name="pword" placeholder="Password">
             <input type="submit" value="REGISTER">
