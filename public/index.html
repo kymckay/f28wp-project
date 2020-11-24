@@ -5,6 +5,24 @@
     <link rel="stylesheet" type="text/css" href="css/common.css">
     <link rel="stylesheet" type="text/css" href="css/menu.css">
     <script src="/socket.io/socket.io.js"></script>
+    <script>
+      window.onload = function() {
+        // Tooltips for our initials
+        var tiles = document.getElementsByClassName('tile');
+
+        for (var i = 0; i < tiles.length; i++) {
+          tiles[i].addEventListener("mouseover", function(event) {
+            var tt = event.target.getElementsByClassName('tooltip')[0];
+
+            // Event fires when over the tooltip itself
+            if (tt) {
+              tt.style.bottom = (window.innerHeight - event.y) + 'px';
+              tt.style.left = event.x + 'px';
+            }
+          });
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="background">
@@ -40,29 +58,28 @@
         <div id="tileRow">
           <div class="tile">
             S
+            <span class="tooltip">Mohammad Shariq Farooqui<br>MSc Data Science</span>
           </div>
-          <!-- TODO Make tooltips with our names show on hover -->
-          <!-- <span class="tooltip">Mohammad Shariq Farooqui<br>MSc Data Science</span> -->
 
           <div class="tile">
             T
+            <span class="tooltip">Tom Oscar Moss<br>MEng Computing and Electronics</span>
           </div>
-          <!-- <span class="tooltip">Tom<br>MEng Computing and Electronics</span> -->
 
           <div class="tile">
             E
+            <span class="tooltip">Emily Sefton<br>MEng Computing and Electronics</span>
           </div>
-          <!-- <span class="tooltip">Emily Sefton<br>MEng Computing and Electronics</span> -->
 
           <div class="tile">
             A
+            <span class="tooltip">Alexandra Cures<br>MEng Computing and Electronics</span>
           </div>
-          <!-- <span class="tooltip">Alexandra Cures<br>MEng Computing and Electronics</span> -->
 
           <div class="tile">
             K
+            <span class="tooltip">Kyle Mckay<br>MSc Data Science</span>
           </div>
-          <!-- <span class="tooltip">Kyle McKay<br>MSc Data Science</span> -->
         </div>
       </div>
     </div>

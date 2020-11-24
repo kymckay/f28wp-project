@@ -119,14 +119,18 @@
 }
 
 .tooltip {
-  visibility: hidden;
+  font-size: 14pt;
+
+  position: fixed;
+  display: none;
+
   background-color: black;
   color: white;
   text-align: center;
-  padding: 5px 0;
+  padding: 5px;
   border-radius: 6px;
 }
 
-.tile:hover + .tooltip {
-  visibility: visible;
+.tile:hover .tooltip {
+  display: block;
 }
