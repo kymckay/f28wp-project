@@ -4,7 +4,7 @@
     <title>Team STEAK Game</title>
     <link rel="stylesheet" type="text/css" href="css/common.css">
     <link rel="stylesheet" type="text/css" href="css/menu.css">
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="dist/menu.js"></script>
   </head>
   <body>
     <div id="background">
@@ -16,24 +16,26 @@
 
         <!-- using post methods to hide values from URL -->
         <form action="play" method="post">
-          <input type="text" name="guestName" placeholder="Guest Name">
-          <input type="submit" value="PLAY">
+          <input id="playbutton" type="submit" value="PLAY">
         </form>
 
         <!-- login and register on same flex row -->
         <div id="userForms">
-          <form action="login" method="post">
-            <input type="text" name="user" placeholder="Username">
-            <input type="password" name="pword" placeholder="Password">
+          <form id="login">
+            <input id="loginUser" type="text" name="user" placeholder="Username">
+            <input id="loginPword" type="password" name="pword" placeholder="Password">
             <input type="submit" value="LOGIN">
           </form>
 
-          <form action="register" method="post">
-            <input type="text" name="user" placeholder="Username">
-            <input type="password" name="pword" placeholder="Password">
+          <form id="register">
+            <input id="regUser" type="text" name="user" placeholder="Username">
+            <input id="regPword" type="password" name="pword" placeholder="Password">
             <input type="submit" value="REGISTER">
           </form>
         </div>
+
+        <p id="formMsg"></p>
+        <p id="logout"></p>
       </div>
 
       <div id="footer">
@@ -41,29 +43,28 @@
         <div id="tileRow">
           <div class="tile">
             S
+            <span class="tooltip">Mohammad Shariq Farooqui<br>MSc Data Science</span>
           </div>
-          <!-- TODO Make tooltips with our names show on hover -->
-          <!-- <span class="tooltip">Mohammad Shariq Farooqui<br>MSc Data Science</span> -->
 
           <div class="tile">
             T
+            <span class="tooltip">Tom Oscar Moss<br>MEng Computing and Electronics</span>
           </div>
-          <!-- <span class="tooltip">Tom<br>MEng Computing and Electronics</span> -->
 
           <div class="tile">
             E
+            <span class="tooltip">Emily Sefton<br>MEng Computing and Electronics</span>
           </div>
-          <!-- <span class="tooltip">Emily Sefton<br>MEng Computing and Electronics</span> -->
 
           <div class="tile">
             A
+            <span class="tooltip">Alexandra Cures<br>MEng Computing and Electronics</span>
           </div>
-          <!-- <span class="tooltip">Alexandra Cures<br>MEng Computing and Electronics</span> -->
 
           <div class="tile">
             K
+            <span class="tooltip">Kyle Mckay<br>MSc Data Science</span>
           </div>
-          <!-- <span class="tooltip">Kyle McKay<br>MSc Data Science</span> -->
         </div>
       </div>
     </div>
