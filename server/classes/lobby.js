@@ -130,10 +130,15 @@ class Lobby {
 
     // Tell clients the game has ended
     // Pass out score stats for client-side leaderboard
-    this.io.to(this.id).emit('game over', { // sending some dummy data until scoring implemented
-      someuser: { kills: 2, deaths: 1, score: 3245 },
-      1: { kills: 1, deaths: 0, score: 53 }, // numbers will represent guest players
-    });
+    this.io.to(this.id).emit(
+      'game over',
+      // TODO send final stats here, sort by score beforehand
+      // TODO generate guest usernames for use here
+      { // sending some dummy data until scoring implemented
+        someuser: { kills: 2, deaths: 1, score: 3245 },
+        otheruser: { kills: 1, deaths: 0, score: 53 },
+      }
+    );
 
     delete this.world;
 

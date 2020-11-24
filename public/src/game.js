@@ -7,7 +7,7 @@
 */
 
 /* global io */
-import hudMsg from './hud';
+import { hudMsg, scoreboard } from './hud';
 
 // Server sends game events/state via socket
 const socket = io();
@@ -267,11 +267,6 @@ function onGameStart() {
   handledKeys.Space = true;
 }
 
-function onGameEnd() {
-  hudMsg('game-over-msg', 'The Game has Ended');
-  setTimeout(() => { hudMsg('game-over-msg', null); }, 3000);
-}
-
 // Page must be ready before we can start interacting with it
 window.addEventListener('load', () => {
   // Rendering will require the right div later
@@ -292,5 +287,6 @@ window.addEventListener('load', () => {
 
   socket.on('snapshot', render);
 
-  socket.on('game over', onGameEnd);
+  // When game ends scoreboard will be shown which offers to play again
+  socket.on('game over', scoreboard);
 });
