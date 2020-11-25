@@ -1,7 +1,8 @@
 /*
   File: Projectile class
 
-  - Handles projectile simulation behaviour (e.g. lifetime)
+  - Handles projectile lifetime tracking
+  - Handles projectile collision and serialisation
 
   Author(s): Kyle, Tom
 */
@@ -16,14 +17,10 @@ class Projectile extends Entity {
     this.time = Projectile.lifetime;
   }
 
-  simulate(maxX, maxY, margin, normCoef, fps) {
+  tick(fps) {
     // Projectiles expire when no lifetime remains
     this.time -= 1 / fps;
-    if (this.time <= 0) {
-      this.dead = true;
-    } else {
-      super.simulate(maxX, maxY, margin, normCoef);
-    }
+    return this.time <= 0;
   }
 
   // Returns an asteroid or ship the projectile is colliding with (or null)
@@ -77,7 +74,6 @@ class Projectile extends Entity {
           && dot2 > 0
           && dot3 > 0
         ) {
-          this.dead = true;
           return e;
         }
       }

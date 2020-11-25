@@ -171,6 +171,59 @@ class World {
     this.genAsteroids();
   }
 
+  simulateEntity(e) {
+    e.x += e.vel[0] * World.normCoef;
+    e.y += e.vel[1] * World.normCoef;
+
+    // Entities all wrap to other side of world
+    // Margin hides teleportation below border
+    if (e.x < -World.margin) {
+      e.x += this.width + World.margin;
+    } else if (e.x > this.width + World.margin) {
+      e.x -= this.width + World.margin;
+    }
+
+    if (e.y < -World.margin) {
+      e.y += this.height + World.margin;
+    } else if (e.y > this.height + World.margin) {
+      e.y -= this.height + World.margin;
+    }
+  }
+
+  simulateShip(s) {
+    // Ship can't thrust and break together (hence XOR)
+    const control = s.controls;
+    if (control.ArrowUp ? !control.ArrowDown : control.ArrowDown) {
+      if (control.ArrowUp) {
+        s.accelerate(World.normCoef);
+      } else {
+        s.brake(World.normCoef);
+      }
+    }
+
+    // Ship can't turn boths ways at once (hence XOR)
+    if (control.ArrowLeft ? !control.ArrowRight : control.ArrowRight) {
+      s.turn(control.ArrowLeft, World.normCoef);
+    }
+
+    let projectile = null;
+    if (control.Space) {
+      projectile = s.shoot();
+    }
+
+    this.simulateEntity(s);
+
+    return projectile;
+  }
+
+  simulateProjectile(p) {
+    if (p.tick(World.fps)) {
+      this.removeEntity(p);
+    } else {
+      this.simulateEntity(p);
+    }
+  }
+
   simulate() {
     // Destroyed entities persist for one frame so that clients are informed
     this.destroyed.forEach((id) => {
@@ -184,32 +237,19 @@ class World {
     const ships = Object.values(this.ships);
     const projectiles = Object.values(this.projectiles);
 
-    asteroids.forEach((e) => {
-      e.simulate(
-        this.width,
-        this.height,
-        World.margin,
-        World.normCoef
-      );
-    });
+    asteroids.forEach((e) => this.simulateEntity(e));
 
     ships.forEach((e) => {
-      e.simulate(
-        this.width,
-        this.height,
-        World.margin,
-        World.normCoef
-      );
+      const p = this.simulateShip(e);
 
       // Ship may have fired a new projectile
-      if (e.fired) {
-        this.projectiles[e.fired.id] = e.fired;
-        e.fired = null;
+      if (p) {
+        this.projectiles[p.id] = p;
       }
 
       // Ships die if hit by an asteroid
       if (e.collision(asteroids)) {
-        this.destroyed.push(e.id);
+        this.removeEntity(e);
         if (e.isPlayer) {
           this.killPlayer(e.id);
         }
@@ -217,27 +257,15 @@ class World {
     });
 
     projectiles.forEach((e) => {
-      e.simulate(
-        this.width,
-        this.height,
-        World.margin,
-        World.normCoef,
-        World.fps
-      );
+      this.simulateProjectile(e);
 
       // Projectiles can destroy asteroids and ships
       const hit = e.collision(asteroids, ships);
       if (hit) {
-        hit.dead = true;
-        this.destroyed.push(hit.id);
+        this.removeEntity(hit);
         if (hit.isPlayer) {
           this.killPlayer(hit.id);
         }
-      }
-
-      // Projectile may expire this frame or hit something
-      if (e.dead) {
-        this.destroyed.push(e.id);
       }
     });
   }
@@ -247,7 +275,10 @@ class World {
 
   // addEntity() {}
 
-  // removeEntity() {}
+  removeEntity(e) {
+    e.dead = true; // Mark dead for clients
+    this.destroyed.push(e.id); // Mark to be deleted next frame
+  }
 
   serialize() {
     // Using ES6 computed property names and the spread operator

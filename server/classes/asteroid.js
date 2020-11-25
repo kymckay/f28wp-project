@@ -1,7 +1,7 @@
 /*
   File: Asteroid class
 
-  - Handles asteroid simulation behaviour
+  - Handles asteroid serialisation
 
   Author(s): Kyle, Tom
 */

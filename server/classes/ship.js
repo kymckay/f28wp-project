@@ -1,7 +1,8 @@
 /*
   File: Ship class
 
-  - Handles ship controls and simulation behaviour
+  - Handles ship controls
+  - Handles ship collision and serialisation
 
   Author(s): Kyle, Tom
 */
@@ -84,7 +85,7 @@ class Ship extends Entity {
   shoot() {
     // Cooldown between shots of 5s (5000ms)
     if (performance.now() - this.lastShot < Ship.shotCooldown) {
-      return;
+      return null;
     }
     this.lastShot = performance.now();
 
@@ -94,30 +95,7 @@ class Ship extends Entity {
     // Projectile inherits ship velocity plus firing velocity
     const vel = vectorAdd(this.vel, polarToCart([this.dir, Ship.shotSpeed]));
 
-    this.fired = new Projectile(pos, this.dir, vel);
-  }
-
-  simulate(maxX, maxY, margin, normCoef) {
-    // Ship can't thrust and break together (hence XOR)
-    const control = this.controls;
-    if (control.ArrowUp ? !control.ArrowDown : control.ArrowDown) {
-      if (control.ArrowUp) {
-        this.accelerate(normCoef);
-      } else {
-        this.brake(normCoef);
-      }
-    }
-
-    // Ship can't turn boths ways at once (hence XOR)
-    if (control.ArrowLeft ? !control.ArrowRight : control.ArrowRight) {
-      this.turn(control.ArrowLeft, normCoef);
-    }
-
-    if (control.Space) {
-      this.shoot();
-    }
-
-    super.simulate(maxX, maxY, margin, normCoef);
+    return new Projectile(pos, this.dir, vel);
   }
 
   getTriangle() {
