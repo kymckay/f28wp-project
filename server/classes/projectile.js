@@ -8,6 +8,7 @@
 */
 
 const Entity = require('./entity');
+const Vector = require('./vector');
 
 class Projectile extends Entity {
   constructor(pos, dir, vel) {
@@ -53,20 +54,20 @@ class Projectile extends Entity {
         // Using the dot product method (points must be ordered counterclockwise)
         const [p1, p2, p3] = e.getTriangle();
 
-        // Orthogonal vectors (outside triangle)
-        const v1 = [p2[1] - p1[1], -p2[0] + p1[0]];
-        const v2 = [p3[1] - p2[1], -p3[0] + p2[0]];
-        const v3 = [p1[1] - p3[1], -p1[0] + p3[0]];
+        // Orthogonal vectors (to triangle sides)
+        const v1 = new Vector(p2.y - p1.y, -p2.x + p1.x);
+        const v2 = new Vector(p3.y - p2.y, -p3.x + p2.x);
+        const v3 = new Vector(p1.y - p3.y, -p1.x + p3.x);
 
         // Vector diff from triangle points
-        const vp1 = [this.x - p1[0], this.y - p1[1]];
-        const vp2 = [this.x - p2[0], this.y - p2[1]];
-        const vp3 = [this.x - p3[0], this.y - p3[1]];
+        const vp1 = Vector.diff(this.pos, p1);
+        const vp2 = Vector.diff(this.pos, p2);
+        const vp3 = Vector.diff(this.pos, p3);
 
         // Dot products
-        const dot1 = v1[0] * vp1[0] + v1[1] * vp1[1];
-        const dot2 = v2[0] * vp2[0] + v2[1] * vp2[1];
-        const dot3 = v3[0] * vp3[0] + v3[1] * vp3[1];
+        const dot1 = Vector.dot(v1, vp1);
+        const dot2 = Vector.dot(v2, vp2);
+        const dot3 = Vector.dot(v3, vp3);
 
         // The dot product condition
         if (

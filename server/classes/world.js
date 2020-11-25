@@ -9,6 +9,7 @@
 */
 const Ship = require('./ship');
 const Asteroid = require('./asteroid');
+const Vector = require('./vector');
 
 class World {
   constructor() {
@@ -23,10 +24,10 @@ class World {
     this.spawnPositions = [];
     for (let i = 0; i < gridDims; i++) {
       for (let j = 0; j < gridDims; j++) {
-        this.spawnPositions.push([
+        this.spawnPositions.push(new Vector(
           i * World.cellSize + World.cellSize / 2,
-          j * World.cellSize + World.cellSize / 2,
-        ]);
+          j * World.cellSize + World.cellSize / 2
+        ));
       }
     }
 
@@ -74,10 +75,10 @@ class World {
   }
 
   respawnPlayer(id) {
-    const pos = [
+    const pos = new Vector(
       Math.random() * this.width,
-      Math.random() * this.height,
-    ];
+      Math.random() * this.height
+    );
     const ship = new Ship(pos, true);
     ship.id = id;
 
@@ -95,10 +96,10 @@ class World {
 
     for (let i = 0; i < gridDims; i++) {
       // All new column cells
-      this.spawnPositions.push([
+      this.spawnPositions.push(new Vector(
         offset,
-        i * World.cellSize + World.cellSize / 2,
-      ]);
+        i * World.cellSize + World.cellSize / 2
+      ));
 
       // Lower right cell is in both column and row
       // Don't duplicate
@@ -107,10 +108,10 @@ class World {
       }
 
       // All new row cells
-      this.spawnPositions.push([
+      this.spawnPositions.push(new Vector(
         i * World.cellSize + World.cellSize / 2,
-        offset,
-      ]);
+        offset
+      ));
     }
   }
 
@@ -132,10 +133,8 @@ class World {
 
           // All asteroids start randomly sized and distributed
           const ast = new Asteroid(
-            [i + x, j + y], // x,y are within the cell i,j
-            Asteroid.minSize + Math.random() * (Asteroid.maxSize - Asteroid.minSize),
-            // 5% chance asteroid starts stationary
-            Math.random() < 0.05 ? 0 : Asteroid.maxSpeed * Math.random()
+            // x,y are within the cell i,j
+            new Vector(i + x, j + y)
           );
 
           this.asteroids[ast.id] = ast;
@@ -172,8 +171,7 @@ class World {
   }
 
   simulateEntity(e) {
-    e.x += e.vel[0] * World.normCoef;
-    e.y += e.vel[1] * World.normCoef;
+    e.pos = Vector.add(e.pos, Vector.mult(e.vel, World.normCoef));
 
     // Entities all wrap to other side of world
     // Margin hides teleportation below border

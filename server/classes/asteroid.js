@@ -7,27 +7,20 @@
 */
 
 const Entity = require('./entity');
-
-function polarToCart(v) {
-  const [theta, z] = v;
-
-  return [
-    // Angles in this world are measured clockwise from x-axis
-    Math.cos(theta) * z, // x
-    Math.sin(theta) * z, // y
-  ];
-}
+const Vector = require('./vector');
 
 class Asteroid extends Entity {
-  constructor(pos, size, speed) {
-    const vel = polarToCart([
+  // Start with random speed and size
+  constructor(pos) {
+    const vel = Vector.polarToCart(
       Math.random() * Math.PI * 2,
-      speed,
-    ]);
+      Asteroid.maxSpeed * Math.random()
+    );
 
     super(pos, vel);
 
-    this.size = size;
+    this.size = Asteroid.minSize
+      + (Asteroid.maxSize - Asteroid.minSize) * Math.random();
   }
 
   serialize() {

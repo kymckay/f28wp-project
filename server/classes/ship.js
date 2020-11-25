@@ -10,37 +10,12 @@
 const { performance } = require('perf_hooks');
 const Entity = require('./entity');
 const Projectile = require('./projectile');
-
-function vectorAdd(v1, v2) {
-  return [
-    v1[0] + v2[0],
-    v1[1] + v2[1],
-  ];
-}
-
-function polarToCart(v) {
-  const [theta, z] = v;
-
-  return [
-    // Angles in this world are measured clockwise from x-axis
-    Math.cos(theta) * z, // x
-    Math.sin(theta) * z, // y
-  ];
-}
-
-function cartToPolar(v) {
-  const [x, y] = v;
-
-  return [
-    Math.atan2(y, x), // theta
-    Math.sqrt(x * x + y * y), // z
-  ];
-}
+const Vector = require('./vector');
 
 class Ship extends Entity {
   constructor(pos, isPlayer) {
     // Ships start without velocity
-    super(pos, [0, 0]);
+    super(pos, new Vector(0, 0));
 
     // Initial orientation is superficial (radians)
     this.dir = Math.random() * Math.PI * 2;
@@ -56,30 +31,30 @@ class Ship extends Entity {
 
   accelerate(normCoef) {
     // Differential velocity vector in direction ship faces
-    const dv = polarToCart([this.dir, Ship.acceleration * normCoef]);
+    const dv = Vector.polarToCart(this.dir, Ship.acceleration * normCoef);
 
     // Use polar to easily limit new speed direction independently
-    const polarV = cartToPolar(vectorAdd(this.vel, dv));
-    polarV[1] = Math.min(polarV[1], Ship.maxSpeed);
+    const newV = Vector.add(this.vel, dv);
+    const magnitude = Math.min(newV.z, Ship.maxSpeed);
 
-    this.vel = polarToCart(polarV);
+    this.vel = Vector.polarToCart(newV.theta, magnitude);
   }
 
   brake(normCoef) {
     const v = this.vel;
 
     // Differential velocity vector
-    const dv = polarToCart([
-      // Braking always opposes current velocity
-      Math.atan2(v[1], v[0]) + Math.PI,
-      Ship.deceleration * normCoef,
-    ]);
+    // Braking always opposes current velocity
+    const dv = Vector.polarToCart(
+      v.theta + Math.PI,
+      Ship.deceleration * normCoef
+    );
 
     // Can't decelerate past 0
-    this.vel = [
-      (Math.abs(dv[0]) > Math.abs(v[0])) ? 0 : v[0] + dv[0],
-      (Math.abs(dv[1]) > Math.abs(v[1])) ? 0 : v[1] + dv[1],
-    ];
+    this.vel = new Vector(
+      (Math.abs(dv.x) > Math.abs(v.x)) ? 0 : v.x + dv.x,
+      (Math.abs(dv.y) > Math.abs(v.y)) ? 0 : v.y + dv.y
+    );
   }
 
   shoot() {
@@ -90,22 +65,31 @@ class Ship extends Entity {
     this.lastShot = performance.now();
 
     // Projectile appears ahead of ship
-    const pos = vectorAdd(this.pos, polarToCart([this.dir, Ship.shotOffset]));
+    const pos = Vector.add(
+      this.pos,
+      Vector.polarToCart(this.dir, Ship.shotOffset)
+    );
 
     // Projectile inherits ship velocity plus firing velocity
-    const vel = vectorAdd(this.vel, polarToCart([this.dir, Ship.shotSpeed]));
+    const vel = Vector.add(
+      this.vel,
+      Vector.polarToCart(this.dir, Ship.shotSpeed)
+    );
 
     return new Projectile(pos, this.dir, vel);
   }
 
   getTriangle() {
-    const perpendicular = this.dir + Math.PI / 2;
-
     // Ship is 60px by 30px in the CSS (would be nice to not hardcode this)
-    const tip = vectorAdd(this.pos, polarToCart([this.dir, 30]));
-    const backM = vectorAdd(this.pos, polarToCart([this.dir, -30]));
-    const backL = vectorAdd(backM, polarToCart([perpendicular, -15]));
-    const backR = vectorAdd(backM, polarToCart([perpendicular, 15]));
+    const halfLength = 30;
+    const halfWidth = 15;
+
+    const ortho = this.dir + Math.PI / 2;
+
+    const tip = Vector.add(this.pos, Vector.polarToCart(this.dir, halfLength));
+    const backM = Vector.diff(this.pos, Vector.polarToCart(this.dir, halfLength));
+    const backL = Vector.diff(backM, Vector.polarToCart(ortho, halfWidth));
+    const backR = Vector.add(backM, Vector.polarToCart(ortho, halfWidth));
 
     return [tip, backL, backR];
   }
@@ -127,16 +111,14 @@ class Ship extends Entity {
         // Find distance from outer points of the ship to the asteroid center
         // Collide if less than asteroid radius
         const collide = points.some((p) => {
-          const dx = p[0] - e.x;
-          const dy = p[1] - e.y;
-          const distSqr = dx * dx + dy * dy;
+          const diff = Vector.diff(p, e.pos);
+          const distSqr = diff.zSqr;
           // It's quicker to exponent than sqrt
           return distSqr < radiusA * radiusA;
         });
 
         if (collide) {
           // When a ship collides it dies, no point checking further
-          this.dead = true;
           return e;
         }
       }

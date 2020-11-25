@@ -11,29 +11,29 @@
 class Entity {
   // all entities exist somewhere in space
   constructor(pos, vel) {
-    this.pos = pos; // [x, y] vector
-    this.vel = vel; // [x, y] vector
+    this.pos = pos; // vector
+    this.vel = vel; // vector
 
     // all entites must be identifyable for logic
     this.id = Entity.newId();
   }
 
-  get x() { return this.pos[0]; }
+  get x() { return this.pos.x; }
 
-  set x(x) { this.pos[0] = x; }
+  set x(x) { this.pos.x = x; }
 
-  get y() { return this.pos[1]; }
+  get y() { return this.pos.y; }
 
-  set y(y) { this.pos[1] = y; }
+  set y(y) { this.pos.y = y; }
 
   static newId() {
-    Entity.id += 1;
+    Entity.id++;
     return Entity.id;
   }
 
   serialize() {
     const s = {
-      pos: this.pos,
+      pos: [this.pos.x, this.pos.y],
     };
     if (this.dead) s.dead = true;
     return s;
