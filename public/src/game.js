@@ -69,6 +69,7 @@ function explosion(x, y, size, playArea, list) {
   list.push([div, performance.now()]);
 }
 
+// Within this function "this" refers to itself (bound on call)
 function render(snapshot) {
   function newEntity(id, type, x, y, r = null, size = null) {
     const div = document.createElement('div');
@@ -109,6 +110,45 @@ function render(snapshot) {
     return div;
   }
 
+  function renderEntities(entityObj, type, explode = true) {
+    Object.keys(entityObj).forEach((k) => {
+      const e = entityObj[k];
+      const div = render.divs[k];
+      const [x, y] = worldToScreen(e.pos, render.screenO);
+
+      if (e.dead) {
+        if (div) {
+          if (explode) {
+            explosion(x, y, 60, render.parent, render.explosions);
+          }
+
+          delete render.divs[k];
+          div.remove();
+        }
+
+        // If the player ship just got removed, they're respawning
+        if (k === render.playerId) {
+          hudMsg('respawn-msg', 'Respawning...');
+        }
+
+        return;
+      }
+
+      if (!div) {
+        // Size and dir won't exist for everything
+        newEntity(k, type, x, y, e.dir, e.size);
+      } else {
+        // Update existing
+        div.style.left = `${x}px`;
+        div.style.top = `${y}px`;
+
+        if (e.dir) {
+          div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
+        }
+      }
+    });
+  }
+
   const screenW = window.innerWidth;
   const screenH = window.innerHeight;
 
@@ -122,10 +162,10 @@ function render(snapshot) {
       [screenW / 2, screenH / 2]
     );
   }
-  const { screenO } = this;
 
   // Boundaries let players see where world ends (once it exists)
   if (this.world) {
+    const { screenO } = this;
     const top = screenH - (0 - screenO[1]);
     const bottom = this.world[1] - screenO[1];
     const left = screenW - (0 - screenO[0]);
@@ -151,79 +191,10 @@ function render(snapshot) {
     }
   }
 
-  Object.keys(snapshot.ships).forEach((k) => {
-    const e = snapshot.ships[k];
-    const [x, y] = worldToScreen(e.pos, screenO);
-
-    const div = this.divs[k];
-
-    if (e.dead) {
-      if (div) {
-        delete this.divs[k];
-        explosion(x, y, 60, this.parent, this.explosions);
-        div.remove();
-      }
-
-      if (k === this.playerId) {
-        hudMsg('respawn-msg', 'Respawning...');
-      }
-
-      return;
-    }
-
-    if (!div) {
-      newEntity(k, 'ship', x, y, e.dir);
-    } else {
-      // Update existing
-      div.style.left = `${x}px`;
-      div.style.top = `${y}px`;
-      div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
-    }
-  });
-
-  Object.keys(snapshot.asteroids).forEach((k) => {
-    const e = snapshot.asteroids[k];
-    const [x, y] = worldToScreen(e.pos, screenO);
-
-    const div = this.divs[k];
-
-    if (e.dead) {
-      if (div) {
-        explosion(x, y, e.size, this.parent, this.explosions);
-        div.remove();
-      }
-      return;
-    }
-
-    if (!div) {
-      newEntity(k, 'asteroid', x, y, null, e.size);
-    } else {
-      div.style.left = `${x}px`;
-      div.style.top = `${y}px`;
-    }
-  });
-
-  Object.keys(snapshot.projectiles).forEach((k) => {
-    const e = snapshot.projectiles[k];
-
-    const div = this.divs[k];
-
-    // Projectiles just disappear instantly
-    if (e.dead) {
-      if (div) div.remove();
-      return;
-    }
-
-    const [x, y] = worldToScreen(e.pos, screenO);
-
-    if (!div) {
-      newEntity(k, 'projectile', x, y, e.dir);
-    } else {
-      div.style.left = `${x}px`;
-      div.style.top = `${y}px`;
-      div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
-    }
-  });
+  // Render everything the server says exists
+  renderEntities(snapshot.ships, 'ship');
+  renderEntities(snapshot.asteroids, 'asteroid');
+  renderEntities(snapshot.projectiles, 'projectile', false);
 }
 render.divs = {};
 render.explosions = [];
