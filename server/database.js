@@ -16,10 +16,11 @@ if (process.env.CLEARDB_DATABASE_URL) {
   config = JSON.parse(fs.readFileSync('./server/db.json'));
 }
 
-// Database will be connected to via config, must exist already
-const con = mysql.createConnection(config);
+// Connection pool handles creating/refreshing connections automatically
+const pool = mysql.createPool(config);
 
-con.query(
+// A database is already used as part of connection config, so must pre-exist
+pool.query(
   [
     'CREATE TABLE IF NOT EXISTS players (username VARCHAR(25) NOT NULL PRIMARY KEY',
     'password VARCHAR(50) NOT NULL',
@@ -47,7 +48,7 @@ module.exports = {
   userLogin(name, pass) {
     // Resolves true/false as logged in state, rejects on error
     return new Promise((resolve, reject) => {
-      con.query(
+      pool.query(
         // Using placeholders "?" escapes user input to prevent SQL injection
         'SELECT username FROM players WHERE username = ? AND password = ?',
         [name, pass],
@@ -68,7 +69,7 @@ module.exports = {
   userRegister(name, pass) {
     // Resolves true/false as registration success, rejects on error
     return new Promise((resolve, reject) => {
-      con.query(
+      pool.query(
         // Using placeholders "?" escapes user input to prevent SQL injection
         'INSERT INTO players (username, password, highscore, kills, deaths) VALUES (?, ?, ?, ?, ?)',
         [name, pass, 0, 0, 0],
