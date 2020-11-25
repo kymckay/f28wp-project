@@ -9,7 +9,6 @@ const fs = require('fs');
 
 // When running on Heroku the DB config is set in an environment variable
 let config;
-console.log('dburl', process.env.CLEARDB_DATABASE_URL);
 if (process.env.CLEARDB_DATABASE_URL) {
   // Username, password and database name all in the connection string
   config = process.env.CLEARDB_DATABASE_URL;
