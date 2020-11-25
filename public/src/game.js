@@ -70,45 +70,84 @@ function explosion(x, y, size, playArea, list) {
 }
 
 function render(snapshot) {
+  function newEntity(id, type, x, y, r = null, size = null) {
+    const div = document.createElement('div');
+    render.divs[id] = div;
+
+    // May need to retrieve this div by ID
+    div.id = `entity${id}`;
+
+    // Apply ship styling/positioning rules
+    div.classList.add('entity');
+    div.classList.add(type);
+
+    // Differentiate the player's ship
+    if (id === render.playerId) {
+      div.classList.add('player');
+
+      // If a new ship is created player has respawned
+      hudMsg('respawn-msg', null);
+    }
+
+    // Position before appending to avoid visual artifacts
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+
+    // Not everything has a rotation
+    if (r) {
+      div.style.transform = `translate(-50%, -50%) rotate(${r}rad)`;
+    }
+
+    // Not everything has a size
+    if (size) {
+      div.style.width = `${size}px`;
+      div.style.height = `${size}px`;
+    }
+
+    render.parent.appendChild(div);
+
+    return div;
+  }
+
   const screenW = window.innerWidth;
   const screenH = window.innerHeight;
 
   // Screen origin (top left) moves with ship (always centered)
   // Used to convert world coordinates to screen coordinates
-  if (render.playerId in snapshot.ships) {
+  if (this.playerId in snapshot.ships) {
     // Persist screenO for cases where ship no longer exists
     // Screen will remain in place until respwn
-    render.screenO = vectorDiff(
-      snapshot.ships[render.playerId].pos,
+    this.screenO = vectorDiff(
+      snapshot.ships[this.playerId].pos,
       [screenW / 2, screenH / 2]
     );
   }
-  const { screenO } = render;
+  const { screenO } = this;
 
   // Boundaries let players see where world ends (once it exists)
-  if (render.world) {
+  if (this.world) {
     const top = screenH - (0 - screenO[1]);
-    const bottom = render.world[1] - screenO[1];
+    const bottom = this.world[1] - screenO[1];
     const left = screenW - (0 - screenO[0]);
-    const right = render.world[0] - screenO[0];
+    const right = this.world[0] - screenO[0];
 
-    render.boundt.style.bottom = `${top}px`;
-    render.boundb.style.top = `${bottom}px`;
-    render.boundl.style.right = `${left}px`;
-    render.boundr.style.left = `${right}px`;
+    this.boundt.style.bottom = `${top}px`;
+    this.boundb.style.top = `${bottom}px`;
+    this.boundl.style.right = `${left}px`;
+    this.boundr.style.left = `${right}px`;
   }
 
   // First remove any expired explosions (don't iterate over new ones)
   // Loop backwards to safely remove from array while iterating
   const time = performance.now();
-  for (let i = render.explosions.length - 1; i >= 0; i--) {
-    const exp = render.explosions[i];
+  for (let i = this.explosions.length - 1; i >= 0; i--) {
+    const exp = this.explosions[i];
 
     // Explosions last 1s each
     if (time - exp[1] > 1000) {
       exp[0].remove();
       // NOTE could be optimised to a single splice since they're stored in order
-      render.explosions.splice(i, 1);
+      this.explosions.splice(i, 1);
     }
   }
 
@@ -116,16 +155,16 @@ function render(snapshot) {
     const e = snapshot.ships[k];
     const [x, y] = worldToScreen(e.pos, screenO);
 
-    let div = render.divs[k];
+    const div = this.divs[k];
 
     if (e.dead) {
       if (div) {
-        delete render.divs[k];
-        explosion(x, y, 60, render.playArea, render.explosions);
+        delete this.divs[k];
+        explosion(x, y, 60, this.parent, this.explosions);
         div.remove();
       }
 
-      if (k === render.playerId) {
+      if (k === this.playerId) {
         hudMsg('respawn-msg', 'Respawning...');
       }
 
@@ -133,80 +172,41 @@ function render(snapshot) {
     }
 
     if (!div) {
-      div = document.createElement('div');
-      render.divs[k] = div;
-
-      // May need to retrieve this div by ID
-      div.id = `entity${k}`;
-
-      // Apply ship styling/positioning rules
-      div.classList.add('entity');
-      div.classList.add('ship');
-
-      // Differentiate the player's ship
-      if (k === render.playerId) {
-        div.classList.add('player');
-
-        hudMsg('respawn-msg', null);
-      }
-
-      // Position before appending to avoid visual artifacts
+      newEntity(k, 'ship', x, y, e.dir);
+    } else {
+      // Update existing
       div.style.left = `${x}px`;
       div.style.top = `${y}px`;
       div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
-
-      render.playArea.appendChild(div);
     }
-
-    div.style.left = `${x}px`;
-    div.style.top = `${y}px`;
-    div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
   });
 
   Object.keys(snapshot.asteroids).forEach((k) => {
     const e = snapshot.asteroids[k];
     const [x, y] = worldToScreen(e.pos, screenO);
 
-    let div = render.divs[k];
+    const div = this.divs[k];
 
     if (e.dead) {
       if (div) {
-        explosion(x, y, e.size, render.playArea, render.explosions);
+        explosion(x, y, e.size, this.parent, this.explosions);
         div.remove();
       }
       return;
     }
 
     if (!div) {
-      div = document.createElement('div');
-      render.divs[k] = div;
-
-      // May need to retrieve this div by ID
-      div.id = `entity${k}`;
-
-      // Apply asteroid styling/positioning rules
-      div.classList.add('entity');
-      div.classList.add('asteroid');
-
-      // Asteroids are not all the same size
-      div.style.width = `${e.size}px`;
-      div.style.height = `${e.size}px`;
-
-      // Position before appending to avoid visual artifacts
+      newEntity(k, 'asteroid', x, y, null, e.size);
+    } else {
       div.style.left = `${x}px`;
       div.style.top = `${y}px`;
-
-      render.playArea.appendChild(div);
     }
-
-    div.style.left = `${x}px`;
-    div.style.top = `${y}px`;
   });
 
   Object.keys(snapshot.projectiles).forEach((k) => {
     const e = snapshot.projectiles[k];
 
-    let div = render.divs[k];
+    const div = this.divs[k];
 
     // Projectiles just disappear instantly
     if (e.dead) {
@@ -217,27 +217,12 @@ function render(snapshot) {
     const [x, y] = worldToScreen(e.pos, screenO);
 
     if (!div) {
-      div = document.createElement('div');
-      render.divs[k] = div;
-
-      // May need to retrieve this div by ID
-      div.id = `entity${k}`;
-
-      // Apply ship styling/positioning rules
-      div.classList.add('entity');
-      div.classList.add('projectile');
-
-      // Position before appending to avoid visual artifacts
+      newEntity(k, 'projectile', x, y, e.dir);
+    } else {
       div.style.left = `${x}px`;
       div.style.top = `${y}px`;
       div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
-
-      render.playArea.appendChild(div);
     }
-
-    div.style.left = `${x}px`;
-    div.style.top = `${y}px`;
-    div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
   });
 }
 render.divs = {};
@@ -270,7 +255,7 @@ function onGameStart() {
 // Page must be ready before we can start interacting with it
 window.addEventListener('load', () => {
   // Rendering will require the right div later
-  render.playArea = document.getElementById('playArea');
+  render.parent = document.getElementById('playArea');
   // Rendering will update the boundaries
   render.boundt = document.getElementById('boundt');
   render.boundb = document.getElementById('boundb');
@@ -285,7 +270,8 @@ window.addEventListener('load', () => {
 
   socket.on('game start', onGameStart);
 
-  socket.on('snapshot', render);
+  // Bind so render can access its own storage
+  socket.on('snapshot', render.bind(render));
 
   // When game ends scoreboard will be shown which offers to play again
   socket.on('game over', scoreboard);
