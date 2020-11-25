@@ -87,7 +87,7 @@ window.addEventListener('load', () => {
     xhttp.onreadystatechange = handleResponse;
 
     xhttp.open('POST', '/login', true);
-    xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+    xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
     xhttp.send(`user=${user}&pass=${pword}`);
 
