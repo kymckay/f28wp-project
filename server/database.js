@@ -23,10 +23,12 @@ const con = mysql.createConnection(config);
 con.query(
   'CREATE DATABASE IF NOT EXISTS steak',
   (err) => {
-    if (err) throw err;
+    if (err) {
+      console.log(err.code);
+    }
   }
 );
-con.query('USE steak', (err) => { if (err) throw err; });
+con.query('USE steak', (err) => { if (err) { console.log(err.code); } });
 
 con.query(
   [
@@ -37,18 +39,20 @@ con.query(
     'deaths INT UNSIGNED NOT NULL)',
   ].join(','),
   (err) => {
-    if (err) throw err;
+    if (err) {
+      console.log(err.code);
+    }
   }
 );
 
 module.exports = {
   isValidUsername(name) {
     // Basically, names can't have symbols
-    return name.match(/^\w{1,25}$/);
+    return /^\w{1,25}$/.test(name);
   },
 
   isValidPassword(pass) {
-    return pass.match(/.{8,50}/);
+    return /^.{8,50}$/.test(pass);
   },
 
   userLogin(name, pass) {
@@ -60,6 +64,7 @@ module.exports = {
         [name, pass],
         (err, result) => {
           if (err) {
+            console.log(err.code);
             reject(err);
           } else if (result.length === 1) {
             resolve(true);
@@ -77,12 +82,13 @@ module.exports = {
       con.query(
         // Using placeholders "?" escapes user input to prevent SQL injection
         'INSERT INTO players (username, password, highscore, kills, deaths) VALUES (?, ?, ?, ?, ?)',
-        [name, pass],
+        [name, pass, 0, 0, 0],
         (err) => {
           if (err) {
             if (err.code === 'ER_DUP_ENTRY') {
               resolve(false);
             } else {
+              console.log(err.code);
               reject(err);
             }
           }
