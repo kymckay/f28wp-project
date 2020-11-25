@@ -7,13 +7,11 @@
 const mysql = require('mysql');
 const fs = require('fs');
 
-// When running on Heroku the DB config is set in environment variables
-let config = {};
+// When running on Heroku the DB config is set in an environment variable
+let config;
 if (process.env.CLEARDB_DATABASE_URL) {
-  config.host = process.env.CLEARDB_DATABASE_URL;
-  config.user = process.env.CLEARDB_DATABASE_USER;
-  config.password = process.env.CLEARDB_DATABASE_PASS;
-  config.database = process.env.CLEARDB_DATABASE_NAME;
+  // Username, password and database name all in the connection string
+  config = process.env.CLEARDB_DATABASE_URL;
 } else {
   config = JSON.parse(fs.readFileSync('./server/db.json'));
 }
