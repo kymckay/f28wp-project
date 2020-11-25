@@ -1,4 +1,4 @@
-#playArea {
+main {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -94,7 +94,7 @@
   align-items: center;
 }
 
-#footer {
+footer {
   width: 100%;
 
   border-top: solid 3px #FFF;
@@ -108,7 +108,7 @@
   align-self: flex-end;
 }
 
-#footer > h1 {
+footer > h2 {
   font-size: 20pt;
   text-align: center;
   color: #FFF;
@@ -135,7 +135,7 @@
   margin: 0 5px 5px;
 }
 
-.tooltip {
+.tile details {
   font-size: 14pt;
 
   position: fixed;
@@ -148,6 +148,6 @@
   border-radius: 6px;
 }
 
-.tile:hover .tooltip {
+.tile:hover details {
   display: block;
 }

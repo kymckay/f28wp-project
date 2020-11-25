@@ -13,7 +13,7 @@ window.addEventListener('load', () => {
 
   for (let i = 0; i < tiles.length; i++) {
     tiles[i].addEventListener('mouseover', (event) => {
-      const tt = event.target.getElementsByClassName('tooltip')[0];
+      const tt = event.target.getElementsByTagName('details')[0];
 
       // Event fires when over the tooltip itself
       if (tt) {
