@@ -13,22 +13,13 @@ if (process.env.CLEARDB_DATABASE_URL) {
   config.host = process.env.CLEARDB_DATABASE_URL;
   config.user = process.env.CLEARDB_DATABASE_USER;
   config.password = process.env.CLEARDB_DATABASE_PASS;
+  config.database = process.env.CLEARDB_DATABASE_NAME;
 } else {
   config = JSON.parse(fs.readFileSync('./server/db.json'));
 }
 
+// Database will be connected to via config, must exist already
 const con = mysql.createConnection(config);
-
-// Database should persist between server restarts
-con.query(
-  'CREATE DATABASE IF NOT EXISTS steak',
-  (err) => {
-    if (err) {
-      console.log(err.code);
-    }
-  }
-);
-con.query('USE steak', (err) => { if (err) { console.log(err.code); } });
 
 con.query(
   [
