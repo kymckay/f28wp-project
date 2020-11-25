@@ -3,7 +3,7 @@
   - Sends player input to server
   - Handles rendering incoming world frames
 
-  Author(s): Kyle, Tom
+  Author(s): Kyle
 */
 
 /* global io */
@@ -47,30 +47,14 @@ function vectorDiff(v1, v2) {
   ];
 }
 
-function worldToScreen(worldCoord, screenO) {
-  // Convert coordinate system by subtracting new origin vector
-  return vectorDiff(worldCoord, screenO);
-}
-
-function explosion(x, y, size, playArea, list) {
-  const div = document.createElement('div');
-  div.classList.add('entity');
-  div.classList.add('explosion');
-
-  div.style.left = `${x}px`;
-  div.style.top = `${y}px`;
-  div.style.width = `${size}px`;
-  div.style.height = `${size}px`;
-  div.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 360}deg)`;
-
-  playArea.appendChild(div);
-
-  // explosions will be removed after some time
-  list.push([div, performance.now()]);
-}
-
 // Within this function "this" refers to itself (bound on call)
 function render(snapshot) {
+  function worldToScreen(worldCoord) {
+    // Convert coordinate system by subtracting new origin vector
+    return vectorDiff(worldCoord, render.screenO);
+  }
+
+  // Instantiates entity divs in the rendering system
   function newEntity(id, type, x, y, r = null, size = null) {
     const div = document.createElement('div');
     render.divs[id] = div;
@@ -110,16 +94,51 @@ function render(snapshot) {
     return div;
   }
 
+  // Instantiate a temporary static div in the render system
+  // (explosions and player trail)
+  function newStatic(type, x, y, size, life) {
+    const div = document.createElement('div');
+    const id = render.staticID++;
+
+    div.id = `static${id}`;
+
+    div.classList.add('entity');
+    div.classList.add(type);
+
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+    div.style.width = `${size}px`;
+    div.style.height = `${size}px`;
+
+    // Currently all statics are okay to rotate randomly
+    div.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 360}deg)`;
+
+    render.parent.appendChild(div);
+
+    // Reverse the screen transformation to store static in world
+    const wx = x + render.screenO[0];
+    const wy = y + render.screenO[1];
+
+    // Statics are all temporary
+    render.statics[id] = {
+      div,
+      wx,
+      wy,
+      life,
+    };
+  }
+
+  // Updates entity divs in the rendering system to match the snapshot object
   function renderEntities(entityObj, type, explode = true) {
     Object.keys(entityObj).forEach((k) => {
       const e = entityObj[k];
       const div = render.divs[k];
-      const [x, y] = worldToScreen(e.pos, render.screenO);
+      const [x, y] = worldToScreen(e.pos);
 
       if (e.dead) {
         if (div) {
           if (explode) {
-            explosion(x, y, 60, render.parent, render.explosions);
+            newStatic('explosion', x, y, e.size ? e.size : 60, 1000);
           }
 
           delete render.divs[k];
@@ -146,6 +165,32 @@ function render(snapshot) {
           div.style.transform = `translate(-50%, -50%) rotate(${e.dir}rad)`;
         }
       }
+    });
+  }
+
+  // Update static entities in the render system
+  // These are temporary client-side visuals
+  function renderStatics() {
+    const dt = performance.now() - render.time;
+
+    Object.keys(render.statics).forEach((k) => {
+      const {
+        div, wx, wy, life,
+      } = render.statics[k];
+
+      // Static expired
+      if (life <= 0) {
+        div.remove();
+        delete render.statics[k];
+        return;
+      }
+
+      const [x, y] = worldToScreen([wx, wy]);
+
+      div.style.left = `${x}px`;
+      div.style.top = `${y}px`;
+
+      render.statics[k].life -= dt;
     });
   }
 
@@ -177,27 +222,21 @@ function render(snapshot) {
     this.boundr.style.left = `${right}px`;
   }
 
-  // First remove any expired explosions (don't iterate over new ones)
-  // Loop backwards to safely remove from array while iterating
-  const time = performance.now();
-  for (let i = this.explosions.length - 1; i >= 0; i--) {
-    const exp = this.explosions[i];
-
-    // Explosions last 1s each
-    if (time - exp[1] > 1000) {
-      exp[0].remove();
-      // NOTE could be optimised to a single splice since they're stored in order
-      this.explosions.splice(i, 1);
-    }
-  }
-
   // Render everything the server says exists
   renderEntities(snapshot.ships, 'ship');
   renderEntities(snapshot.asteroids, 'asteroid');
   renderEntities(snapshot.projectiles, 'projectile', false);
+
+  // Update client-side statics
+  renderStatics();
+
+  // For tracking time between frames
+  render.time = performance.now();
 }
 render.divs = {};
-render.explosions = [];
+render.statics = {};
+render.staticID = 0;
+render.time = performance.now();
 render.screenO = [0, 0]; // Need some initial value until ship exists
 
 function preGameSetup(data) {
