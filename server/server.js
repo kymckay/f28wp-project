@@ -67,9 +67,8 @@ app.post('/login', bodyParser.urlencoded({ extended: false }), (req, res) => {
 
     res.send(payload);
   }).catch(() => {
-    res.status(500);
     res.send({
-      msg: '500: Internal server error.',
+      msg: 'Internal server error.  Try again later.',
     });
   });
 });
@@ -104,9 +103,8 @@ app.post('/register', bodyParser.urlencoded({ extended: false }), (req, res) => 
 
     res.send(payload);
   }).catch(() => {
-    res.status(500);
     res.send({
-      msg: '500: Internal server error',
+      msg: 'Internal server error. Try again later.',
     });
   });
 });
