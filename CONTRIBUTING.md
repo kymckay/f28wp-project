@@ -10,6 +10,12 @@ To get setup, you'll need to install [Node.js](https://nodejs.org) and run the c
 
 To ensure formatting consistency between various editors and operating systems, we're using [EditorConfig](https://editorconfig.org). Please check that your text editor or IDE supports it (or install the corresponding plugin).
 
+### Database Setup
+
+When running locally, login configuration for MySQL is set in a `db.json` file under the `server` directory (a template file is provided). A database name must be specified which should already exist on your server (management should be undertaken separately).
+
+When deployed to Heroku the database connection configuration is set using process environment variables.
+
 ## Style Standards
 
 Our JavaScript is written in ES6 syntax following the [Airbnb style guide](https://github.com/airbnb/javascript).
