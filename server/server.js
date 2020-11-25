@@ -38,30 +38,27 @@ app.use(
 // Files stored statically in public folder
 app.use(express.static(path.join(__dirname, '../public/')));
 
-// Express middleware that makes form inputs easily accessible
-app.use(bodyParser.urlencoded({ extended: false }));
-
 // Play submission sends client to the game
 app.post('/play', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dist/play.html'));
 });
 
-app.post('/login', (req, res) => {
-  const name = req.body.user;
-  const pass = req.body.pword;
+// Bodyparser is express middleware that reads POST request bodies
+app.post('/login', bodyParser.urlencoded({ extended: false }), (req, res) => {
+  const { user, pass } = req.body;
 
-  if (!database.isValidUsername(name)) {
+  if (!database.isValidUsername(user)) {
     res.send({
       msg: 'Invalid username. Alphanumeric characters only.',
     });
     return;
   }
 
-  database.userLogin(name, pass).then((success) => {
+  database.userLogin(user, pass).then((success) => {
     const payload = {};
 
     if (success) {
-      payload.user = name;
+      payload.user = user;
     } else {
       // Always send incorrect password even if user doesn't exist
       // Don't give attackers any information about the DB
@@ -77,29 +74,29 @@ app.post('/login', (req, res) => {
   });
 });
 
-app.post('/register', (req, res) => {
-  const name = req.body.user;
-  const pass = req.body.pword;
+// Bodyparser is express middleware that reads POST request bodies
+app.post('/register', bodyParser.urlencoded({ extended: false }), (req, res) => {
+  const { user, pass } = req.body;
 
-  if (!database.isValidUsername(name)) {
+  if (!(database.isValidUsername(user))) {
     res.send({
       msg: 'Invalid username. Alphanumeric characters only and max length 25.',
     });
     return;
   }
 
-  if (!database.isValidPassword(pass)) {
+  if (!(database.isValidPassword(pass))) {
     res.send({
       msg: 'Invalid password. Must be between 8 and 50 characters.',
     });
     return;
   }
 
-  database.userRegister(name, pass).then((success) => {
+  database.userRegister(user, pass).then((success) => {
     const payload = {};
 
     if (success) {
-      payload.user = name;
+      payload.user = user;
       payload.msg = 'Registration successful.';
     } else {
       payload.msg = 'User already exists.';
