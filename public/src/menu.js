@@ -87,9 +87,9 @@ window.addEventListener('load', () => {
     xhttp.onreadystatechange = handleResponse;
 
     xhttp.open('POST', '/login', true);
-    xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+    xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-    xhttp.send(`user=${user}&pword=${pword}`);
+    xhttp.send(`user=${user}&pass=${pword}`);
 
     event.preventDefault();
   });
@@ -109,7 +109,7 @@ window.addEventListener('load', () => {
     xhttp.open('POST', '/register', true);
     xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
-    xhttp.send(`user=${user}&pword=${pword}`);
+    xhttp.send(`user=${user}&pass=${pword}`);
 
     event.preventDefault();
   });

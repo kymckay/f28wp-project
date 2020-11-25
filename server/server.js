@@ -7,6 +7,8 @@ const express = require('express');
 const socketio = require('socket.io');
 const http = require('http');
 const path = require('path');
+const bodyParser = require('body-parser');
+const database = require('./database');
 
 const Lobby = require('./classes/lobby');
 
@@ -41,32 +43,70 @@ app.post('/play', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dist/play.html'));
 });
 
-app.post('/login', (req, res) => {
-  // TODO use actual DB
-  const payload = {};
-  if (Math.random() < 0.5) {
-    payload.user = 'dave';
-    payload.msg = 'Login successful';
-  } else {
-    // Always send incorrect password even if user doesn't exist
-    // Don't give attackers any information about the DB
-    payload.msg = 'Incorrect password';
+// Bodyparser is express middleware that reads POST request bodies
+app.post('/login', bodyParser.urlencoded({ extended: false }), (req, res) => {
+  const { user, pass } = req.body;
+
+  if (!database.isValidUsername(user)) {
+    res.send({
+      msg: 'Invalid username. Alphanumeric characters only.',
+    });
+    return;
   }
 
-  res.send(payload);
+  database.userLogin(user, pass).then((success) => {
+    const payload = {};
+
+    if (success) {
+      payload.user = user;
+    } else {
+      // Always send incorrect password even if user doesn't exist
+      // Don't give attackers any information about the DB
+      payload.msg = 'Incorrect password.';
+    }
+
+    res.send(payload);
+  }).catch(() => {
+    res.send({
+      msg: 'Internal server error.  Try again later.',
+    });
+  });
 });
 
-app.post('/register', (req, res) => {
-  // TODO check against actual DB
-  const payload = {};
-  if (Math.random() < 0.5) {
-    payload.user = 'dave';
-    payload.msg = 'Registration successful';
-  } else {
-    payload.msg = 'User already exists';
+// Bodyparser is express middleware that reads POST request bodies
+app.post('/register', bodyParser.urlencoded({ extended: false }), (req, res) => {
+  const { user, pass } = req.body;
+
+  if (!(database.isValidUsername(user))) {
+    res.send({
+      msg: 'Invalid username. Alphanumeric characters only and max length 25.',
+    });
+    return;
   }
 
-  res.send(payload);
+  if (!(database.isValidPassword(pass))) {
+    res.send({
+      msg: 'Invalid password. Must be between 8 and 50 characters.',
+    });
+    return;
+  }
+
+  database.userRegister(user, pass).then((success) => {
+    const payload = {};
+
+    if (success) {
+      payload.user = user;
+      payload.msg = 'Registration successful.';
+    } else {
+      payload.msg = 'User already exists.';
+    }
+
+    res.send(payload);
+  }).catch(() => {
+    res.send({
+      msg: 'Internal server error. Try again later.',
+    });
+  });
 });
 
 // Track lobbies which exist and their state

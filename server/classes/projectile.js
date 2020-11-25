@@ -20,7 +20,6 @@ class Projectile extends Entity {
     // Projectiles expire when no lifetime remains
     this.time -= 1 / fps;
     if (this.time <= 0) {
-      console.log(`${this.id} has expired`);
       this.dead = true;
     } else {
       super.simulate(maxX, maxY, margin, normCoef);

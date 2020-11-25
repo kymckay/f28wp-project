@@ -105,3 +105,6 @@ dist
 
 # macOS files we don't want to track
 .DS_Store
+
+# secrets
+server/db.json
