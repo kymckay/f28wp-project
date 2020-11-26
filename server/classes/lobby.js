@@ -27,6 +27,13 @@ class Lobby {
     // FPS determines time between frames
     // World always simulates so clients can see their ships rotating before the game starts
     this.loop = setInterval(this.snapshot.bind(this), 1000 / World.fps);
+
+    // To generate unique guest names
+    this.guests = 0;
+  }
+
+  guestName() {
+    return `Guest-${this.guests++}`;
   }
 
   join(socket) {
@@ -44,7 +51,7 @@ class Lobby {
     socket.join(this.id); // join the room
 
     // Storing usernames for end game leaderboard
-    socket.on('username', (u) => { this.usernames[socket.id] = u; });
+    socket.on('username', (u) => { this.usernames[socket.id] = u || this.guestName(); });
 
     // Cleanup properly if they leave
     socket.on('disconnecting', () => this.leave(socket));
