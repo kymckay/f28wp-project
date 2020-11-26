@@ -124,8 +124,8 @@ class Lobby {
     this.world.start();
     this.io.to(this.id).emit('game start');
 
-    // Set end game condition now (2 minute timer)
-    this.timer = setTimeout(this.endGame.bind(this), 1000 * 60 * 2);
+    // Set end game condition now (fixed timer)
+    this.timer = setTimeout(this.endGame.bind(this), Lobby.duration * 1000 * 60);
   }
 
   snapshot() {
@@ -161,5 +161,8 @@ Lobby.lobbyID = 0;
 
 // Time from first player joining to game starting
 Lobby.startTime = 10; // seconds
+
+// Game length (in minutes)
+Lobby.duration = 3;
 
 module.exports = Lobby;
