@@ -24,6 +24,43 @@ window.addEventListener('load', () => {
   }
 });
 
+function showForms(show) {
+  const forms = document.getElementById('userForms');
+
+  if (show) {
+    // Revert to CSS defined
+    forms.style.display = '';
+  } else {
+    forms.style.display = 'none';
+  }
+}
+
+function showLoggedIn(show) {
+  const logout = document.getElementById('logout');
+
+  if (show) {
+    const a = document.createElement('a');
+    a.innerHTML = 'Click here to logout.';
+
+    a.addEventListener('click', (event) => {
+      // No longer logged in
+      delete sessionStorage.loggedIn;
+
+      showLoggedIn(false);
+      showForms(true);
+
+      event.preventDefault();
+    });
+
+    logout.innerHTML = `Logged in as "${sessionStorage.loggedIn}". `;
+    logout.append(a);
+    logout.style.display = 'block';
+  } else {
+    logout.innerHTML = '';
+    logout.style.display = 'none';
+  }
+}
+
 function handleResponse() {
   // Successful request
   if (this.readyState === 4 && this.status === 200) {
@@ -39,34 +76,11 @@ function handleResponse() {
 
     // Hide forms once logged in
     if (res.user) {
-      const forms = document.getElementById('userForms');
-
-      forms.style.display = 'none';
-
       // Store that user is logged in for game stats (login persists until tab closed)
       sessionStorage.loggedIn = res.user;
 
-      const logout = document.getElementById('logout');
-      const a = document.createElement('a');
-
-      a.addEventListener('click', (event) => {
-        // No longer logged in
-        delete sessionStorage.loggedIn;
-
-        // Hide the logout option
-        logout.innerHTML = '';
-        logout.style.display = '';
-
-        // Re-show the forms
-        forms.style.display = '';
-
-        event.preventDefault();
-      });
-      a.innerHTML = 'Click here to logout.';
-
-      logout.innerHTML = `Logged in as "${res.user}". `;
-      logout.append(a);
-      logout.style.display = 'block';
+      showForms(false);
+      showLoggedIn(true);
     }
   }
 }
@@ -115,4 +129,10 @@ window.addEventListener('load', () => {
 
     event.preventDefault();
   });
+
+  // If already logged in
+  if (sessionStorage.loggedIn) {
+    showForms(false);
+    showLoggedIn(true);
+  }
 });
