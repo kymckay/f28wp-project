@@ -16,6 +16,16 @@
   background-image: url("../assets/sprites/ship-player.svg");
 }
 
+.trail {
+  width: 10px;
+  height: 10px;
+  background-color: #FFF;
+  border-radius: 5px;
+
+  /* trail dots go beneath everything */
+  z-index: 0;
+}
+
 .projectile {
   background-color: red;
   width: 6px;

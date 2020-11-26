@@ -67,7 +67,7 @@ function render(snapshot) {
     div.classList.add(type);
 
     // Differentiate the player's ship
-    if (id === render.playerId) {
+    if (id === render.pid) {
       div.classList.add('player');
 
       // If a new ship is created player has respawned
@@ -107,8 +107,11 @@ function render(snapshot) {
 
     div.style.left = `${x}px`;
     div.style.top = `${y}px`;
-    div.style.width = `${size}px`;
-    div.style.height = `${size}px`;
+
+    if (size) {
+      div.style.width = `${size}px`;
+      div.style.height = `${size}px`;
+    }
 
     // Currently all statics are okay to rotate randomly
     div.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 360}deg)`;
@@ -146,7 +149,7 @@ function render(snapshot) {
         }
 
         // If the player ship just got removed, they're respawning
-        if (k === render.playerId) {
+        if (k === render.pid) {
           hudMsg('respawn-msg', 'Respawning...');
         }
 
@@ -157,6 +160,26 @@ function render(snapshot) {
         // Size and dir won't exist for everything
         newEntity(k, type, x, y, e.dir, e.size);
       } else {
+        // If player ship is moving create trail behind
+        if (k === render.pid) {
+          // These calcs must be done in world coords
+          // Screen moves with ship, so no difference
+          const diff = vectorDiff(e.pos, render.position);
+          const [diffX, diffY] = diff;
+
+          // 1600 is 40^2, make trail every 40px
+          render.distanceSqr += (diffX * diffX) + (diffY * diffY);
+          if (render.distanceSqr >= 1600) {
+            render.distanceSqr = 0;
+
+            const [oldX, oldY] = worldToScreen(render.position);
+            newStatic('trail', oldX, oldY, null, 3000);
+          }
+
+          // Cache true position between frames for distance calcs
+          render.position = e.pos;
+        }
+
         // Update existing
         div.style.left = `${x}px`;
         div.style.top = `${y}px`;
@@ -199,11 +222,11 @@ function render(snapshot) {
 
   // Screen origin (top left) moves with ship (always centered)
   // Used to convert world coordinates to screen coordinates
-  if (this.playerId in snapshot.ships) {
+  if (this.pid in snapshot.ships) {
     // Persist screenO for cases where ship no longer exists
     // Screen will remain in place until respwn
     this.screenO = vectorDiff(
-      snapshot.ships[this.playerId].pos,
+      snapshot.ships[this.pid].pos,
       [screenW / 2, screenH / 2]
     );
   }
@@ -237,12 +260,14 @@ render.divs = {};
 render.statics = {};
 render.staticID = 0;
 render.time = performance.now();
+render.position = [0, 0]; // Cache player position between frames
+render.distanceSqr = 0; // Tracking cumulative player distance moved
 render.screenO = [0, 0]; // Need some initial value until ship exists
 
 function preGameSetup(data) {
   // Player ID lets renderer track screen's world position
   // Also to render the player's ship differently
-  render.playerId = data.id;
+  render.pid = data.id;
 
   // World bounds allow rendering the edge of the world
   render.world = data.world;
