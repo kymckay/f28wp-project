@@ -167,9 +167,9 @@ function render(snapshot) {
           const diff = vectorDiff(e.pos, render.position);
           const [diffX, diffY] = diff;
 
-          // 1600 is 40^2, make trail every 40px
+          // 3600 is 60^2, make trail every 60px
           render.distanceSqr += (diffX * diffX) + (diffY * diffY);
-          if (render.distanceSqr >= 1600) {
+          if (render.distanceSqr >= 3600) {
             render.distanceSqr = 0;
 
             const [oldX, oldY] = worldToScreen(render.position);
