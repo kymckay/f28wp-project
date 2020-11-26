@@ -43,13 +43,15 @@ function handleResponse() {
 
       forms.style.display = 'none';
 
-      // TODO store logged in user in browser storage to persist
+      // Store that user is logged in for game stats (login persists until tab closed)
+      sessionStorage.loggedIn = res.user;
 
       const logout = document.getElementById('logout');
       const a = document.createElement('a');
 
       a.addEventListener('click', (event) => {
-        // TODO clear stored log in
+        // No longer logged in
+        delete sessionStorage.loggedIn;
 
         // Hide the logout option
         logout.innerHTML = '';
