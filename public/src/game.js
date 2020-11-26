@@ -275,6 +275,9 @@ function preGameSetup(data) {
   // Enable only ship rotation until game starts
   handledKeys.ArrowLeft = true;
   handledKeys.ArrowRight = true;
+
+  // Server needs to know username for stat tracking
+  socket.emit('username', sessionStorage.loggedIn);
 }
 
 function onGameStart() {

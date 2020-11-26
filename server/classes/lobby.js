@@ -22,6 +22,7 @@ class Lobby {
     this.world = new World();
     this.inProgress = false;
     this.players = [];
+    this.usernames = {};
 
     // FPS determines time between frames
     // World always simulates so clients can see their ships rotating before the game starts
@@ -41,6 +42,9 @@ class Lobby {
     // Tell everyone in the room this player has joined
     this.io.to(this.id).emit('joined lobby', socket.id);
     socket.join(this.id); // join the room
+
+    // Storing usernames for end game leaderboard
+    socket.on('username', (u) => { this.usernames[socket.id] = u; });
 
     // Cleanup properly if they leave
     socket.on('disconnecting', () => this.leave(socket));
