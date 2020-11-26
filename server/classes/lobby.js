@@ -70,6 +70,7 @@ class Lobby {
 
     const i = this.players.find((p) => socket.id === p.id);
     this.players.splice(i, 1);
+    delete this.usernames[socket.id];
 
     // World exists until game reaches end condition
     if (this.world) {
@@ -132,17 +133,16 @@ class Lobby {
     // Game may end prematurely (if everyone leaves)
     clearTimeout(this.timer);
 
+    // Obtain game score stats
+    const stats = {};
+    Object.values(this.usernames).forEach((u) => {
+      // TODO actual stat tracking (this is fixed test data)
+      stats[u] = { kills: 0, deaths: 2, score: 1000 };
+    });
+
     // Tell clients the game has ended
     // Pass out score stats for client-side leaderboard
-    this.io.to(this.id).emit(
-      'game over',
-      // TODO send final stats here, sort by score beforehand
-      // TODO generate guest usernames for use here
-      { // sending some dummy data until scoring implemented
-        someuser: { kills: 2, deaths: 1, score: 3245 },
-        otheruser: { kills: 1, deaths: 0, score: 53 },
-      }
-    );
+    this.io.to(this.id).emit('game over', stats);
 
     delete this.world;
 
